@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# 输出目录
+output/
+test_output/
+
+# 生成的文件
+*.png
+*.jpg
+*.jpeg
+*.pdf
+test_prompts.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 日志
+*.log

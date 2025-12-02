@@ -29,7 +29,6 @@ class SlidePrompt:
 @dataclass
 class PromptData:
     """所有 Prompt 数据"""
-    style_template_prompt: str = ""
     slide_prompts: List[SlidePrompt] = field(default_factory=list)
     created_at: str = ""
     config: Dict[str, Any] = field(default_factory=dict)
@@ -40,7 +39,6 @@ class PromptData:
     
     def to_dict(self) -> Dict[str, Any]:
         return {
-            "style_template_prompt": self.style_template_prompt,
             "slide_prompts": [s.to_dict() if isinstance(s, SlidePrompt) else s for s in self.slide_prompts],
             "created_at": self.created_at,
             "config": self.config,
@@ -66,7 +64,6 @@ class PromptData:
         ]
         
         return cls(
-            style_template_prompt=data.get("style_template_prompt", ""),
             slide_prompts=slide_prompts,
             created_at=data.get("created_at", ""),
             config=data.get("config", {}),
@@ -79,7 +76,6 @@ class PromptData:
 class GenerationResult:
     """生成结果"""
     project_dir: str
-    style_image_path: Optional[str] = None
     slide_image_paths: List[str] = field(default_factory=list)
     prompt_data: Optional[PromptData] = None
     created_at: str = ""
@@ -89,7 +85,6 @@ class GenerationResult:
     def to_dict(self) -> Dict[str, Any]:
         return {
             "project_dir": self.project_dir,
-            "style_image_path": self.style_image_path,
             "slide_image_paths": self.slide_image_paths,
             "created_at": self.created_at,
             "success": self.success,

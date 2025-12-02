@@ -104,7 +104,6 @@ class PromptGenerator:
                 ))
         
         return PromptData(
-            style_template_prompt=data.get("style_template_prompt", ""),
             slide_prompts=slide_prompts,
             created_at=datetime.now().isoformat(),
             config=config.to_dict()

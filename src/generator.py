@@ -88,22 +88,9 @@ class PPTGenerator:
             result.prompt_data = prompt_data
             
             # Step 3: 生成图片
-            print("\n【Step 3】生成图片...")
-            
-            # 3.1 生成风格模版
-            print("\n[Step 3.1] 生成风格模版图片...")
-            style_image_path = self.image_generator.generate_style_template(
-                prompt=prompt_data.style_template_prompt,
-                output_path=str(images_dir / "style_template.png"),
-                config=ppt_config
-            )
-            result.style_image_path = style_image_path
-            
-            # 3.2 并行生成每页 PPT
-            print("\n[Step 3.2] 并行生成 PPT 页面...")
+            print("\n【Step 3】并行生成 PPT 页面...")
             slide_images = self.image_generator.generate_slides(
                 slide_prompts=prompt_data.slide_prompts,
-                style_image_path=style_image_path,
                 output_dir=str(images_dir),
                 config=ppt_config
             )
@@ -199,20 +186,10 @@ class PPTGenerator:
             # 保存 Prompt
             prompt_data.save(str(project_dir / "prompts.json"))
             
-            # 生成风格模版
-            print("\n[Step 1] 生成风格模版图片...")
-            style_image_path = self.image_generator.generate_style_template(
-                prompt=prompt_data.style_template_prompt,
-                output_path=str(images_dir / "style_template.png"),
-                config=ppt_config
-            )
-            result.style_image_path = style_image_path
-            
             # 并行生成每页 PPT
-            print("\n[Step 2] 并行生成 PPT 页面...")
+            print("\n[Step 1] 并行生成 PPT 页面...")
             slide_images = self.image_generator.generate_slides(
                 slide_prompts=prompt_data.slide_prompts,
-                style_image_path=style_image_path,
                 output_dir=str(images_dir),
                 config=ppt_config
             )
@@ -265,6 +242,5 @@ class PPTGenerator:
         print("\n" + "=" * 60)
         print("🎉 PPT 生成完成！")
         print(f"📁 输出目录: {result.project_dir}")
-        print(f"🖼️  风格模版: {result.style_image_path}")
         print(f"📄 生成页数: {valid_count}/{total_count}")
         print("=" * 60)

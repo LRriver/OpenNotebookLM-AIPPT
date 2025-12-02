@@ -25,51 +25,17 @@ class ImageGenerator:
         """
         self.client = client
     
-    def generate_style_template(
-        self,
-        prompt: str,
-        output_path: str,
-        config: PPTConfig
-    ) -> str:
-        """
-        生成风格模版图片（文生图）
-        
-        Args:
-            prompt: 风格描述 Prompt
-            output_path: 输出路径
-            config: PPT 配置
-            
-        Returns:
-            生成的图片路径
-        """
-        print(f"🎨 生成风格模版...")
-        
-        try:
-            result_path = self.client.generate_image(
-                prompt=prompt,
-                aspect_ratio=config.aspect_ratio,
-                quality=config.quality,
-                output_path=output_path
-            )
-            print(f"✅ 风格模版已生成: {result_path}")
-            return result_path
-        except Exception as e:
-            print(f"❌ 风格模版生成失败: {e}")
-            raise
-    
     def generate_slides(
         self,
         slide_prompts: List[SlidePrompt],
-        style_image_path: str,
         output_dir: str,
         config: PPTConfig
     ) -> List[str]:
         """
-        并行生成所有 PPT 页面图片（图生图）
+        并行生成所有 PPT 页面图片（文生图）
         
         Args:
             slide_prompts: 每页的 Prompt 列表
-            style_image_path: 风格模版图片路径
             output_dir: 输出目录
             config: PPT 配置
             
@@ -94,7 +60,6 @@ class ImageGenerator:
                     self._generate_single_slide,
                     index=i,
                     slide=slide,
-                    style_image_path=style_image_path,
                     output_dir=output_path,
                     config=config
                 )
@@ -122,17 +87,15 @@ class ImageGenerator:
         self,
         index: int,
         slide: SlidePrompt,
-        style_image_path: str,
         output_dir: Path,
         config: PPTConfig
     ) -> Tuple[int, Optional[str], Optional[str]]:
         """
-        生成单页 PPT
+        生成单页 PPT（文生图）
         
         Args:
             index: 页面索引
             slide: 页面 Prompt
-            style_image_path: 风格模版路径
             output_dir: 输出目录
             config: 配置
             
@@ -146,10 +109,9 @@ class ImageGenerator:
             try:
                 print(f"  📄 生成第 {page} 页 (尝试 {attempt + 1}/{config.max_retries})...")
                 
-                # 使用图生图，参考风格模版
-                self.client.edit_image(
+                # 使用文生图直接生成
+                self.client.generate_image(
                     prompt=slide.prompt,
-                    source_image_path=style_image_path,
                     aspect_ratio=config.aspect_ratio,
                     quality=config.quality,
                     output_path=output_path

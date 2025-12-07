@@ -140,12 +140,10 @@ print(f"输出目录: {result.project_dir}")
 【Step 1】保存输入资料
         ↓
 【Step 2】生成 Prompt
-    ├── 2.1 调用 LLM 生成初始 Prompt
+    ├── 2.1 调用 LLM 生成初始 Prompt（图文并茂）
     └── 2.2 调用 LLM 检查优化 Prompt
         ↓
-【Step 3】生成图片
-    ├── 3.1 文生图：生成风格模版
-    └── 3.2 图生图：并行生成每页 PPT
+【Step 3】并行生成 PPT 页面图片（文生图）
         ↓
 【Step 4】导出 PDF
 ```
@@ -159,8 +157,8 @@ output/ppt_20241201_123456/
 ├── result.json              # 生成结果
 ├── presentation.pdf         # 导出的 PDF
 └── images/
-    ├── style_template.png   # 风格模版
     ├── slide_001.png
+    ├── slide_002.png
     └── ...
 ```
 

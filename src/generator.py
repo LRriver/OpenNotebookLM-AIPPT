@@ -197,7 +197,7 @@ class PPTGenerator:
             
             # 导出 PDF
             if export_pdf:
-                print("\n[Step 3] 导出 PDF...")
+                print("\n[Step 2] 导出 PDF...")
                 valid_images = [p for p in slide_images if p]
                 if valid_images:
                     pdf_path = str(project_dir / "presentation.pdf")

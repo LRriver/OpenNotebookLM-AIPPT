@@ -63,10 +63,6 @@ def test_prompt_only():
         output_path="test_prompts.json"
     )
     
-    print("\n📝 风格模版 Prompt:")
-    print("-" * 40)
-    print(prompt_data.style_template_prompt[:300] + "..." if len(prompt_data.style_template_prompt) > 300 else prompt_data.style_template_prompt)
-    
     print("\n📄 页面 Prompt:")
     print("-" * 40)
     for slide in prompt_data.slide_prompts[:2]:

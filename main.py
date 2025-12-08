@@ -62,8 +62,8 @@ def main():
     
     # 创建配置（命令行参数覆盖配置文件）
     api_config = APIConfig(
-        api_key=args.api_key,  # None 时使用配置文件默认值
-        base_url=args.base_url
+        image_api_key=args.api_key,  # None 时使用配置文件默认值
+        image_base_url=args.base_url
     )
     
     ppt_config = PPTConfig(

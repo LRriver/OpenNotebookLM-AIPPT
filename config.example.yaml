@@ -15,6 +15,10 @@ api:
     format: "gemini"
     model: "gemini-3-pro-preview"
     
+    # 思考深度配置（仅支持 Gemini 3+ 系列模型）
+    # 可选值: "low", "high", null（不使用思考功能）
+    thinking_level: "high"
+    
     # 如果使用与图像生成不同的 API 源，请配置以下项：
     # api_key: "your-text-api-key-here"
     # base_url: "https://api.openai.com/v1"

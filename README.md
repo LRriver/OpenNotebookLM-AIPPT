@@ -46,6 +46,9 @@ api:
     format: "gemini"  # "gemini" 或 "openai"
     model: "gemini-3-pro-preview"
     
+    # 思考深度配置（仅支持 Gemini 3+ 系列）
+    thinking_level: "high"  # "low", "high", 或 null
+    
     # 如果使用不同的 API 源（可选）
     # api_key: "your-text-api-key"
     # base_url: "https://api.openai.com/v1"
@@ -79,6 +82,23 @@ api:
     base_url: "https://api.openai.com/v1"
     api_key: "sk-xxx"
 ```
+
+### 思考深度配置
+
+对于支持思考功能的 Gemini 3+ 系列模型，可以配置思考深度：
+
+```yaml
+api:
+  text:
+    model: "gemini-3-pro-preview-thinking"
+    thinking_level: "high"  # "low" 或 "high"
+```
+
+- `"low"`：快速思考，适合简单任务
+- `"high"`：深度思考，适合复杂推理任务
+- `null` 或不配置：不使用思考功能
+
+**注意**：思考功能仅在 Gemini 3 及更高版本的模型中可用，其他模型会自动忽略此配置。
 
 ## 快速开始
 

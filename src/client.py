@@ -45,9 +45,17 @@ class AIClient:
     
     def _generate_text_gemini(self, prompt: str, system_instruction: str = None) -> str:
         """使用 Gemini API 生成文本"""
-        config = None
+        config = types.GenerateContentConfig()
+        
+        # 设置系统指令
         if system_instruction:
-            config = types.GenerateContentConfig(system_instruction=system_instruction)
+            config.system_instruction = system_instruction
+        
+        # 设置思考配置（仅支持 Gemini 3+ 系列）
+        if self.config.text_thinking_level and self._supports_thinking(self.config.text_model):
+            config.thinking_config = types.ThinkingConfig(
+                thinking_level=self.config.text_thinking_level
+            )
         
         response = self._gemini_client.models.generate_content(
             model=self.config.text_model,
@@ -55,6 +63,27 @@ class AIClient:
             config=config
         )
         return response.text
+    
+    def _supports_thinking(self, model_name: str) -> bool:
+        """检查模型是否支持思考功能"""
+        if not model_name:
+            return False
+        
+        model_lower = model_name.lower()
+        
+        # 支持思考功能的模型模式
+        thinking_patterns = [
+            "gemini-3",           # gemini-3-xxx
+            "gemini-4",           # gemini-4-xxx (未来版本)
+            "gemini-5",           # gemini-5-xxx (未来版本)
+        ]
+        
+        # 检查是否匹配支持思考的模型
+        for pattern in thinking_patterns:
+            if pattern in model_lower:
+                return True
+        
+        return False
     
     def _generate_text_openai(self, prompt: str, system_instruction: str = None) -> str:
         """使用 OpenAI 格式 API 生成文本"""

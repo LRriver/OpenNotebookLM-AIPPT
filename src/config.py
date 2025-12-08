@@ -45,9 +45,9 @@ def reload_config():
 @dataclass
 class APIConfig:
     """API 配置"""
-    # 默认 API 配置（用于图像生成）
-    api_key: str = None
-    base_url: str = None
+    # 图像生成 API 配置
+    image_api_key: str = None
+    image_base_url: str = None
     image_model: str = None
     
     # 文本生成 API 配置
@@ -60,23 +60,41 @@ class APIConfig:
         """从配置文件加载默认值"""
         config = get_config().get("api", {})
         
-        # 默认配置
-        if self.api_key is None:
-            self.api_key = config.get("api_key", "")
-        if self.base_url is None:
-            self.base_url = config.get("base_url", "https://magic666.top")
+        # 图像生成 API 配置
+        image_config = config.get("image", {})
+        if self.image_api_key is None:
+            self.image_api_key = image_config.get("api_key", "")
+        if self.image_base_url is None:
+            self.image_base_url = image_config.get("base_url", "https://magic666.top")
         if self.image_model is None:
-            self.image_model = config.get("image_model", "gemini-3-pro-image-preview")
+            self.image_model = image_config.get("model", "gemini-3-pro-image-preview")
         
-        # 文本 API 配置
+        # 文本生成 API 配置
+        text_config = config.get("text", {})
         if self.text_api_format is None:
-            self.text_api_format = config.get("text_api_format", "gemini")
+            self.text_api_format = text_config.get("format", "gemini")
         if self.text_model is None:
-            self.text_model = config.get("text_model", "gemini-3-pro-preview")
+            self.text_model = text_config.get("model", "gemini-3-pro-preview")
         if self.text_base_url is None:
-            self.text_base_url = config.get("text_base_url")  # 可选
+            self.text_base_url = text_config.get("base_url")  # 可选
         if self.text_api_key is None:
-            self.text_api_key = config.get("text_api_key")  # 可选
+            self.text_api_key = text_config.get("api_key")  # 可选
+        
+        # 如果文本 API 没有单独配置，使用图像 API 的配置
+        if not self.text_api_key:
+            self.text_api_key = self.image_api_key
+        if not self.text_base_url:
+            self.text_base_url = self.image_base_url
+    
+    @property
+    def api_key(self) -> str:
+        """向后兼容：返回图像 API 密钥"""
+        return self.image_api_key
+    
+    @property
+    def base_url(self) -> str:
+        """向后兼容：返回图像 API 地址"""
+        return self.image_base_url
 
 
 @dataclass

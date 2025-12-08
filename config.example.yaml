@@ -1,0 +1,43 @@
+# AI PPT 生成器配置文件示例
+# 复制此文件为 config.yaml 并填入你的 API 配置
+
+# API 配置
+api:
+  # 图像生成 API 配置（必填）
+  image:
+    api_key: "your-image-api-key-here"
+    base_url: "https://magic666.top"
+    model: "gemini-3-pro-image-preview"
+  
+  # 文本生成 API 配置
+  text:
+    # API 格式: "gemini" 或 "openai"
+    format: "gemini"
+    model: "gemini-3-pro-preview"
+    
+    # 如果使用与图像生成不同的 API 源，请配置以下项：
+    # api_key: "your-text-api-key-here"
+    # base_url: "https://api.openai.com/v1"
+    
+    # 如果不配置，将使用图像生成的 API 配置
+
+# PPT 默认配置
+ppt:
+  language: "中文"
+  style: "现代简约商务风格"
+  target_audience: "专业人士"
+  num_pages: 10
+  aspect_ratio: "16:9"  # 可选: "16:9", "4:3", "1:1"
+  quality: "2K"         # 可选: "1K", "2K", "4K"
+  max_concurrent: 3     # 并发生成数量
+  max_retries: 3        # 重试次数
+  retry_delay: 2.0      # 重试间隔（秒）
+
+# 输出配置
+output:
+  dir: "output"
+
+# 文档配置
+doc:
+  dir: "doc"
+  sample_file: "sample_paper.txt"

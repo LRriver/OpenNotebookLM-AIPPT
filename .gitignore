@@ -36,3 +36,6 @@ Thumbs.db
 
 # 日志
 *.log
+
+# 配置文件（包含私密信息）
+config.yaml

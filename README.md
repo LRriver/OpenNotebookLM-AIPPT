@@ -35,19 +35,20 @@ open-notebboklm-aippt/
 ```yaml
 # API 配置
 api:
-  # 默认 API（用于图像生成）
-  api_key: "your-api-key"
-  base_url: "https://magic666.top"
-  image_model: "gemini-3-pro-image-preview"
+  # 图像生成 API 配置（必填）
+  image:
+    api_key: "your-image-api-key"
+    base_url: "https://magic666.top"
+    model: "gemini-3-pro-image-preview"
   
   # 文本生成 API 配置
-  # text_api_format: "gemini" 或 "openai"（支持 OpenAI 兼容格式）
-  text_api_format: "gemini"
-  text_model: "gemini-3-pro-preview"
-  
-  # 如果文本 API 使用不同的地址/密钥（可选）
-  # text_base_url: "https://api.openai.com/v1"
-  # text_api_key: "sk-xxx"
+  text:
+    format: "gemini"  # "gemini" 或 "openai"
+    model: "gemini-3-pro-preview"
+    
+    # 如果使用不同的 API 源（可选）
+    # api_key: "your-text-api-key"
+    # base_url: "https://api.openai.com/v1"
 
 # PPT 默认配置
 ppt:
@@ -72,10 +73,11 @@ doc:
 
 ```yaml
 api:
-  text_api_format: "openai"
-  text_model: "gpt-4o"
-  text_base_url: "https://api.openai.com/v1"
-  text_api_key: "sk-xxx"
+  text:
+    format: "openai"
+    model: "gpt-4o"
+    base_url: "https://api.openai.com/v1"
+    api_key: "sk-xxx"
 ```
 
 ## 快速开始
@@ -88,7 +90,13 @@ pip install -r requirements.txt
 
 ### 配置 API
 
-编辑 `config.yaml`，填入你的 API 密钥。
+```bash
+# 复制示例配置文件
+cp config.example.yaml config.yaml
+
+# 编辑配置文件，填入你的 API 密钥
+nano config.yaml  # 或使用其他编辑器
+```
 
 ### 运行测试
 

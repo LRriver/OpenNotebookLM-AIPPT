@@ -21,16 +21,16 @@ class AIClient:
         
         # Gemini 客户端（用于图像生成）
         self._gemini_client = genai.Client(
-            api_key=self.config.api_key,
-            http_options={'baseUrl': self.config.base_url}
+            api_key=self.config.image_api_key,
+            http_options={'baseUrl': self.config.image_base_url}
         )
         
         # OpenAI 格式客户端（用于文本生成，可选）
         self._openai_client = None
         if self.config.text_api_format == "openai":
             self._openai_client = OpenAI(
-                api_key=self.config.text_api_key or self.config.api_key,
-                base_url=self.config.text_base_url or self.config.base_url
+                api_key=self.config.text_api_key,
+                base_url=self.config.text_base_url
             )
     
     def generate_text(self, prompt: str, system_instruction: str = None) -> str:

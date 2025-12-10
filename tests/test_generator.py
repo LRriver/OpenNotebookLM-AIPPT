@@ -15,7 +15,7 @@ from src.config import load_sample_material
 from src.models import PromptData
 
 
-def test_full_generation():
+def test_full_generation(num_pages=None):
     """完整测试：生成 PPT（使用默认配置，仅覆盖页数）"""
     print("=" * 60)
     print("🧪 测试：完整 PPT 生成流程")
@@ -25,7 +25,7 @@ def test_full_generation():
     print(f"📄 加载资料: {len(material)} 字符")
     
     # 使用默认配置，仅覆盖测试需要的参数
-    ppt_config = PPTConfig(num_pages=3)
+    ppt_config = PPTConfig(num_pages=num_pages or 3)
     
     # 创建生成器（配置从 config.yaml 读取）
     generator = PPTGenerator(output_dir="test_output")
@@ -42,7 +42,7 @@ def test_full_generation():
     return result
 
 
-def test_prompt_only():
+def test_prompt_only(num_pages=None):
     """仅测试 Prompt 生成"""
     print("=" * 60)
     print("🧪 测试：仅生成 Prompt")
@@ -52,7 +52,7 @@ def test_prompt_only():
     print(f"📄 加载资料: {len(material)} 字符")
     
     # 使用默认配置，仅覆盖测试需要的参数
-    ppt_config = PPTConfig(num_pages=3)
+    ppt_config = PPTConfig(num_pages=num_pages or 3)
     
     # 创建生成器
     generator = PPTGenerator()
@@ -60,7 +60,7 @@ def test_prompt_only():
     prompt_data = generator.generate_prompts_only(
         material,
         ppt_config,
-        output_path="test_prompts.json"
+        output_path="test_output/test_prompts.json"
     )
     
     print("\n📄 页面 Prompt:")
@@ -84,7 +84,7 @@ def test_from_prompts():
     print("🧪 测试：从 Prompt 文件生成图片")
     print("=" * 60)
     
-    prompt_path = Path("test_prompts.json")
+    prompt_path = Path("test_output/test_prompts.json")
     if not prompt_path.exists():
         print("⚠️ 请先运行 --mode prompt 生成 Prompt 文件")
         return None
@@ -117,12 +117,18 @@ if __name__ == "__main__":
         default="full",
         help="测试模式: full=完整测试, prompt=仅生成Prompt, from-prompt=从Prompt生成"
     )
+    parser.add_argument(
+        "-n", "--num-pages",
+        type=int,
+        default=None,
+        help="生成页数（默认使用配置文件中的设置）"
+    )
     
     args = parser.parse_args()
     
     if args.mode == "full":
-        test_full_generation()
+        test_full_generation(args.num_pages)
     elif args.mode == "prompt":
-        test_prompt_only()
+        test_prompt_only(args.num_pages)
     elif args.mode == "from-prompt":
         test_from_prompts()

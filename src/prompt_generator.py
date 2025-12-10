@@ -93,7 +93,7 @@ class PromptGenerator:
             json.dumps(initial_prompts.to_dict(), ensure_ascii=False, indent=2)
         )
         
-        max_retries = 2  # 优化步骤重试次数少一些
+        max_retries = 2  # 优化步骤重试次数
         for attempt in range(max_retries):
             try:
                 print(f"   尝试优化 Prompt ({attempt + 1}/{max_retries})...")

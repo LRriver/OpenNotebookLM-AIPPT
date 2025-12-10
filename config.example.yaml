@@ -5,8 +5,8 @@
 api:
   # 图像生成 API 配置（必填）
   image:
-    api_key: "your-image-api-key-here"
-    base_url: "https://magic666.top"
+    api_key: "your-image-api-key"
+    base_url: "your-base_url"
     model: "gemini-3-pro-image-preview"
   
   # 文本生成 API 配置
@@ -36,6 +36,14 @@ ppt:
   max_concurrent: 3     # 并发生成数量
   max_retries: 3        # 重试次数
   retry_delay: 2.0      # 重试间隔（秒）
+
+# 超时配置
+timeout:
+  text_generation: 120    # 文本生成超时（秒）
+  image_generation: 180   # 单个图像生成超时（秒）
+  api_call: 60           # 单次API调用超时（秒）
+  batch_buffer: 60        # 流水线并发额外缓冲时间（秒）
+  # 说明：总超时 = ceil(任务数/并发数) × 单个超时 + 缓冲时间
 
 # 输出配置
 output:

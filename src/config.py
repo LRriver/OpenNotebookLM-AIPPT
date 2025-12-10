@@ -164,6 +164,17 @@ def get_sample_file() -> Path:
     return doc_dir / config.get("sample_file", "sample_paper.txt")
 
 
+def get_timeout_config() -> Dict[str, int]:
+    """获取超时配置"""
+    config = get_config().get("timeout", {})
+    return {
+        "text_generation": config.get("text_generation", 120),
+        "image_generation": config.get("image_generation", 180),
+        "api_call": config.get("api_call", 60),
+        "batch_buffer": config.get("batch_buffer", 60)
+    }
+
+
 def load_sample_material() -> str:
     """加载示例资料"""
     sample_path = get_sample_file()

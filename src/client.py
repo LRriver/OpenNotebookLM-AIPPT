@@ -9,7 +9,7 @@ from google.genai import types
 from PIL import Image
 from openai import OpenAI
 
-from .config import APIConfig
+from .config import APIConfig, get_timeout_config
 from .prompts import PromptTemplates
 
 
@@ -18,6 +18,7 @@ class AIClient:
     
     def __init__(self, config: APIConfig = None):
         self.config = config or APIConfig()
+        self.timeout_config = get_timeout_config()
         
         # Gemini 客户端（用于图像生成）
         self._gemini_client = genai.Client(
@@ -30,7 +31,8 @@ class AIClient:
         if self.config.text_api_format == "openai":
             self._openai_client = OpenAI(
                 api_key=self.config.text_api_key,
-                base_url=self.config.text_base_url
+                base_url=self.config.text_base_url,
+                timeout=self.timeout_config['text_generation']
             )
     
     def generate_text(self, prompt: str, system_instruction: str = None) -> str:
@@ -112,11 +114,16 @@ class AIClient:
         generation_config = self._build_image_config(aspect_ratio, quality)
         full_prompt = f"{PromptTemplates.get_image_generation_prefix()}{prompt}"
         
-        response = self._gemini_client.models.generate_content(
-            model=self.config.image_model,
-            contents=[full_prompt],
-            config=generation_config
-        )
+        # 在API调用级别控制超时，而不是任务级别
+        try:
+            response = self._gemini_client.models.generate_content(
+                model=self.config.image_model,
+                contents=[full_prompt],
+                config=generation_config
+            )
+        except Exception as e:
+            # 将API级别的超时转换为普通异常，让重试机制处理
+            raise Exception(f"API调用失败: {e}")
         
         return self._save_image_from_response(response, output_path)
     
@@ -145,13 +152,15 @@ class AIClient:
         """构建图片生成配置"""
         generation_config = types.GenerateContentConfig(response_modalities=["TEXT", "IMAGE"])
         
-        image_config = {}
+        # 构建 ImageConfig 对象而不是字典，避免 Pydantic 警告
+        image_config_params = {}
         if aspect_ratio:
-            image_config["aspectRatio"] = aspect_ratio
+            image_config_params["aspect_ratio"] = aspect_ratio
         if quality and quality != "auto":
-            image_config["imageSize"] = quality
-        if image_config:
-            generation_config.image_config = image_config
+            image_config_params["image_size"] = quality
+        
+        if image_config_params:
+            generation_config.image_config = types.ImageConfig(**image_config_params)
         
         return generation_config
     

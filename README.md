@@ -1,78 +1,86 @@
-# AI PPT 生成器
+# AI PPT Generator
 
-将论文、文档等资料自动转换为精美的 PPT 图片，类似 NotebookLM 的 AI PPT 功能。
+[English](README.md) | [中文](README_zh.md)
 
-## 项目结构
+Recreate NotebookLM's AI PPT feature to automatically convert papers, documents, and other materials into beautiful PPT images.
+
+## Project Structure
 
 ```
 open-notebboklm-aippt/
-├── src/                        # 源代码（核心逻辑）
-│   ├── __init__.py            # 包入口
-│   ├── config.py              # 配置管理（统一配置入口）
-│   ├── client.py              # AI 客户端
-│   ├── models.py              # 数据模型
-│   ├── prompts/               # Prompt 模版（解耦）
+├── src/                        # Source code (core logic)
+│   ├── __init__.py            # Package entry
+│   ├── config.py              # Configuration management
+│   ├── client.py              # AI client
+│   ├── models.py              # Data models
+│   ├── prompts/               # Prompt templates (decoupled)
 │   │   ├── __init__.py
 │   │   └── templates.py
-│   ├── prompt_generator.py    # Prompt 生成器
-│   ├── image_generator.py     # 图片生成器
-│   ├── exporter.py            # PDF 导出器
-│   └── generator.py           # 主生成器
-├── tests/                      # 测试（调用 src 接口）
+│   ├── prompt_generator.py    # Prompt generator
+│   ├── image_generator.py     # Image generator
+│   ├── exporter.py            # PDF exporter
+│   └── generator.py           # Main generator
+├── tests/                      # Tests
 │   └── test_generator.py
-├── doc/                        # 输入文档目录
+├── doc/                        # Input documents directory
 │   └── sample_paper.txt
-├── config.yaml                 # 统一配置文件
-├── main.py                     # 命令行入口
+├── config.yaml                 # Unified configuration file
+├── main.py                     # CLI entry point
 ├── requirements.txt
 └── README.md
 ```
 
-## 配置管理
+## Configuration Management
 
-所有配置统一在 `config.yaml` 中管理：
+All configurations are managed in `config.yaml`:
 
 ```yaml
-# API 配置
+# API Configuration
 api:
-  # 图像生成 API 配置（必填）
+  # Image generation API configuration (required)
   image:
     api_key: "your-image-api-key"
-    base_url: "https://magic666.top"
+    base_url: "your-base-url"
     model: "gemini-3-pro-image-preview"
   
-  # 文本生成 API 配置
+  # Text generation API configuration
   text:
-    format: "gemini"  # "gemini" 或 "openai"
+    format: "gemini"  # "gemini" or "openai"
     model: "gemini-3-pro-preview"
     
-    # 思考深度配置（仅支持 Gemini 3+ 系列）
-    thinking_level: "high"  # "low", "high", 或 null
+    # Thinking depth configuration (only for Gemini 3+ series)
+    thinking_level: "high"  # "low", "high", or null
     
-    # 如果使用不同的 API 源（可选）
+    # If using different API source (optional)
     # api_key: "your-text-api-key"
     # base_url: "https://api.openai.com/v1"
 
-# PPT 默认配置
+# PPT default configuration
 ppt:
-  language: "中文"
-  style: "现代简约商务风格"
+  language: "English"
+  style: "Modern minimalist business style"
   num_pages: 10
   # ...
 
-# 输出配置
+# Output configuration
 output:
   dir: "output"
 
-# 文档配置
+# Document configuration
 doc:
   dir: "doc"
   sample_file: "sample_paper.txt"
+
+# Timeout configuration
+timeout:
+  text_generation: 120      # Text generation timeout (seconds)
+  image_generation: 180     # Single image generation timeout (seconds)
+  buffer: 60                # Buffer time for global timeout calculation (seconds)
 ```
 
-### 使用 OpenAI 兼容 API
+### Using OpenAI Compatible API
 
-如果你想用 OpenAI 格式的 API（如 OpenAI、DeepSeek、通义千问等）生成 Prompt：
+If you want to use OpenAI-format APIs (like OpenAI, DeepSeek, Qwen, etc.) to generate prompts:
 
 ```yaml
 api:
@@ -83,107 +91,139 @@ api:
     api_key: "sk-xxx"
 ```
 
-### 思考深度配置
+### Thinking Depth Configuration
 
-对于支持思考功能的 Gemini 3+ 系列模型，可以配置思考深度：
+For Gemini 3+ series models that support thinking functionality, you can configure thinking depth:
 
 ```yaml
 api:
   text:
     model: "gemini-3-pro-preview-thinking"
-    thinking_level: "high"  # "low" 或 "high"
+    thinking_level: "high"  # "low" or "high"
 ```
 
-- `"low"`：快速思考，适合简单任务
-- `"high"`：深度思考，适合复杂推理任务
-- `null` 或不配置：不使用思考功能
+- `"low"`: Fast thinking, suitable for simple tasks
+- `"high"`: Deep thinking, suitable for complex reasoning tasks
+- `null` or not configured: Don't use thinking functionality
 
-**注意**：思考功能仅在 Gemini 3 及更高版本的模型中可用，其他模型会自动忽略此配置。
+**Note**: Thinking functionality is only available in Gemini 3 and higher versions. Other models will automatically ignore this configuration.
 
-## 快速开始
+## Quick Start
 
-### 安装依赖
+### Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 配置 API
+### Configure API
 
 ```bash
-# 复制示例配置文件
+# Copy example configuration file
 cp config.example.yaml config.yaml
 
-# 编辑配置文件，填入你的 API 密钥
-nano config.yaml  # 或使用其他编辑器
+# Edit configuration file and fill in your API keys
+nano config.yaml  # or use other editors
 ```
 
-### 运行测试
+### Run Tests
 
 ```bash
-# 仅测试 Prompt 生成
+# Test prompt generation only
 python tests/test_generator.py --mode prompt
 
-# 完整测试（生成图片）
+# Full test (generate images)
 python tests/test_generator.py --mode full
 
-# 从 Prompt 文件生成图片
+# Generate images from prompt file
 python tests/test_generator.py --mode from-prompt
 ```
 
-### 命令行使用
+### Command Line Usage
 
 ```bash
-# 基础用法
+# Basic usage
 python main.py -i doc/sample_paper.txt -n 5
 
-# 仅生成 Prompt
+# Generate prompts only
 python main.py -i doc/sample_paper.txt -n 5 --prompt-only -o prompts.json
 
-# 从 Prompt 文件生成
+# Generate from prompt file
 python main.py --from-prompt prompts.json
 ```
 
-### 代码调用
+### Code Usage
 
 ```python
 from src import PPTGenerator, PPTConfig, load_sample_material
 
-# 加载资料（从配置的文档目录）
+# Load material (from configured document directory)
 material = load_sample_material()
 
-# 创建生成器（配置从 config.yaml 读取）
+# Create generator (configuration read from config.yaml)
 generator = PPTGenerator()
 
-# 生成（仅覆盖需要的参数）
+# Generate (only override necessary parameters)
 result = generator.generate(material, PPTConfig(num_pages=5))
-print(f"输出目录: {result.project_dir}")
+print(f"Output directory: {result.project_dir}")
 ```
 
-## 工作流程
+## Workflow
 
 ```
-输入资料 + 用户需求
+Input Material + User Requirements
         ↓
-【Step 1】保存输入资料
+【Step 1】Save input material
         ↓
-【Step 2】生成 Prompt
-    ├── 2.1 调用 LLM 生成初始 Prompt（图文并茂）
-    └── 2.2 调用 LLM 检查优化 Prompt
+【Step 2】Generate prompts
+    ├── 2.1 Call LLM to generate initial prompts (text and images)
+    └── 2.2 Call LLM to review and optimize prompts
         ↓
-【Step 3】并行生成 PPT 页面图片（文生图）
+【Step 3】Generate PPT page images in parallel (text-to-image)
         ↓
-【Step 4】导出 PDF
+【Step 4】Export to PDF
 ```
 
-## 输出结构
+## Timeout and Retry Mechanisms
+
+The project implements comprehensive timeout and retry mechanisms:
+
+### Three-Layer Timeout Control
+
+1. **Global timeout**: Calculated as `ceil(tasks/concurrency) × single_timeout + buffer`
+   - Prevents infinite waiting for all tasks
+   - Automatically cancels remaining tasks on timeout
+
+2. **Single task timeout**: 180 seconds per image generation task
+   - Allows retries to complete within the timeout
+   - Uses `future.result(timeout=180)`
+
+3. **API call level**: OpenAI client timeout (120s for text generation)
+   - Prevents individual API calls from hanging
+
+### Retry Logic
+
+- **Prompt generation**: 
+  - 3 retries for initial generation
+  - 2 retries for optimization
+  - Automatic retry on JSON parsing errors
+
+- **Image generation**: 
+  - 3 retries per task (in `_generate_single_slide`)
+  - Exponential backoff between retries
+
+- **JSON parsing**: 
+  - Multiple extraction methods (direct JSON, ```json blocks, ``` blocks)
+  - Enhanced error messages for debugging
+
+## Output Structure
 
 ```
 output/ppt_20241201_123456/
-├── source_material.txt      # 原始输入资料
-├── prompts.json             # 生成的 Prompt
-├── result.json              # 生成结果
-├── presentation.pdf         # 导出的 PDF
+├── source_material.txt      # Original input material
+├── prompts.json             # Generated prompts
+├── result.json              # Generation result
+├── presentation.pdf         # Exported PDF
 └── images/
     ├── slide_001.png
     ├── slide_002.png
@@ -191,11 +231,11 @@ output/ppt_20241201_123456/
 ```
 
 ## TODO
+- [ ] 🌐 WebUI Interface (coming soon)
+- [ ] 🔌 Support more LLM API interfaces
+- [ ] 💾 Support multiple input formats and export formats
+- [ ] ✏️ Specify page modification
 
-- [ ] WebUI 界面
-- [ ] API 服务接口
-- [ ] 更多导出格式
+## License
 
-## 许可证
-
-MIT License
+Apache License 2.0

@@ -6,10 +6,10 @@
 import time
 from pathlib import Path
 from typing import List, Optional, Tuple
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor, as_completed, TimeoutError
 
 from .client import AIClient
-from .config import PPTConfig
+from .config import PPTConfig, get_timeout_config
 from .models import PromptData, SlidePrompt
 
 
@@ -65,15 +65,47 @@ class ImageGenerator:
                 )
                 futures[future] = i
             
-            # 收集结果
+            # 收集结果（双层超时控制）
+            timeout_config = get_timeout_config()
+            single_timeout = timeout_config['image_generation']
+            
+            # 计算全局超时（用于整体进度监控）
+            import math
+            max_batches = math.ceil(len(slide_prompts) / config.max_concurrent)
+            theoretical_time = max_batches * single_timeout
+            global_timeout = theoretical_time + timeout_config['batch_buffer']
+            
+            print(f"   超时设置: 单个任务{single_timeout}s, 全局超时{global_timeout}s")
+            
+            # 收集结果（全局超时控制）
+            import time
+            start_time = time.time()
+            completed_count = 0
+            
             for future in as_completed(futures):
+                # 检查全局超时
+                elapsed = time.time() - start_time
+                if elapsed > global_timeout:
+                    print(f"⚠️ 全局超时 ({global_timeout}s)，停止等待剩余任务")
+                    # 只有全局超时才取消剩余任务
+                    for remaining_future in futures:
+                        if not remaining_future.done():
+                            remaining_future.cancel()
+                    break
+                
                 index = futures[future]
+                completed_count += 1
+                
                 try:
-                    result_index, result_path, error = future.result()
+                    # 设置单个任务超时，避免模型响应错误时卡死
+                    result_index, result_path, error = future.result(timeout=single_timeout)
                     if result_path:
                         results[result_index] = result_path
+                        print(f"  ✅ 第 {index + 1} 页完成 ({completed_count}/{len(slide_prompts)})")
                     else:
-                        print(f"❌ 第 {index + 1} 页生成失败: {error}")
+                        print(f"❌ 第 {index + 1} 页最终失败: {error}")
+                except TimeoutError:
+                    print(f"❌ 第 {index + 1} 页任务超时 ({single_timeout}s)")
                 except Exception as e:
                     print(f"❌ 第 {index + 1} 页异常: {e}")
         

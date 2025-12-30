@@ -12,9 +12,13 @@ ENV/
 .installed.cfg
 *.egg
 
+# Node.js (前端依赖由 web/.gitignore 管理，这里作为备份)
+node_modules/
+
 # 输出目录
 output/
 test_output/
+temp_buid_note/
 
 # 生成的文件
 *.png
@@ -37,5 +41,5 @@ Thumbs.db
 # 日志
 *.log
 
-# 配置文件（包含私密信息）
+# 本地配置文件
 config.yaml

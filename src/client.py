@@ -165,10 +165,44 @@ class AIClient:
         return generation_config
     
     def _save_image_from_response(self, response, output_path: str) -> str:
-        """从响应中提取并保存图片"""
+        """从响应中提取并保存图片，支持二进制和 Markdown 链接两种格式"""
+        import re
+        import requests
+        from pathlib import Path
+        
+        text_content = []
+        
         for part in response.parts:
+            # 方式1: 二进制图片数据
             if part.inline_data is not None:
                 image = part.as_image()
                 image.save(output_path)
                 return output_path
-        raise Exception("未能生成图片")
+            
+            # 方式2: 文本内容（可能包含 Markdown 链接）
+            if part.text is not None:
+                text_content.append(part.text)
+        
+        # 如果没有二进制数据，尝试从文本中提取图片链接
+        if text_content:
+            full_text = ' '.join(text_content)
+            
+            # 提取 Markdown 格式的图片链接: ![alt](url)
+            markdown_pattern = r'!\[.*?\]\((https?://[^\)]+)\)'
+            matches = re.findall(markdown_pattern, full_text)
+            
+            if matches:
+                image_url = matches[0]
+                try:
+                    resp = requests.get(image_url, timeout=30)
+                    resp.raise_for_status()
+                    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+                    with open(output_path, 'wb') as f:
+                        f.write(resp.content)
+                    return output_path
+                except Exception as e:
+                    raise Exception(f"下载图片失败: {e}")
+            
+            raise Exception(f"未能生成图片，返回文本: {full_text[:200]}...")
+        
+        raise Exception("未能生成图片：响应中没有图片数据")

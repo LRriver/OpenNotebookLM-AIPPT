@@ -13,6 +13,7 @@ class UploadResponse(BaseModel):
     success: bool
     content: str
     filename: str
+    file_size: Optional[int] = None
     message: Optional[str] = None
 
 

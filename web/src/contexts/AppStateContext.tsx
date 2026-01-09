@@ -57,10 +57,21 @@ const initialState: AppState = {
 }
 
 /**
+ * 恢复状态的数据结构
+ */
+interface RestoreStatePayload {
+  fileContent: string
+  fileName: string
+  slides: Slide[]
+  generationConfig: GenerationConfig
+}
+
+/**
  * Action 类型
  */
 type AppAction =
   | { type: 'SET_FILE'; payload: { file: File; content: string; name: string } }
+  | { type: 'SET_FILE_CONTENT'; payload: { content: string; name: string } }
   | { type: 'CLEAR_FILE' }
   | { type: 'SET_API_CONFIG'; payload: ApiConfig }
   | { type: 'SET_GENERATION_CONFIG'; payload: GenerationConfig }
@@ -77,6 +88,7 @@ type AppAction =
   | { type: 'UPDATE_EDIT'; payload: Partial<EditSession> }
   | { type: 'END_EDIT' }
   | { type: 'RESET_STATE' }
+  | { type: 'RESTORE_STATE'; payload: RestoreStatePayload }
 
 /**
  * Reducer 函数
@@ -87,6 +99,14 @@ function appReducer(state: AppState, action: AppAction): AppState {
       return {
         ...state,
         uploadedFile: action.payload.file,
+        fileContent: action.payload.content,
+        fileName: action.payload.name
+      }
+
+    case 'SET_FILE_CONTENT':
+      return {
+        ...state,
+        uploadedFile: null,
         fileContent: action.payload.content,
         fileName: action.payload.name
       }
@@ -216,6 +236,22 @@ function appReducer(state: AppState, action: AppAction): AppState {
         apiConfig: state.apiConfig // 保留 API 配置
       }
 
+    case 'RESTORE_STATE':
+      return {
+        ...state,
+        uploadedFile: null,
+        fileContent: action.payload.fileContent,
+        fileName: action.payload.fileName,
+        slides: action.payload.slides.sort((a, b) => a.pageNumber - b.pageNumber),
+        generationConfig: action.payload.generationConfig,
+        generationProgress: {
+          current: action.payload.slides.length,
+          total: action.payload.slides.length,
+          status: action.payload.slides.length > 0 ? 'completed' : '',
+          message: action.payload.slides.length > 0 ? '已恢复之前的会话' : ''
+        }
+      }
+
     default:
       return state
   }
@@ -245,6 +281,8 @@ interface AppStateContextType {
   updateEdit: (updates: Partial<EditSession>) => void
   endEdit: () => void
   resetState: () => void
+  restoreState: (data: RestoreStatePayload) => void
+  setFileContent: (content: string, name: string) => void
 }
 
 /**
@@ -327,6 +365,14 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'RESET_STATE' })
   }, [])
 
+  const restoreState = useCallback((data: RestoreStatePayload) => {
+    dispatch({ type: 'RESTORE_STATE', payload: data })
+  }, [])
+
+  const setFileContent = useCallback((content: string, name: string) => {
+    dispatch({ type: 'SET_FILE_CONTENT', payload: { content, name } })
+  }, [])
+
   const value: AppStateContextType = {
     state,
     dispatch,
@@ -346,7 +392,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     startEdit,
     updateEdit,
     endEdit,
-    resetState
+    resetState,
+    restoreState,
+    setFileContent
   }
 
   return (

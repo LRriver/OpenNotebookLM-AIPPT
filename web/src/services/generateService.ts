@@ -131,15 +131,17 @@ export function startGeneration(
       const decoder = new TextDecoder()
       let buffer = ''
       
-      while (true) {
-        const { done, value } = await reader.read()
+      let done = false
+      while (!done) {
+        const result = await reader.read()
+        done = result.done
         
         if (done) {
           break
         }
         
         // 解码并添加到缓冲区
-        buffer += decoder.decode(value, { stream: true })
+        buffer += decoder.decode(result.value, { stream: true })
         
         // 按行处理
         const lines = buffer.split('\n')
@@ -157,10 +159,11 @@ export function startGeneration(
             case 'progress':
               callbacks.onProgress(event.data as SSEProgressData)
               break
-            case 'slide':
+            case 'slide': {
               const slideData = event.data as SSESlideData
               callbacks.onSlide(convertToSlide(slideData))
               break
+            }
             case 'complete':
               callbacks.onComplete(event.data as SSECompleteData)
               break
@@ -179,10 +182,11 @@ export function startGeneration(
             case 'progress':
               callbacks.onProgress(event.data as SSEProgressData)
               break
-            case 'slide':
+            case 'slide': {
               const slideData = event.data as SSESlideData
               callbacks.onSlide(convertToSlide(slideData))
               break
+            }
             case 'complete':
               callbacks.onComplete(event.data as SSECompleteData)
               break

@@ -6,10 +6,10 @@ import { EditSession, EditHistoryItem, Slide } from '../types'
 /**
  * 编辑会话管理 Hook
  * 实现多轮编辑逻辑，每次编辑基于最新版本，保存所有历史版本
- * Requirements: 7.4, 7.5, 7.6
+ * Requirements: 7.4, 7.5, 7.6, 8.2
  */
 export function useEdit() {
-  const { state, startEdit, updateEdit, endEdit, updateSlide } = useAppState()
+  const { state, startEdit, updateEdit, endEdit, updateSlide, selectSlide } = useAppState()
   const [isEditing, setIsEditing] = useState(false)
   const [editError, setEditError] = useState<string | null>(null)
 
@@ -112,7 +112,8 @@ export function useEdit() {
 
   /**
    * 确认编辑 - 替换原图
-   * Requirements: 7.5
+   * 确认后立即更新预览，更新 slides 数组中对应项
+   * Requirements: 7.5, 8.2
    */
   const confirmEdit = useCallback(() => {
     if (!state.editingSlide) return
@@ -123,16 +124,21 @@ export function useEdit() {
       currentBase64 = currentBase64.split(',')[1]
     }
 
-    // 更新幻灯片
-    updateSlide(state.editingSlide.slideId, {
+    const slideId = state.editingSlide.slideId
+
+    // 更新幻灯片 - 这会立即更新预览面板
+    updateSlide(slideId, {
       imageBase64: currentBase64,
       imageUrl: `data:image/png;base64,${currentBase64}`
     })
 
+    // 保持选中状态，确保用户可以看到更新后的幻灯片
+    selectSlide(slideId)
+
     // 结束编辑
     endEdit()
     setEditError(null)
-  }, [state.editingSlide, updateSlide, endEdit])
+  }, [state.editingSlide, updateSlide, selectSlide, endEdit])
 
   /**
    * 取消编辑 - 丢弃所有编辑

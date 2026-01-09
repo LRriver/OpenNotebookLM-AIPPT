@@ -15,7 +15,7 @@ import { EditSession, EditHistoryItem, Slide } from '../../types'
  * Generate a random base64 string (simulating image data)
  */
 const base64Arbitrary = fc.string({ minLength: 10, maxLength: 100 })
-  .map(s => Buffer.from(s).toString('base64'))
+  .map(s => btoa(s))
 
 /**
  * Generate a random edit history item
@@ -80,7 +80,7 @@ function simulateConfirmEdit(
  * Check if a slide was updated with the edit session's current image
  */
 function wasSlideUpdated(
-  originalSlide: Slide,
+  _originalSlide: Slide,
   updatedSlide: Slide,
   editSession: EditSession
 ): boolean {

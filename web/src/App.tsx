@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useState, useEffect } from 'react'
 import Layout from './components/Layout'
 import LeftPanel from './components/LeftPanel'
 import CenterPanel from './components/CenterPanel'
@@ -8,11 +8,16 @@ import GenerationConfigForm from './components/GenerationConfigForm'
 import GenerateButton from './components/GenerateButton'
 import ProgressIndicator from './components/ProgressIndicator'
 import ConfirmDialog from './components/ConfirmDialog'
+import NewProjectButton from './components/NewProjectButton'
+import RestoreSessionDialog from './components/RestoreSessionDialog'
 import { AppStateProvider, useAppState } from './contexts/AppStateContext'
 import { useGeneration } from './hooks/useGeneration'
 import { useEdit } from './hooks/useEdit'
 import { useEditConflict } from './hooks/useEditConflict'
 import { useExport } from './hooks/useExport'
+import { useAutoSave } from './hooks/useAutoSave'
+import { useStateRestore } from './hooks/useStateRestore'
+import { StorageService } from './services/storageService'
 import { ApiConfig, GenerationConfig, ExportFormat } from './types'
 
 /**
@@ -25,7 +30,9 @@ function AppContent() {
     setFile,
     setApiConfig,
     setGenerationConfig,
-    selectSlide
+    selectSlide,
+    resetState,
+    restoreState
   } = useAppState()
   
   const { generate, isGenerating, progress, error, slides } = useGeneration()
@@ -50,6 +57,58 @@ function AppContent() {
     startExport
   } = useExport(slides)
   const [exportError, setExportError] = useState<string | null>(null)
+
+  // 状态恢复
+  const {
+    isRestoring,
+    hasRestoredData,
+    restoredProject,
+    dismissRestore
+  } = useStateRestore()
+
+  const [showRestoreDialog, setShowRestoreDialog] = useState(false)
+
+  // 检查是否有可恢复的数据
+  useEffect(() => {
+    if (!isRestoring && hasRestoredData && restoredProject) {
+      setShowRestoreDialog(true)
+    }
+  }, [isRestoring, hasRestoredData, restoredProject])
+
+  // 自动保存
+  useAutoSave({
+    fileContent: state.fileContent,
+    fileName: state.fileName,
+    slides: slides,
+    generationConfig: state.generationConfig,
+    enabled: !isRestoring && !showRestoreDialog
+  })
+
+  // 处理恢复会话
+  const handleRestoreSession = useCallback(() => {
+    if (restoredProject) {
+      restoreState({
+        fileContent: restoredProject.fileContent,
+        fileName: restoredProject.fileName,
+        slides: restoredProject.slides,
+        generationConfig: restoredProject.generationConfig
+      })
+    }
+    setShowRestoreDialog(false)
+    dismissRestore()
+  }, [restoredProject, restoreState, dismissRestore])
+
+  // 处理放弃恢复
+  const handleDiscardRestore = useCallback(() => {
+    StorageService.clearProject()
+    setShowRestoreDialog(false)
+    dismissRestore()
+  }, [dismissRestore])
+
+  // 处理新建项目
+  const handleNewProject = useCallback(() => {
+    resetState()
+  }, [resetState])
 
   const handleFileSelect = useCallback((file: File) => {
     // Read file content
@@ -81,6 +140,8 @@ function AppContent() {
 
   const handleApiConfigChange = useCallback((config: ApiConfig) => {
     setApiConfig(config)
+    // 同时保存到 StorageService
+    StorageService.saveApiConfig(config)
   }, [setApiConfig])
 
   const handleGenerationConfigChange = useCallback((config: GenerationConfig) => {
@@ -133,6 +194,14 @@ function AppContent() {
 
   return (
     <>
+    {/* 恢复会话对话框 */}
+    <RestoreSessionDialog
+      isOpen={showRestoreDialog}
+      restoredProject={restoredProject}
+      onRestore={handleRestoreSession}
+      onDiscard={handleDiscardRestore}
+    />
+
     <Layout
       leftPanel={
         <LeftPanel
@@ -151,6 +220,14 @@ function AppContent() {
           onEditCancel={handleEditCancel}
           onRevertToVersion={revertToVersion}
         >
+          {/* 新建项目按钮 */}
+          <div className="flex justify-end mb-4">
+            <NewProjectButton
+              hasUnsavedChanges={state.fileContent !== '' || slides.length > 0}
+              onNewProject={handleNewProject}
+            />
+          </div>
+
           {/* API 配置表单 */}
           <ApiConfigForm
             initialConfig={state.apiConfig}

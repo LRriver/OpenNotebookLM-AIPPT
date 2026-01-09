@@ -131,7 +131,7 @@ function appReducer(state: AppState, action: AppAction): AppState {
         generationProgress: action.payload
       }
 
-    case 'ADD_SLIDE':
+    case 'ADD_SLIDE': {
       // 按页码顺序插入幻灯片
       const newSlides = [...state.slides, action.payload].sort(
         (a, b) => a.pageNumber - b.pageNumber
@@ -140,6 +140,7 @@ function appReducer(state: AppState, action: AppAction): AppState {
         ...state,
         slides: newSlides
       }
+    }
 
     case 'UPDATE_SLIDE':
       return {

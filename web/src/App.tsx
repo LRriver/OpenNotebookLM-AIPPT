@@ -39,7 +39,6 @@ function AppContent() {
   } = useEdit()
   const {
     showConfirmDialog,
-    pendingAction,
     tryStartEdit,
     tryCancelEdit,
     confirmDiscard,

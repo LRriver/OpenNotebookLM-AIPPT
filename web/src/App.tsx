@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import Layout from './components/Layout'
 import LeftPanel from './components/LeftPanel'
 import CenterPanel from './components/CenterPanel'
@@ -12,7 +12,8 @@ import { AppStateProvider, useAppState } from './contexts/AppStateContext'
 import { useGeneration } from './hooks/useGeneration'
 import { useEdit } from './hooks/useEdit'
 import { useEditConflict } from './hooks/useEditConflict'
-import { ApiConfig, GenerationConfig } from './types'
+import { useExport } from './hooks/useExport'
+import { ApiConfig, GenerationConfig, ExportFormat } from './types'
 
 /**
  * 主应用内容组件
@@ -44,6 +45,11 @@ function AppContent() {
     confirmDiscard,
     cancelDiscard
   } = useEditConflict()
+  const {
+    state: exportState,
+    startExport
+  } = useExport(slides)
+  const [exportError, setExportError] = useState<string | null>(null)
 
   const handleFileSelect = useCallback((file: File) => {
     // Read file content
@@ -115,6 +121,16 @@ function AppContent() {
     cancelDiscard()
   }, [cancelDiscard])
 
+  // 处理导出
+  const handleExport = useCallback(async (format: ExportFormat) => {
+    setExportError(null)
+    try {
+      await startExport(format)
+    } catch (err) {
+      setExportError(err instanceof Error ? err.message : '导出失败')
+    }
+  }, [startExport])
+
   return (
     <>
     <Layout
@@ -183,6 +199,9 @@ function AppContent() {
           selectedSlideId={state.selectedSlideId}
           onSlideSelect={handleSlideSelect}
           onSlideEdit={handleSlideEdit}
+          onExport={handleExport}
+          isExporting={exportState.isExporting}
+          exportProgress={exportState.progress}
         />
       }
     />
@@ -198,6 +217,26 @@ function AppContent() {
       onConfirm={handleConfirmDiscard}
       onCancel={handleCancelDiscard}
     />
+
+    {/* 导出错误提示 */}
+    {(exportError || exportState.error) && (
+      <div className="fixed bottom-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg shadow-lg z-50">
+        <div className="flex items-center gap-2">
+          <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+          </svg>
+          <span>{exportError || exportState.error}</span>
+          <button
+            onClick={() => setExportError(null)}
+            className="ml-2 text-red-500 hover:text-red-700"
+          >
+            <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    )}
   </>
   )
 }

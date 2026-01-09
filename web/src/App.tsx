@@ -40,6 +40,13 @@ function AppContent() {
     selectSlide(slideId)
   }, [selectSlide])
 
+  const handleSlideEdit = useCallback((slideId: string) => {
+    // 选中幻灯片并进入编辑模式
+    selectSlide(slideId)
+    // TODO: 在 Phase 7 中实现编辑功能
+    console.log('Edit slide:', slideId)
+  }, [selectSlide])
+
   const handleApiConfigChange = useCallback((config: ApiConfig) => {
     setApiConfig(config)
   }, [setApiConfig])
@@ -113,6 +120,7 @@ function AppContent() {
           slides={slides}
           selectedSlideId={state.selectedSlideId}
           onSlideSelect={handleSlideSelect}
+          onSlideEdit={handleSlideEdit}
         />
       }
     />

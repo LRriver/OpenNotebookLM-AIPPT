@@ -7,9 +7,11 @@ import ApiConfigForm from './components/ApiConfigForm'
 import GenerationConfigForm from './components/GenerationConfigForm'
 import GenerateButton from './components/GenerateButton'
 import ProgressIndicator from './components/ProgressIndicator'
+import ConfirmDialog from './components/ConfirmDialog'
 import { AppStateProvider, useAppState } from './contexts/AppStateContext'
 import { useGeneration } from './hooks/useGeneration'
 import { useEdit } from './hooks/useEdit'
+import { useEditConflict } from './hooks/useEditConflict'
 import { ApiConfig, GenerationConfig } from './types'
 
 /**
@@ -35,6 +37,14 @@ function AppContent() {
     confirmEdit,
     cancelEdit
   } = useEdit()
+  const {
+    showConfirmDialog,
+    pendingAction,
+    tryStartEdit,
+    tryCancelEdit,
+    confirmDiscard,
+    cancelDiscard
+  } = useEditConflict()
 
   const handleFileSelect = useCallback((file: File) => {
     // Read file content
@@ -53,11 +63,16 @@ function AppContent() {
   const handleSlideEdit = useCallback((slideId: string) => {
     // 找到要编辑的幻灯片
     const slide = slides.find(s => s.id === slideId)
-    if (slide) {
+    if (!slide) return
+
+    // 检查是否有未保存的编辑
+    if (tryStartEdit(editSession, slide)) {
+      // 可以直接开始编辑
       selectSlide(slideId)
       beginEdit(slide)
     }
-  }, [selectSlide, slides, beginEdit])
+    // 如果返回 false，会显示确认对话框，用户确认后再处理
+  }, [selectSlide, slides, beginEdit, editSession, tryStartEdit])
 
   const handleApiConfigChange = useCallback((config: ApiConfig) => {
     setApiConfig(config)
@@ -71,7 +86,38 @@ function AppContent() {
     generate()
   }, [generate])
 
+  // 处理取消编辑（带冲突检测）
+  const handleEditCancel = useCallback(() => {
+    if (tryCancelEdit(editSession)) {
+      // 可以直接取消
+      cancelEdit()
+    }
+    // 如果返回 false，会显示确认对话框
+  }, [editSession, tryCancelEdit, cancelEdit])
+
+  // 用户确认放弃编辑
+  const handleConfirmDiscard = useCallback(() => {
+    const action = confirmDiscard()
+    if (!action) return
+
+    if (action.type === 'switch' && action.targetSlide) {
+      // 切换到新的幻灯片编辑
+      cancelEdit()
+      selectSlide(action.targetSlide.id)
+      beginEdit(action.targetSlide)
+    } else if (action.type === 'cancel') {
+      // 取消当前编辑
+      cancelEdit()
+    }
+  }, [confirmDiscard, cancelEdit, selectSlide, beginEdit])
+
+  // 用户取消放弃编辑（继续编辑）
+  const handleCancelDiscard = useCallback(() => {
+    cancelDiscard()
+  }, [cancelDiscard])
+
   return (
+    <>
     <Layout
       leftPanel={
         <LeftPanel
@@ -87,7 +133,7 @@ function AppContent() {
           isEditing={isEditing}
           onEditSubmit={submitEdit}
           onEditConfirm={confirmEdit}
-          onEditCancel={cancelEdit}
+          onEditCancel={handleEditCancel}
           onRevertToVersion={revertToVersion}
         >
           {/* API 配置表单 */}
@@ -141,6 +187,19 @@ function AppContent() {
         />
       }
     />
+
+    {/* 编辑冲突确认对话框 */}
+    <ConfirmDialog
+      isOpen={showConfirmDialog}
+      title="放弃当前编辑？"
+      message="您有未保存的编辑内容。如果继续，这些修改将会丢失。"
+      confirmText="放弃编辑"
+      cancelText="继续编辑"
+      confirmVariant="danger"
+      onConfirm={handleConfirmDiscard}
+      onCancel={handleCancelDiscard}
+    />
+  </>
   )
 }
 

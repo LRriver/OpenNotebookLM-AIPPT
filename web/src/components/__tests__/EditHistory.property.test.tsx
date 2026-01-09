@@ -15,7 +15,7 @@ import { EditSession, EditHistoryItem } from '../../types'
  * Generate a random base64 string (simulating image data)
  */
 const base64Arbitrary = fc.string({ minLength: 10, maxLength: 100 })
-  .map(s => Buffer.from(s).toString('base64'))
+  .map(s => btoa(s))
 
 /**
  * Generate a random edit history item with a specific timestamp

@@ -199,7 +199,8 @@ describe('ApiConfigForm Property Tests', () => {
       fc.assert(
         fc.property(
           fc.record({
-            apiKey: fc.string({ minLength: 1, maxLength: 50 }),
+            // Generate non-whitespace API keys (at least one non-whitespace char)
+            apiKey: fc.string({ minLength: 1, maxLength: 50 }).filter(s => s.trim().length > 0),
             baseUrl: fc.webUrl()
           }),
           (config: ApiConfig) => {

@@ -9,6 +9,7 @@ import GenerateButton from './components/GenerateButton'
 import ProgressIndicator from './components/ProgressIndicator'
 import { AppStateProvider, useAppState } from './contexts/AppStateContext'
 import { useGeneration } from './hooks/useGeneration'
+import { useEdit } from './hooks/useEdit'
 import { ApiConfig, GenerationConfig } from './types'
 
 /**
@@ -25,6 +26,15 @@ function AppContent() {
   } = useAppState()
   
   const { generate, isGenerating, progress, error, slides } = useGeneration()
+  const {
+    editSession,
+    isEditing,
+    beginEdit,
+    submitEdit,
+    revertToVersion,
+    confirmEdit,
+    cancelEdit
+  } = useEdit()
 
   const handleFileSelect = useCallback((file: File) => {
     // Read file content
@@ -41,11 +51,13 @@ function AppContent() {
   }, [selectSlide])
 
   const handleSlideEdit = useCallback((slideId: string) => {
-    // 选中幻灯片并进入编辑模式
-    selectSlide(slideId)
-    // TODO: 在 Phase 7 中实现编辑功能
-    console.log('Edit slide:', slideId)
-  }, [selectSlide])
+    // 找到要编辑的幻灯片
+    const slide = slides.find(s => s.id === slideId)
+    if (slide) {
+      selectSlide(slideId)
+      beginEdit(slide)
+    }
+  }, [selectSlide, slides, beginEdit])
 
   const handleApiConfigChange = useCallback((config: ApiConfig) => {
     setApiConfig(config)
@@ -70,8 +82,13 @@ function AppContent() {
       }
       centerPanel={
         <CenterPanel
-          isEditMode={state.editingSlide !== null}
-          editSession={state.editingSlide}
+          isEditMode={editSession !== null}
+          editSession={editSession}
+          isEditing={isEditing}
+          onEditSubmit={submitEdit}
+          onEditConfirm={confirmEdit}
+          onEditCancel={cancelEdit}
+          onRevertToVersion={revertToVersion}
         >
           {/* API 配置表单 */}
           <ApiConfigForm

@@ -4,7 +4,6 @@ import {
   startGeneration,
   cancelGeneration,
   SSEProgressData,
-  SSECompleteData,
   SSEErrorData
 } from '../services/generateService'
 import { Slide } from '../types'
@@ -65,7 +64,7 @@ export function useGeneration() {
     }
     
     // 处理完成事件
-    const handleComplete = (_data: SSECompleteData) => {
+    const handleComplete = () => {
       completeGeneration()
       abortControllerRef.current = null
     }

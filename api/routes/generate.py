@@ -70,18 +70,35 @@ async def generate_stream(request: GenerationRequest) -> AsyncGenerator[str, Non
     使用 Server-Sent Events (SSE) 格式返回进度和结果
     """
     try:
-        # 配置 API
+        # 配置 API - 支持新的完整配置结构
         api_config = APIConfig()
-        api_config.image_api_key = request.config.api_key
-        api_config.image_base_url = request.config.base_url
-        api_config.text_api_key = request.config.api_key
-        api_config.text_base_url = request.config.base_url
+        
+        # 检查是否使用新的配置结构
+        if request.config.image and request.config.text:
+            # 新的完整配置结构
+            api_config.image_api_key = request.config.image.api_key
+            api_config.image_base_url = request.config.image.base_url
+            api_config.image_model = request.config.image.model
+            api_config.text_api_key = request.config.text.api_key
+            api_config.text_base_url = request.config.text.base_url
+            api_config.text_model = request.config.text.model
+            api_config.text_api_format = request.config.text.format
+            api_config.text_thinking_level = request.config.text.thinking_level
+        else:
+            # 向后兼容的简单配置
+            api_config.image_api_key = request.config.get_image_api_key()
+            api_config.image_base_url = request.config.get_image_base_url()
+            api_config.text_api_key = request.config.get_text_api_key()
+            api_config.text_base_url = request.config.get_text_base_url()
         
         # 配置 PPT
         ppt_config = PPTConfig()
         ppt_config.num_pages = request.config.page_count
         ppt_config.quality = request.config.quality
         ppt_config.aspect_ratio = request.config.aspect_ratio
+        ppt_config.language = request.config.language
+        ppt_config.style = request.config.style
+        ppt_config.target_audience = request.config.target_audience
         
         # 创建客户端和 Prompt 生成器
         client = AIClient(api_config)

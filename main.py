@@ -117,9 +117,17 @@ def main():
         if result.success:
             print(f"\n🎉 完成！输出目录: {result.project_dir}")
         return 0 if result.success else 1
+    
+    except KeyboardInterrupt:
+        print(f"\n\n🛑 程序已被用户中断")
+        print(f"   💡 提示: 已完成的图片已保存在输出目录中")
+        print(f"   💡 可以使用 --from-prompt 参数从已生成的 prompts.json 继续")
+        return 130  # SIGINT 退出码
         
     except Exception as e:
         print(f"\n❌ 错误: {e}")
+        import traceback
+        traceback.print_exc()
         return 1
 
 

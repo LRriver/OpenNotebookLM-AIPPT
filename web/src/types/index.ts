@@ -31,11 +31,49 @@ export interface EditSession {
 }
 
 /**
- * API 配置
+ * 图像模型 API 配置
+ */
+export interface ImageApiConfig {
+  apiKey: string
+  baseUrl: string
+  model: string
+}
+
+/**
+ * 文本模型 API 配置
+ */
+export interface TextApiConfig {
+  apiKey: string
+  baseUrl: string
+  model: string
+  format: 'gemini' | 'openai'
+  thinkingLevel?: 'low' | 'high' | null
+}
+
+/**
+ * 完整 API 配置（包含图像和文本模型）
+ */
+export interface FullApiConfig {
+  image: ImageApiConfig
+  text: TextApiConfig
+}
+
+/**
+ * API 配置（向后兼容）
+ * @deprecated 使用 FullApiConfig 代替
  */
 export interface ApiConfig {
   apiKey: string
   baseUrl: string
+}
+
+/**
+ * PPT 内容配置
+ */
+export interface PptContentConfig {
+  language: string
+  style: string
+  targetAudience: string
 }
 
 /**
@@ -45,6 +83,10 @@ export interface GenerationConfig {
   pageCount: number
   quality: '1K' | '2K' | '4K'
   aspectRatio: '16:9' | '4:3'
+  // PPT 内容配置
+  language?: string
+  style?: string
+  targetAudience?: string
 }
 
 /**
@@ -56,7 +98,10 @@ export interface AppState {
   fileContent: string
   fileName: string
 
-  // API 配置
+  // API 配置（完整版）
+  fullApiConfig: FullApiConfig
+  
+  // API 配置（向后兼容）
   apiConfig: ApiConfig
 
   // 生成配置
@@ -79,6 +124,7 @@ export interface AppState {
 export interface PersistedState {
   version: number
   apiConfig: ApiConfig
+  fullApiConfig?: FullApiConfig
   currentProject: {
     fileContent: string
     fileName: string
@@ -91,11 +137,24 @@ export interface PersistedState {
  * 生成请求配置
  */
 export interface GenerationRequestConfig {
-  api_key: string
-  base_url: string
+  // 图像模型配置
+  image_api_key: string
+  image_base_url: string
+  image_model: string
+  // 文本模型配置
+  text_api_key: string
+  text_base_url: string
+  text_model: string
+  text_format: string
+  text_thinking_level?: string | null
+  // 生成参数
   page_count: number
   quality: string
   aspect_ratio: string
+  // PPT 内容配置
+  language?: string
+  style?: string
+  target_audience?: string
 }
 
 /**

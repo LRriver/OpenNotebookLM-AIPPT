@@ -45,12 +45,16 @@ const DEFAULT_API_CONFIG: ApiConfig = {
 
 /**
  * 默认生成配置
+ * @internal Used for initializing new projects
  */
-const DEFAULT_GENERATION_CONFIG: GenerationConfig = {
+const _DEFAULT_GENERATION_CONFIG: GenerationConfig = {
   pageCount: 10,
   quality: '1K',
   aspectRatio: '16:9'
 }
+
+// Export for use in other modules if needed
+export const DEFAULT_GENERATION_CONFIG = _DEFAULT_GENERATION_CONFIG
 
 /**
  * StorageService 类

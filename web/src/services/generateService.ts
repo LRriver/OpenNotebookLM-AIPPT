@@ -1,4 +1,4 @@
-import { Slide, ApiConfig, GenerationConfig, SSEEventType } from '../types'
+import { Slide, GenerationConfig, SSEEventType, FullApiConfig } from '../types'
 
 /**
  * SSE 事件数据类型
@@ -43,7 +43,7 @@ export interface SSECallbacks {
  */
 export interface GenerateRequestConfig {
   content: string
-  apiConfig: ApiConfig
+  fullApiConfig: FullApiConfig
   generationConfig: GenerationConfig
 }
 
@@ -96,15 +96,32 @@ export function startGeneration(
 ): AbortController {
   const abortController = new AbortController()
   
-  // 构建请求体
+  // 构建请求体 - 使用完整的 API 配置
   const requestBody = {
     content: config.content,
     config: {
-      api_key: config.apiConfig.apiKey,
-      base_url: config.apiConfig.baseUrl,
+      // 图像模型配置
+      image: {
+        api_key: config.fullApiConfig.image.apiKey,
+        base_url: config.fullApiConfig.image.baseUrl,
+        model: config.fullApiConfig.image.model
+      },
+      // 文本模型配置
+      text: {
+        api_key: config.fullApiConfig.text.apiKey,
+        base_url: config.fullApiConfig.text.baseUrl,
+        model: config.fullApiConfig.text.model,
+        format: config.fullApiConfig.text.format,
+        thinking_level: config.fullApiConfig.text.thinkingLevel
+      },
+      // 生成参数
       page_count: config.generationConfig.pageCount,
       quality: config.generationConfig.quality,
-      aspect_ratio: config.generationConfig.aspectRatio
+      aspect_ratio: config.generationConfig.aspectRatio,
+      // PPT 内容配置
+      language: config.generationConfig.language || '中文',
+      style: config.generationConfig.style || '现代简约商务风格',
+      target_audience: config.generationConfig.targetAudience || '专业人士'
     }
   }
   

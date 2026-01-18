@@ -1,4 +1,4 @@
-import { ApiConfig, GenerationConfig } from '../types'
+import { ApiConfig, GenerationConfig, FullApiConfig } from '../types'
 
 /**
  * API 配置验证结果
@@ -8,6 +8,17 @@ export interface ApiConfigValidationResult {
   errors: {
     apiKey?: string
     baseUrl?: string
+  }
+}
+
+/**
+ * 完整 API 配置验证结果
+ */
+export interface FullApiConfigValidationResult {
+  isValid: boolean
+  errors: {
+    image?: { apiKey?: string; baseUrl?: string; model?: string }
+    text?: { apiKey?: string; baseUrl?: string; model?: string }
   }
 }
 
@@ -33,7 +44,7 @@ export interface FullConfigValidationResult {
 }
 
 /**
- * 验证 API 配置
+ * 验证 API 配置（向后兼容）
  */
 export function validateApiConfig(config: ApiConfig): ApiConfigValidationResult {
   const errors: ApiConfigValidationResult['errors'] = {}
@@ -52,6 +63,60 @@ export function validateApiConfig(config: ApiConfig): ApiConfigValidationResult 
     } catch {
       errors.baseUrl = '请输入有效的 URL 格式'
     }
+  }
+  
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors
+  }
+}
+
+/**
+ * 验证完整 API 配置
+ */
+export function validateFullApiConfig(config: FullApiConfig): FullApiConfigValidationResult {
+  const errors: FullApiConfigValidationResult['errors'] = {}
+  
+  // 验证图像模型配置
+  const imageErrors: { apiKey?: string; baseUrl?: string; model?: string } = {}
+  if (!config.image?.apiKey?.trim()) {
+    imageErrors.apiKey = '图像模型 API Key 不能为空'
+  }
+  if (!config.image?.baseUrl?.trim()) {
+    imageErrors.baseUrl = '图像模型 Base URL 不能为空'
+  } else {
+    try {
+      new URL(config.image.baseUrl)
+    } catch {
+      imageErrors.baseUrl = '请输入有效的 URL 格式'
+    }
+  }
+  if (!config.image?.model?.trim()) {
+    imageErrors.model = '图像模型名称不能为空'
+  }
+  if (Object.keys(imageErrors).length > 0) {
+    errors.image = imageErrors
+  }
+  
+  // 验证文本模型配置
+  const textErrors: { apiKey?: string; baseUrl?: string; model?: string } = {}
+  if (!config.text?.apiKey?.trim()) {
+    textErrors.apiKey = '文本模型 API Key 不能为空'
+  }
+  if (!config.text?.baseUrl?.trim()) {
+    textErrors.baseUrl = '文本模型 Base URL 不能为空'
+  } else {
+    try {
+      new URL(config.text.baseUrl)
+    } catch {
+      textErrors.baseUrl = '请输入有效的 URL 格式'
+    }
+  }
+  if (!config.text?.model?.trim()) {
+    textErrors.model = '文本模型名称不能为空'
+  }
+  if (Object.keys(textErrors).length > 0) {
+    errors.text = textErrors
   }
   
   return {
@@ -144,7 +209,7 @@ export function validateFullConfig(
  */
 export function canStartGeneration(
   fileContent: string,
-  apiConfig: ApiConfig,
+  apiConfig: FullApiConfig | ApiConfig,
   generationConfig: GenerationConfig
 ): { canStart: boolean; reason?: string } {
   // 检查文件内容
@@ -153,13 +218,40 @@ export function canStartGeneration(
   }
   
   // 检查 API 配置
-  const apiValidation = validateApiConfig(apiConfig)
-  if (!apiValidation.isValid) {
-    if (apiValidation.errors.apiKey) {
-      return { canStart: false, reason: 'API Key 未配置' }
+  // 判断是 FullApiConfig 还是 ApiConfig
+  if ('image' in apiConfig && 'text' in apiConfig) {
+    // FullApiConfig
+    const fullApiValidation = validateFullApiConfig(apiConfig as FullApiConfig)
+    if (!fullApiValidation.isValid) {
+      if (fullApiValidation.errors.image?.apiKey) {
+        return { canStart: false, reason: '图像模型 API Key 未配置' }
+      }
+      if (fullApiValidation.errors.image?.baseUrl) {
+        return { canStart: false, reason: '图像模型 Base URL 未配置或格式无效' }
+      }
+      if (fullApiValidation.errors.image?.model) {
+        return { canStart: false, reason: '图像模型名称未配置' }
+      }
+      if (fullApiValidation.errors.text?.apiKey) {
+        return { canStart: false, reason: '文本模型 API Key 未配置' }
+      }
+      if (fullApiValidation.errors.text?.baseUrl) {
+        return { canStart: false, reason: '文本模型 Base URL 未配置或格式无效' }
+      }
+      if (fullApiValidation.errors.text?.model) {
+        return { canStart: false, reason: '文本模型名称未配置' }
+      }
     }
-    if (apiValidation.errors.baseUrl) {
-      return { canStart: false, reason: 'Base URL 未配置或格式无效' }
+  } else {
+    // ApiConfig (向后兼容)
+    const apiValidation = validateApiConfig(apiConfig as ApiConfig)
+    if (!apiValidation.isValid) {
+      if (apiValidation.errors.apiKey) {
+        return { canStart: false, reason: 'API Key 未配置' }
+      }
+      if (apiValidation.errors.baseUrl) {
+        return { canStart: false, reason: 'Base URL 未配置或格式无效' }
+      }
     }
   }
   

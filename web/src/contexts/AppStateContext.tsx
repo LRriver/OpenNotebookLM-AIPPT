@@ -1,6 +1,6 @@
 import { createContext, useContext, useReducer, useCallback, ReactNode } from 'react'
-import { Slide, EditSession, ApiConfig, GenerationConfig } from '../types'
-import { loadApiConfig } from '../components/ApiConfigForm'
+import { Slide, EditSession, ApiConfig, GenerationConfig, FullApiConfig } from '../types'
+import { loadApiConfig, loadFullApiConfig } from '../components/ApiConfigForm'
 import { DEFAULT_GENERATION_CONFIG } from '../components/GenerationConfigForm'
 
 /**
@@ -12,7 +12,10 @@ export interface AppState {
   fileContent: string
   fileName: string
 
-  // API 配置
+  // API 配置（完整版）
+  fullApiConfig: FullApiConfig
+
+  // API 配置（向后兼容）
   apiConfig: ApiConfig
 
   // 生成配置
@@ -41,6 +44,7 @@ const initialState: AppState = {
   uploadedFile: null,
   fileContent: '',
   fileName: '',
+  fullApiConfig: loadFullApiConfig(),
   apiConfig: loadApiConfig(),
   generationConfig: DEFAULT_GENERATION_CONFIG,
   slides: [],
@@ -74,6 +78,7 @@ type AppAction =
   | { type: 'SET_FILE_CONTENT'; payload: { content: string; name: string } }
   | { type: 'CLEAR_FILE' }
   | { type: 'SET_API_CONFIG'; payload: ApiConfig }
+  | { type: 'SET_FULL_API_CONFIG'; payload: FullApiConfig }
   | { type: 'SET_GENERATION_CONFIG'; payload: GenerationConfig }
   | { type: 'START_GENERATION' }
   | { type: 'UPDATE_PROGRESS'; payload: { current: number; total: number; status: string; message: string } }
@@ -123,6 +128,17 @@ function appReducer(state: AppState, action: AppAction): AppState {
       return {
         ...state,
         apiConfig: action.payload
+      }
+
+    case 'SET_FULL_API_CONFIG':
+      return {
+        ...state,
+        fullApiConfig: action.payload,
+        // 同步更新向后兼容的 apiConfig
+        apiConfig: {
+          apiKey: action.payload.image.apiKey,
+          baseUrl: action.payload.image.baseUrl
+        }
       }
 
     case 'SET_GENERATION_CONFIG':
@@ -233,7 +249,8 @@ function appReducer(state: AppState, action: AppAction): AppState {
     case 'RESET_STATE':
       return {
         ...initialState,
-        apiConfig: state.apiConfig // 保留 API 配置
+        apiConfig: state.apiConfig, // 保留 API 配置
+        fullApiConfig: state.fullApiConfig // 保留完整 API 配置
       }
 
     case 'RESTORE_STATE':
@@ -267,6 +284,7 @@ interface AppStateContextType {
   setFile: (file: File, content: string, name: string) => void
   clearFile: () => void
   setApiConfig: (config: ApiConfig) => void
+  setFullApiConfig: (config: FullApiConfig) => void
   setGenerationConfig: (config: GenerationConfig) => void
   startGeneration: () => void
   updateProgress: (current: number, total: number, status: string, message: string) => void
@@ -307,6 +325,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
   const setApiConfig = useCallback((config: ApiConfig) => {
     dispatch({ type: 'SET_API_CONFIG', payload: config })
+  }, [])
+
+  const setFullApiConfig = useCallback((config: FullApiConfig) => {
+    dispatch({ type: 'SET_FULL_API_CONFIG', payload: config })
   }, [])
 
   const setGenerationConfig = useCallback((config: GenerationConfig) => {
@@ -379,6 +401,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     setFile,
     clearFile,
     setApiConfig,
+    setFullApiConfig,
     setGenerationConfig,
     startGeneration,
     updateProgress,

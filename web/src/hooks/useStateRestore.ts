@@ -7,7 +7,7 @@
  */
 
 import { useEffect, useState, useCallback } from 'react'
-import { StorageService, PersistedState } from '../services/storageService'
+import { StorageService } from '../services/storageService'
 import { Slide, GenerationConfig } from '../types'
 
 /**

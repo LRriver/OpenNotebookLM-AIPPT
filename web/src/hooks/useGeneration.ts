@@ -45,8 +45,14 @@ export function useGeneration() {
       return
     }
     
-    if (!state.apiConfig.apiKey || !state.apiConfig.baseUrl) {
-      setGenerationError('请先配置 API')
+    // 检查完整 API 配置
+    const fullConfig = state.fullApiConfig
+    if (!fullConfig.image.apiKey || !fullConfig.image.baseUrl) {
+      setGenerationError('请先配置图像模型 API')
+      return
+    }
+    if (!fullConfig.text.apiKey || !fullConfig.text.baseUrl) {
+      setGenerationError('请先配置文本模型 API')
       return
     }
     
@@ -89,7 +95,7 @@ export function useGeneration() {
     abortControllerRef.current = startGeneration(
       {
         content: state.fileContent,
-        apiConfig: state.apiConfig,
+        fullApiConfig: state.fullApiConfig,
         generationConfig: state.generationConfig
       },
       {
@@ -102,7 +108,7 @@ export function useGeneration() {
   }, [
     state.isGenerating,
     state.fileContent,
-    state.apiConfig,
+    state.fullApiConfig,
     state.generationConfig,
     state.generationProgress.current,
     state.generationProgress.total,

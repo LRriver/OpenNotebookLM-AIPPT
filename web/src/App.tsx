@@ -18,7 +18,8 @@ import { useExport } from './hooks/useExport'
 import { useAutoSave } from './hooks/useAutoSave'
 import { useStateRestore } from './hooks/useStateRestore'
 import { StorageService } from './services/storageService'
-import { ApiConfig, GenerationConfig, ExportFormat } from './types'
+import { saveFullApiConfig } from './components/ApiConfigForm'
+import { GenerationConfig, ExportFormat, FullApiConfig } from './types'
 
 /**
  * 主应用内容组件
@@ -28,7 +29,7 @@ function AppContent() {
   const {
     state,
     setFile,
-    setApiConfig,
+    setFullApiConfig,
     setGenerationConfig,
     selectSlide,
     resetState,
@@ -138,11 +139,11 @@ function AppContent() {
     // 如果返回 false，会显示确认对话框，用户确认后再处理
   }, [selectSlide, slides, beginEdit, editSession, tryStartEdit])
 
-  const handleApiConfigChange = useCallback((config: ApiConfig) => {
-    setApiConfig(config)
-    // 同时保存到 StorageService
-    StorageService.saveApiConfig(config)
-  }, [setApiConfig])
+  const handleApiConfigChange = useCallback((config: FullApiConfig) => {
+    setFullApiConfig(config)
+    // 同时保存到 localStorage
+    saveFullApiConfig(config)
+  }, [setFullApiConfig])
 
   const handleGenerationConfigChange = useCallback((config: GenerationConfig) => {
     setGenerationConfig(config)
@@ -230,7 +231,7 @@ function AppContent() {
 
           {/* API 配置表单 */}
           <ApiConfigForm
-            initialConfig={state.apiConfig}
+            initialConfig={state.fullApiConfig}
             onConfigChange={handleApiConfigChange}
           />
           
@@ -249,7 +250,7 @@ function AppContent() {
           {/* 生成按钮 */}
           <GenerateButton
             fileContent={state.fileContent}
-            apiConfig={state.apiConfig}
+            apiConfig={state.fullApiConfig}
             generationConfig={state.generationConfig}
             isGenerating={isGenerating}
             onGenerate={handleGenerate}

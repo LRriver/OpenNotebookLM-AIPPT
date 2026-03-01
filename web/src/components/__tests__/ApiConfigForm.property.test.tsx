@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import * as fc from 'fast-check'
-import { loadApiConfig, saveApiConfig, validateApiConfig } from '../ApiConfigForm'
+import { loadApiConfig, saveApiConfig, validateApiConfig, loadFullApiConfig } from '../ApiConfigForm'
 import { ApiConfig } from '../../types'
 
 /**
@@ -14,9 +14,34 @@ import { ApiConfig } from '../../types'
  * should restore the same credentials from local storage.
  */
 describe('ApiConfigForm Property Tests', () => {
-  // Clear localStorage before each test
+  // Clear localStorage before and after each test
   beforeEach(() => {
     localStorage.clear()
+  })
+  
+  afterEach(() => {
+    localStorage.clear()
+  })
+
+  /**
+   * Property 2: API Credentials Persistence
+   * Empty localStorage should return empty config
+   * Note: This test must run first to ensure clean state
+   */
+  it('should return empty config when localStorage is empty', () => {
+    // Ensure localStorage is completely clean
+    localStorage.clear()
+    
+    // Verify the key doesn't exist
+    expect(localStorage.getItem('aippt_full_api_config')).toBeNull()
+    
+    const loaded = loadFullApiConfig()
+    
+    // Should return default empty config
+    expect(loaded.image.apiKey).toBe('')
+    expect(loaded.image.baseUrl).toBe('')
+    expect(loaded.text.apiKey).toBe('')
+    expect(loaded.text.baseUrl).toBe('')
   })
 
   /**
@@ -32,6 +57,9 @@ describe('ApiConfigForm Property Tests', () => {
           baseUrl: fc.webUrl()
         }),
         (config: ApiConfig) => {
+          // Clear before each property test iteration
+          localStorage.clear()
+          
           // Save the config
           saveApiConfig(config)
           
@@ -45,18 +73,6 @@ describe('ApiConfigForm Property Tests', () => {
       ),
       { numRuns: 100 }
     )
-  })
-
-  /**
-   * Property 2: API Credentials Persistence
-   * Empty localStorage should return empty config
-   */
-  it('should return empty config when localStorage is empty', () => {
-    localStorage.clear()
-    const loaded = loadApiConfig()
-    
-    expect(loaded.apiKey).toBe('')
-    expect(loaded.baseUrl).toBe('')
   })
 
   /**

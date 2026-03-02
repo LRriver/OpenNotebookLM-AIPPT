@@ -43,3 +43,4 @@ Thumbs.db
 
 # 本地配置文件
 config.yaml
+.kiro/

@@ -66,7 +66,7 @@ class APIConfig:
         if self.image_api_key is None:
             self.image_api_key = image_config.get("api_key", "")
         if self.image_base_url is None:
-            self.image_base_url = image_config.get("base_url", "https://magic666.top")
+            self.image_base_url = image_config.get("base_url", "")
         if self.image_model is None:
             self.image_model = image_config.get("model", "gemini-3-pro-image-preview")
         

@@ -18,6 +18,7 @@ node_modules/
 # 输出目录
 output/
 test_output/
+.playwright-cli/
 temp_buid_note/
 
 # 生成的文件
@@ -26,6 +27,16 @@ temp_buid_note/
 *.jpeg
 *.pdf
 test_prompts.json
+
+# README 演示素材需要随仓库保留，方便 clone 后直接查看效果
+!docs/
+!docs/assets/
+!docs/assets/*.png
+!docs/assets/*.jpg
+!docs/assets/*.jpeg
+!docs/assets/*.gif
+!docs/assets/*.mp4
+!docs/assets/*.webm
 
 # IDE
 .vscode/
@@ -43,4 +54,5 @@ Thumbs.db
 
 # 本地配置文件
 config.yaml
+.codex/
 .kiro/

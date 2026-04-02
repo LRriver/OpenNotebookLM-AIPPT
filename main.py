@@ -18,13 +18,13 @@ def main():
         epilog="""
 示例:
   # 从文件生成 PPT
-  python main.py -i doc/sample_paper.txt -n 5
+  python main.py -i doc/L9.md -n 5
   
   # 指定风格和受众
-  python main.py -i doc/paper.txt -n 10 --style "科技感" --audience "投资人"
+  python main.py -i doc/L9.md -n 10 --style "科技感" --audience "投资人"
   
   # 仅生成 Prompt
-  python main.py -i doc/paper.txt -n 5 --prompt-only -o prompts.json
+  python main.py -i doc/L9.md -n 5 --prompt-only -o prompts.json
   
   # 从 Prompt 文件生成图片
   python main.py --from-prompt prompts.json

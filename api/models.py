@@ -35,12 +35,31 @@ class TextApiConfig(BaseModel):
     thinking_level: Optional[Literal["low", "high"]] = Field(None, description="思考深度")
 
 
+class ModelProfileConfig(BaseModel):
+    """模型 profile 配置"""
+    id: Optional[str] = Field(None, description="Profile ID")
+    label: Optional[str] = Field(None, description="显示名称")
+    model: str = Field(..., description="模型名称")
+    base_url: str = Field(..., description="OpenAI-compatible Base URL")
+    api_key: str = Field(..., description="API Key")
+    adapter: str = Field("openai_chat", description="适配器")
+
+
+class ModelProfilesConfig(BaseModel):
+    """三角色模型配置"""
+    prompt_model: ModelProfileConfig
+    image_model: ModelProfileConfig
+    edit_model: Optional[ModelProfileConfig] = None
+
+
 class GenerationConfig(BaseModel):
     """生成配置（完整版）"""
     # 图像模型配置
     image: Optional[ImageApiConfig] = Field(None, description="图像模型配置")
     # 文本模型配置
     text: Optional[TextApiConfig] = Field(None, description="文本模型配置")
+    # 新模型 profile 配置
+    model_profiles: Optional[ModelProfilesConfig] = Field(None, description="三角色模型配置")
     # 向后兼容的简单配置
     api_key: Optional[str] = Field(None, description="API 密钥（向后兼容）")
     base_url: Optional[str] = Field(None, description="API 基础 URL（向后兼容）")
@@ -180,4 +199,11 @@ class ExportRequest(BaseModel):
 class ExportResponse(BaseModel):
     """导出响应"""
     success: bool
+    message: Optional[str] = None
+
+
+class ModelProfilesResponse(BaseModel):
+    """脱敏模型 profile 响应"""
+    success: bool
+    profiles: Optional[dict] = None
     message: Optional[str] = None

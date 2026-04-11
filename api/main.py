@@ -9,7 +9,7 @@ from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 
 # 导入路由
-from .routes import upload, generate, edit, export
+from .routes import upload, generate, edit, export, models
 
 # 创建 FastAPI 应用
 app = FastAPI(
@@ -39,6 +39,7 @@ app.include_router(upload.router)
 app.include_router(generate.router)
 app.include_router(edit.router)
 app.include_router(export.router)
+app.include_router(models.router)
 
 # 静态文件服务（用于前端）
 # 检查 web/dist 目录是否存在，必须放在最后

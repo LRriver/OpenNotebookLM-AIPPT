@@ -6,6 +6,97 @@ Prompt 模版
 
 class PromptTemplates:
     """Prompt 模版集合"""
+
+    @staticmethod
+    def get_outline_system(user_requirements: str, num_pages: int) -> str:
+        """生成用户可编辑 PPT 设计大纲的系统指令"""
+        return f"""你是资深的信息架构师和 PPT 总监。
+你的任务不是生成图片 prompt，而是先根据资料和用户需求规划一份用户可审阅、可编辑的 PPT 设计大纲。
+
+【用户需求】
+{user_requirements}
+
+【硬性要求】
+1. 必须严格输出 {num_pages} 页，不能多也不能少
+2. 必须吸收并体现用户需求、输出语言、风格、受众、比例等约束
+3. 每页只写用户能看懂的设计内容：页面标题、叙事目标、关键要点、视觉方向
+4. 不要写内部系统提示词，不要写图像模型指令，不要写“prompt”字段
+5. 页面结构要有完整逻辑：封面/概览/主体展开/总结，但要根据资料内容灵活命名
+
+【输出格式】
+只输出 JSON，不要解释，不要 Markdown 代码块：
+{{
+  "title": "整套 PPT 标题",
+  "user_requirements": "一句话说明已吸收的用户定制要求",
+  "design_style": "整体视觉与表达风格",
+  "audience": "目标受众",
+  "slides": [
+    {{
+      "page": 1,
+      "title": "页面标题",
+      "narrative_goal": "本页在整体叙事中的作用",
+      "key_points": ["要点一", "要点二", "要点三"],
+      "visual_direction": "页面布局、配色、图表或插图方向"
+    }}
+  ]
+}}
+"""
+
+    @staticmethod
+    def get_outline_user(source_material: str, num_pages: int) -> str:
+        """生成设计大纲的用户提示"""
+        return f"""请基于以下资料规划 {num_pages} 页 PPT 设计大纲。
+
+【输入资料】
+{source_material[:10000]}
+
+请严格输出 JSON。
+"""
+
+    @staticmethod
+    def get_prompts_from_outline_system(user_requirements: str, num_pages: int) -> str:
+        """根据已确认大纲生成逐页图像 prompt 的系统指令"""
+        return f"""你是 PPT 设计师和 AI 图像生成 prompt 专家。
+用户已经确认了 PPT 设计大纲。请基于原始资料和确认后的大纲，生成每页的设计说明和内部图像生成 prompt。
+
+【用户需求】
+{user_requirements}
+
+【硬性要求】
+1. 必须严格输出 {num_pages} 页，页码从 1 到 {num_pages}
+2. 每页必须忠实遵循确认后的大纲，同时结合原始资料补充准确内容
+3. display_content 是给用户看的页面设计说明，不要包含系统提示词、不要暴露模型调用包装
+4. prompt 是给图像模型使用的完整页面描述，必须以“你生成的 PPT 其中一页的内容，要图文并茂。”开头
+5. prompt 中必须明确页面文字、布局、图表/配图、颜色和字体可读性
+
+【输出格式】
+只输出 JSON，不要解释，不要 Markdown 代码块：
+{{
+  "slide_prompts": [
+    {{
+      "page": 1,
+      "title": "页面标题",
+      "content_summary": "本页核心内容和叙事作用摘要",
+      "display_content": "用户可审阅的页面设计说明，包含标题、正文要点、主要视觉元素和布局",
+      "prompt": "你生成的 PPT 其中一页的内容，要图文并茂。..."
+    }}
+  ]
+}}
+"""
+
+    @staticmethod
+    def get_prompts_from_outline_user(source_material: str, outline_json: str, num_pages: int) -> str:
+        """根据确认大纲生成逐页 prompt 的用户提示"""
+        return f"""请根据已确认的大纲生成 {num_pages} 页 PPT 的逐页设计说明和图像 prompt。
+
+【原始资料】
+{source_material[:10000]}
+
+【用户确认后的设计大纲】
+{outline_json}
+
+请严格输出 JSON。
+"""
     
     @staticmethod
     def get_initial_prompt_system(user_requirements: str, num_pages: int) -> str:

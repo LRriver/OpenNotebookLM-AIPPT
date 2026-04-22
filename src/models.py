@@ -9,6 +9,8 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime
 from pathlib import Path
 
+from pydantic import BaseModel, Field
+
 
 @dataclass
 class SlidePrompt:
@@ -17,6 +19,7 @@ class SlidePrompt:
     title: str
     content_summary: str
     prompt: str
+    display_content: str = ""
     
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
@@ -24,6 +27,38 @@ class SlidePrompt:
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'SlidePrompt':
         return cls(**data)
+
+
+class SlideOutline(BaseModel):
+    """用户可审阅的单页设计大纲"""
+    page: int = Field(..., ge=1)
+    title: str = Field(..., min_length=1)
+    narrative_goal: str = Field(..., min_length=1)
+    key_points: List[str] = Field(default_factory=list)
+    visual_direction: str = Field(..., min_length=1)
+
+
+class DeckOutline(BaseModel):
+    """整套 PPT 的设计大纲"""
+    title: str = Field(..., min_length=1)
+    user_requirements: str = Field("", description="已吸收的用户定制需求")
+    design_style: str = Field(..., min_length=1)
+    audience: str = Field(..., min_length=1)
+    slides: List[SlideOutline] = Field(default_factory=list)
+
+
+class SlidePromptPlan(BaseModel):
+    """用户可确认的单页设计和内部图像 prompt"""
+    page: int = Field(..., ge=1)
+    title: str = Field(..., min_length=1)
+    content_summary: str = Field(..., min_length=1)
+    display_content: str = Field(..., min_length=1)
+    prompt: str = Field(..., min_length=1)
+
+
+class SlidePromptPlanSet(BaseModel):
+    """逐页设计和 prompt 结构化结果"""
+    slide_prompts: List[SlidePromptPlan] = Field(default_factory=list)
 
 
 @dataclass

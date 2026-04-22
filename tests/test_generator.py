@@ -5,7 +5,9 @@ PPT 生成器测试
 """
 
 import sys
+import os
 from pathlib import Path
+import pytest
 
 # 添加 src 到路径
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -13,6 +15,11 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from src import PPTGenerator, PPTConfig
 from src.config import load_sample_material
 from src.models import PromptData
+
+pytestmark = pytest.mark.skipif(
+    os.getenv("RUN_MODEL_TESTS") != "1",
+    reason="真实模型集成测试默认跳过；设置 RUN_MODEL_TESTS=1 后运行"
+)
 
 
 def test_full_generation(num_pages=None):

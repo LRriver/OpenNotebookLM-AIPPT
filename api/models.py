@@ -71,6 +71,7 @@ class GenerationConfig(BaseModel):
     language: str = Field("中文", description="输出语言")
     style: str = Field("现代简约商务风格", description="PPT 风格")
     target_audience: str = Field("专业人士", description="目标受众")
+    user_requirements: str = Field("", description="用户定制要求")
     
     def get_image_api_key(self) -> str:
         """获取图像模型 API 密钥"""
@@ -125,6 +126,70 @@ class GenerationRequest(BaseModel):
     """生成请求"""
     content: str = Field(..., description="Markdown 内容")
     config: GenerationConfig
+    slide_prompts: Optional[List["ConfirmedSlidePrompt"]] = Field(
+        None,
+        description="用户确认后的逐页图像 prompt；存在时跳过文本生成阶段"
+    )
+
+
+class SlideOutlineData(BaseModel):
+    """用户可编辑的单页设计大纲"""
+    page: int = Field(..., ge=1)
+    title: str
+    narrative_goal: str
+    key_points: List[str] = Field(default_factory=list)
+    visual_direction: str
+
+
+class DeckOutlineData(BaseModel):
+    """整套 PPT 设计大纲"""
+    title: str
+    user_requirements: str = ""
+    design_style: str
+    audience: str
+    slides: List[SlideOutlineData]
+
+
+class ConfirmedSlidePrompt(BaseModel):
+    """用户确认后的单页设计和图像 prompt"""
+    page: int = Field(..., ge=1)
+    title: str
+    content_summary: str
+    display_content: Optional[str] = None
+    prompt: str
+
+
+class OutlineRequest(BaseModel):
+    """设计大纲生成请求"""
+    content: str = Field(..., description="Markdown 内容")
+    config: GenerationConfig
+
+
+class OutlineResponse(BaseModel):
+    """设计大纲响应"""
+    success: bool
+    outline: Optional[DeckOutlineData] = None
+    message: Optional[str] = None
+
+
+class PromptPlanRequest(BaseModel):
+    """逐页设计和 prompt 生成请求"""
+    content: str = Field(..., description="Markdown 内容")
+    config: GenerationConfig
+    outline: DeckOutlineData
+
+
+class PromptPlanResponse(BaseModel):
+    """逐页设计和 prompt 响应"""
+    success: bool
+    slide_prompts: Optional[List[ConfirmedSlidePrompt]] = None
+    message: Optional[str] = None
+
+
+try:
+    GenerationRequest.model_rebuild()
+except AttributeError:
+    GenerationRequest.update_forward_refs()
 
 
 class SlideData(BaseModel):

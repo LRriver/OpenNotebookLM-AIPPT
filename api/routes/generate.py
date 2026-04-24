@@ -17,16 +17,69 @@ from typing import AsyncGenerator
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from src.config import APIConfig, PPTConfig
-from src.client import AIClient
+from src.config import PPTConfig
+from src.model_router import ModelRouter
 from src.prompt_generator import PromptGenerator
-from ..models import GenerationRequest
+from src.models import DeckOutline, PromptData, SlidePrompt
+from ..models import GenerationRequest, OutlineRequest, OutlineResponse, PromptPlanRequest, PromptPlanResponse
+from ..profile_resolver import profiles_from_generation_config
 
 router = APIRouter(prefix="/api", tags=["generate"])
 
 
+def _model_to_dict(model):
+    if hasattr(model, "model_dump"):
+        return model.model_dump()
+    return model.dict()
+
+
+def _model_validate(model_cls, data):
+    if hasattr(model_cls, "model_validate"):
+        return model_cls.model_validate(data)
+    return model_cls.parse_obj(data)
+
+
+def _to_ppt_config(config) -> PPTConfig:
+    ppt_config = PPTConfig()
+    ppt_config.num_pages = config.page_count
+    ppt_config.quality = config.quality
+    ppt_config.aspect_ratio = config.aspect_ratio
+    ppt_config.language = config.language
+    ppt_config.style = config.style
+    ppt_config.target_audience = config.target_audience
+    ppt_config.user_requirements = config.user_requirements
+    return ppt_config
+
+
+def _prompt_data_from_confirmed(request: GenerationRequest, ppt_config: PPTConfig) -> PromptData:
+    slide_prompts = request.slide_prompts or []
+    if len(slide_prompts) != ppt_config.num_pages:
+        raise ValueError(f"确认后的逐页设计数量不匹配: 期望{ppt_config.num_pages}页，实际{len(slide_prompts)}页")
+
+    pages = [item.page for item in slide_prompts]
+    expected = list(range(1, ppt_config.num_pages + 1))
+    if pages != expected:
+        raise ValueError(f"确认后的逐页设计页码必须连续为 {expected}，实际为 {pages}")
+
+    return PromptData(
+        slide_prompts=[
+            SlidePrompt(
+                page=item.page,
+                title=item.title,
+                content_summary=item.content_summary,
+                prompt=item.prompt,
+                display_content=item.display_content or item.content_summary,
+            )
+            for item in slide_prompts
+        ],
+        config=ppt_config.to_dict(),
+        source_material=request.content[:2000],
+        user_requirements=ppt_config.user_requirements or "",
+    )
+
+
 def generate_single_slide_sync(
-    client: AIClient,
+    client: ModelRouter,
     slide_prompt,
     output_path: str,
     config: PPTConfig,
@@ -70,54 +123,33 @@ async def generate_stream(request: GenerationRequest) -> AsyncGenerator[str, Non
     使用 Server-Sent Events (SSE) 格式返回进度和结果
     """
     try:
-        # 配置 API - 支持新的完整配置结构
-        api_config = APIConfig()
-        
-        # 检查是否使用新的配置结构
-        if request.config.image and request.config.text:
-            # 新的完整配置结构
-            api_config.image_api_key = request.config.image.api_key
-            api_config.image_base_url = request.config.image.base_url
-            api_config.image_model = request.config.image.model
-            api_config.text_api_key = request.config.text.api_key
-            api_config.text_base_url = request.config.text.base_url
-            api_config.text_model = request.config.text.model
-            api_config.text_api_format = request.config.text.format
-            api_config.text_thinking_level = request.config.text.thinking_level
-        else:
-            # 向后兼容的简单配置
-            api_config.image_api_key = request.config.get_image_api_key()
-            api_config.image_base_url = request.config.get_image_base_url()
-            api_config.text_api_key = request.config.get_text_api_key()
-            api_config.text_base_url = request.config.get_text_base_url()
-        
+        profiles = profiles_from_generation_config(request.config)
+
         # 配置 PPT
-        ppt_config = PPTConfig()
-        ppt_config.num_pages = request.config.page_count
-        ppt_config.quality = request.config.quality
-        ppt_config.aspect_ratio = request.config.aspect_ratio
-        ppt_config.language = request.config.language
-        ppt_config.style = request.config.style
-        ppt_config.target_audience = request.config.target_audience
+        ppt_config = _to_ppt_config(request.config)
         
         # 创建客户端和 Prompt 生成器
-        client = AIClient(api_config)
+        client = ModelRouter(profiles)
         prompt_generator = PromptGenerator(client)
         
         # 发送开始事件
         yield f"data: {json.dumps({'type': 'progress', 'data': {'status': 'started', 'current': 0, 'total': 0, 'message': '开始生成 PPT'}})}\n\n"
         
-        # 生成 Prompt
-        yield f"data: {json.dumps({'type': 'progress', 'data': {'status': 'generating_prompts', 'current': 0, 'total': 0, 'message': '正在生成 Prompt...'}})}\n\n"
-        
-        # 在线程池中运行同步的 prompt 生成
         loop = asyncio.get_event_loop()
-        prompt_data = await loop.run_in_executor(
-            None,
-            prompt_generator.generate,
-            request.content,
-            ppt_config
-        )
+
+        if request.slide_prompts:
+            yield f"data: {json.dumps({'type': 'progress', 'data': {'status': 'prompts_ready', 'current': 0, 'total': len(request.slide_prompts), 'message': '已使用确认后的逐页设计，准备生成图片'}})}\n\n"
+            prompt_data = _prompt_data_from_confirmed(request, ppt_config)
+        else:
+            # 兼容旧流程：没有确认结果时仍可自动生成 prompt
+            yield f"data: {json.dumps({'type': 'progress', 'data': {'status': 'generating_prompts', 'current': 0, 'total': 0, 'message': '正在生成 Prompt...'}})}\n\n"
+
+            prompt_data = await loop.run_in_executor(
+                None,
+                prompt_generator.generate,
+                request.content,
+                ppt_config
+            )
         
         total_slides = len(prompt_data.slide_prompts)
         
@@ -232,3 +264,57 @@ async def generate_ppt(request: GenerationRequest):
             "X-Accel-Buffering": "no"
         }
     )
+
+
+@router.post("/generate-outline", response_model=OutlineResponse)
+async def generate_outline(request: OutlineRequest):
+    """生成用户可编辑的 PPT 设计大纲"""
+    try:
+        profiles = profiles_from_generation_config(request.config)
+        client = ModelRouter(profiles)
+        prompt_generator = PromptGenerator(client)
+        ppt_config = _to_ppt_config(request.config)
+
+        loop = asyncio.get_event_loop()
+        outline = await loop.run_in_executor(
+            None,
+            prompt_generator.generate_outline,
+            request.content,
+            ppt_config,
+        )
+        return OutlineResponse(success=True, outline=_model_to_dict(outline))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"设计大纲生成失败: {str(e)}")
+
+
+@router.post("/generate-prompts", response_model=PromptPlanResponse)
+async def generate_prompts(request: PromptPlanRequest):
+    """根据用户确认后的大纲生成逐页设计和图像 prompt"""
+    try:
+        profiles = profiles_from_generation_config(request.config)
+        client = ModelRouter(profiles)
+        prompt_generator = PromptGenerator(client)
+        ppt_config = _to_ppt_config(request.config)
+        outline = _model_validate(DeckOutline, _model_to_dict(request.outline))
+
+        loop = asyncio.get_event_loop()
+        prompt_data = await loop.run_in_executor(
+            None,
+            prompt_generator.generate_prompts_from_outline,
+            request.content,
+            outline,
+            ppt_config,
+        )
+        slide_prompts = [
+            {
+                "page": slide.page,
+                "title": slide.title,
+                "content_summary": slide.content_summary,
+                "display_content": slide.display_content or slide.content_summary,
+                "prompt": slide.prompt,
+            }
+            for slide in prompt_data.slide_prompts
+        ]
+        return PromptPlanResponse(success=True, slide_prompts=slide_prompts)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"逐页设计生成失败: {str(e)}")

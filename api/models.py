@@ -228,8 +228,10 @@ class GenerationErrorEvent(BaseModel):
 
 class EditConfig(BaseModel):
     """编辑配置"""
-    api_key: str = Field(..., description="API 密钥")
-    base_url: str = Field(..., description="API 基础 URL")
+    api_key: Optional[str] = Field(None, description="API 密钥")
+    base_url: Optional[str] = Field(None, description="API 基础 URL")
+    model: str = Field("gpt-image-2", description="图像编辑模型名称")
+    model_profiles: Optional[ModelProfilesConfig] = Field(None, description="三角色模型配置")
     quality: Literal["1K", "2K", "4K"] = Field("1K", description="图片质量")
     aspect_ratio: Literal["16:9", "4:3"] = Field("16:9", description="图片比例")
 
@@ -259,6 +261,7 @@ class ExportRequest(BaseModel):
     """导出请求"""
     slides: List[ExportSlide]
     format: Literal["pdf", "pptx"] = Field(..., description="导出格式")
+    aspect_ratio: Literal["16:9", "4:3"] = Field("16:9", description="导出画幅比例")
 
 
 class ExportResponse(BaseModel):

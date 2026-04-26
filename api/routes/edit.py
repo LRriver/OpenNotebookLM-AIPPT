@@ -12,9 +12,9 @@ from fastapi import APIRouter, HTTPException
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from src.config import APIConfig
-from src.client import AIClient
+from src.model_router import ModelRouter
 from ..models import EditRequest, EditResponse
+from ..profile_resolver import profiles_from_edit_config
 
 router = APIRouter(prefix="/api", tags=["edit"])
 
@@ -31,13 +31,7 @@ async def edit_image(request: EditRequest):
         EditResponse: 包含编辑后的图片
     """
     try:
-        # 配置 API
-        api_config = APIConfig()
-        api_config.image_api_key = request.config.api_key
-        api_config.image_base_url = request.config.base_url
-        
-        # 创建 AI 客户端
-        client = AIClient(api_config)
+        client = ModelRouter(profiles_from_edit_config(request.config))
         
         # 解码 base64 图片并保存到临时文件
         image_data = base64.b64decode(request.image_base64)

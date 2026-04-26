@@ -59,7 +59,7 @@ async def export_presentation(request: ExportRequest):
         
         elif request.format == "pptx":
             output_path = temp_dir / "presentation.pptx"
-            _export_pptx(image_paths, str(output_path))
+            _export_pptx(image_paths, str(output_path), aspect_ratio=request.aspect_ratio)
             
             return FileResponse(
                 path=str(output_path),
@@ -80,7 +80,7 @@ async def export_presentation(request: ExportRequest):
         )
 
 
-def _export_pptx(image_paths: list, output_path: str):
+def _export_pptx(image_paths: list, output_path: str, aspect_ratio: str = "16:9"):
     """
     导出为 PPTX 格式
     
@@ -97,9 +97,13 @@ def _export_pptx(image_paths: list, output_path: str):
     # 创建演示文稿
     prs = Presentation()
     
-    # 设置幻灯片尺寸为 16:9
-    prs.slide_width = Inches(10)
-    prs.slide_height = Inches(5.625)
+    # 设置幻灯片尺寸
+    if aspect_ratio == "4:3":
+        prs.slide_width = Inches(10)
+        prs.slide_height = Inches(7.5)
+    else:
+        prs.slide_width = Inches(10)
+        prs.slide_height = Inches(5.625)
     
     # 添加每一页
     for image_path in image_paths:

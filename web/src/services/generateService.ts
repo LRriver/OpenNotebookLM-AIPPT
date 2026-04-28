@@ -1,4 +1,12 @@
-import { Slide, GenerationConfig, SSEEventType, FullApiConfig } from '../types'
+import {
+  Slide,
+  GenerationConfig,
+  SSEEventType,
+  FullApiConfig,
+  DeckOutline,
+  ConfirmedSlidePrompt
+} from '../types'
+import { buildModelProfiles } from './modelProfileService'
 
 /**
  * SSE 事件数据类型
@@ -45,6 +53,17 @@ export interface GenerateRequestConfig {
   content: string
   fullApiConfig: FullApiConfig
   generationConfig: GenerationConfig
+  slidePrompts?: ConfirmedSlidePrompt[]
+}
+
+export interface OutlineRequestConfig {
+  content: string
+  fullApiConfig: FullApiConfig
+  generationConfig: GenerationConfig
+}
+
+export interface PromptPlanRequestConfig extends OutlineRequestConfig {
+  outline: DeckOutline
 }
 
 /**
@@ -81,6 +100,93 @@ function convertToSlide(data: SSESlideData): Slide {
   }
 }
 
+function hasCompleteModelConfig(config: FullApiConfig): boolean {
+  const editConfig = config.edit || config.image
+  return Boolean(
+    config.text.apiKey && config.text.baseUrl &&
+    config.image.apiKey && config.image.baseUrl &&
+    editConfig.apiKey && editConfig.baseUrl
+  )
+}
+
+function buildCompleteModelProfiles(config: FullApiConfig) {
+  if (!hasCompleteModelConfig(config)) {
+    return undefined
+  }
+  return buildModelProfiles(config)
+}
+
+function buildBackendConfig(fullApiConfig: FullApiConfig, generationConfig: GenerationConfig) {
+  const modelProfiles = buildCompleteModelProfiles(fullApiConfig)
+  return {
+    image: {
+      api_key: fullApiConfig.image.apiKey,
+      base_url: fullApiConfig.image.baseUrl,
+      model: fullApiConfig.image.model
+    },
+    text: {
+      api_key: fullApiConfig.text.apiKey,
+      base_url: fullApiConfig.text.baseUrl,
+      model: fullApiConfig.text.model,
+      format: fullApiConfig.text.format,
+      thinking_level: fullApiConfig.text.thinkingLevel
+    },
+    ...(modelProfiles ? { model_profiles: modelProfiles } : {}),
+    page_count: generationConfig.pageCount,
+    quality: generationConfig.quality,
+    aspect_ratio: generationConfig.aspectRatio,
+    language: generationConfig.language || '中文',
+    style: generationConfig.style || '现代简约商务风格',
+    target_audience: generationConfig.targetAudience || '专业人士',
+    user_requirements: generationConfig.userRequirements || ''
+  }
+}
+
+async function postJson<T>(url: string, body: unknown): Promise<T> {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  })
+  const data = await response.json().catch(() => ({}))
+  if (!response.ok) {
+    const message = data?.detail || data?.message || `HTTP error! status: ${response.status}`
+    throw new Error(message)
+  }
+  return data as T
+}
+
+export async function requestDeckOutline(config: OutlineRequestConfig): Promise<DeckOutline> {
+  const data = await postJson<{ success: boolean; outline?: DeckOutline; message?: string }>(
+    '/api/generate-outline',
+    {
+      content: config.content,
+      config: buildBackendConfig(config.fullApiConfig, config.generationConfig)
+    }
+  )
+  if (!data.success || !data.outline) {
+    throw new Error(data.message || '生成设计大纲失败')
+  }
+  return data.outline
+}
+
+export async function requestSlidePrompts(config: PromptPlanRequestConfig): Promise<ConfirmedSlidePrompt[]> {
+  const data = await postJson<{ success: boolean; slide_prompts?: ConfirmedSlidePrompt[]; message?: string }>(
+    '/api/generate-prompts',
+    {
+      content: config.content,
+      config: buildBackendConfig(config.fullApiConfig, config.generationConfig),
+      outline: config.outline
+    }
+  )
+  if (!data.success || !data.slide_prompts) {
+    throw new Error(data.message || '生成逐页设计失败')
+  }
+  return data.slide_prompts
+}
+
 /**
  * 开始 PPT 生成
  * 
@@ -96,33 +202,10 @@ export function startGeneration(
 ): AbortController {
   const abortController = new AbortController()
   
-  // 构建请求体 - 使用完整的 API 配置
   const requestBody = {
     content: config.content,
-    config: {
-      // 图像模型配置
-      image: {
-        api_key: config.fullApiConfig.image.apiKey,
-        base_url: config.fullApiConfig.image.baseUrl,
-        model: config.fullApiConfig.image.model
-      },
-      // 文本模型配置
-      text: {
-        api_key: config.fullApiConfig.text.apiKey,
-        base_url: config.fullApiConfig.text.baseUrl,
-        model: config.fullApiConfig.text.model,
-        format: config.fullApiConfig.text.format,
-        thinking_level: config.fullApiConfig.text.thinkingLevel
-      },
-      // 生成参数
-      page_count: config.generationConfig.pageCount,
-      quality: config.generationConfig.quality,
-      aspect_ratio: config.generationConfig.aspectRatio,
-      // PPT 内容配置
-      language: config.generationConfig.language || '中文',
-      style: config.generationConfig.style || '现代简约商务风格',
-      target_audience: config.generationConfig.targetAudience || '专业人士'
-    }
+    config: buildBackendConfig(config.fullApiConfig, config.generationConfig),
+    ...(config.slidePrompts ? { slide_prompts: config.slidePrompts } : {})
   }
   
   // 发起请求

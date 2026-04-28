@@ -1,7 +1,5 @@
 import { EditRequestConfig } from '../types'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
-
 export interface EditImageRequest {
   image_base64: string
   instruction: string
@@ -19,7 +17,7 @@ export interface EditImageResponse {
  * Requirements: 7.2
  */
 export async function editImage(request: EditImageRequest): Promise<EditImageResponse> {
-  const response = await fetch(`${API_BASE_URL}/api/edit`, {
+  const response = await fetch('/api/edit', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

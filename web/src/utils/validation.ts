@@ -220,28 +220,8 @@ export function canStartGeneration(
   // 检查 API 配置
   // 判断是 FullApiConfig 还是 ApiConfig
   if ('image' in apiConfig && 'text' in apiConfig) {
-    // FullApiConfig
-    const fullApiValidation = validateFullApiConfig(apiConfig as FullApiConfig)
-    if (!fullApiValidation.isValid) {
-      if (fullApiValidation.errors.image?.apiKey) {
-        return { canStart: false, reason: '图像模型 API Key 未配置' }
-      }
-      if (fullApiValidation.errors.image?.baseUrl) {
-        return { canStart: false, reason: '图像模型 Base URL 未配置或格式无效' }
-      }
-      if (fullApiValidation.errors.image?.model) {
-        return { canStart: false, reason: '图像模型名称未配置' }
-      }
-      if (fullApiValidation.errors.text?.apiKey) {
-        return { canStart: false, reason: '文本模型 API Key 未配置' }
-      }
-      if (fullApiValidation.errors.text?.baseUrl) {
-        return { canStart: false, reason: '文本模型 Base URL 未配置或格式无效' }
-      }
-      if (fullApiValidation.errors.text?.model) {
-        return { canStart: false, reason: '文本模型名称未配置' }
-      }
-    }
+    // FullApiConfig may be empty while the backend has config.yaml profiles.
+    // Let generation proceed and surface backend configuration errors from the API.
   } else {
     // ApiConfig (向后兼容)
     const apiValidation = validateApiConfig(apiConfig as ApiConfig)

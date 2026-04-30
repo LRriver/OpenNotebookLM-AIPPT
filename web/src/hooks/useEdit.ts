@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { useAppState } from '../contexts/AppStateContext'
+import { useAppState } from '../contexts/useAppState'
 import { editImage } from '../services/editService'
 import { EditSession, EditHistoryItem, Slide } from '../types'
 
@@ -49,13 +49,44 @@ export function useEdit() {
       if (currentBase64.startsWith('data:')) {
         currentBase64 = currentBase64.split(',')[1]
       }
+      const editConfig = state.fullApiConfig.edit || state.fullApiConfig.image
+      const hasCompleteModelConfig = Boolean(
+        state.fullApiConfig.text.apiKey && state.fullApiConfig.text.baseUrl &&
+        state.fullApiConfig.image.apiKey && state.fullApiConfig.image.baseUrl &&
+        editConfig.apiKey && editConfig.baseUrl
+      )
 
       const response = await editImage({
         image_base64: currentBase64,
         instruction,
         config: {
-          api_key: state.apiConfig.apiKey,
-          base_url: state.apiConfig.baseUrl,
+          ...(hasCompleteModelConfig
+            ? {
+              api_key: editConfig.apiKey,
+              base_url: editConfig.baseUrl,
+              model: editConfig.model,
+              model_profiles: {
+                prompt_model: {
+                  model: state.fullApiConfig.text.model,
+                  base_url: state.fullApiConfig.text.baseUrl,
+                  api_key: state.fullApiConfig.text.apiKey,
+                  adapter: 'openai_chat'
+                },
+                image_model: {
+                  model: state.fullApiConfig.image.model,
+                  base_url: state.fullApiConfig.image.baseUrl,
+                  api_key: state.fullApiConfig.image.apiKey,
+                  adapter: 'raw_chat_multimodal'
+                },
+                edit_model: {
+                  model: editConfig.model,
+                  base_url: editConfig.baseUrl,
+                  api_key: editConfig.apiKey,
+                  adapter: 'raw_chat_multimodal'
+                }
+              }
+            }
+            : {}),
           quality: state.generationConfig.quality,
           aspect_ratio: state.generationConfig.aspectRatio
         }
@@ -86,7 +117,7 @@ export function useEdit() {
     } finally {
       setIsEditing(false)
     }
-  }, [state.editingSlide, state.apiConfig, state.generationConfig, updateEdit])
+  }, [state.editingSlide, state.fullApiConfig, state.generationConfig, updateEdit])
 
   /**
    * 回退到历史版本

@@ -1,12 +1,12 @@
 import { useRef, useCallback } from 'react'
-import { useAppState } from '../contexts/AppStateContext'
+import { useAppState } from '../contexts/useAppState'
 import {
   startGeneration,
   cancelGeneration,
   SSEProgressData,
   SSEErrorData
 } from '../services/generateService'
-import { Slide } from '../types'
+import { ConfirmedSlidePrompt, Slide } from '../types'
 
 /**
  * 生成功能 Hook
@@ -33,7 +33,7 @@ export function useGeneration() {
   /**
    * 开始生成 PPT
    */
-  const generate = useCallback(() => {
+  const generate = useCallback((slidePrompts?: ConfirmedSlidePrompt[]) => {
     // 检查是否已经在生成中
     if (state.isGenerating) {
       return
@@ -42,17 +42,6 @@ export function useGeneration() {
     // 检查必要条件
     if (!state.fileContent) {
       setGenerationError('请先上传文件')
-      return
-    }
-    
-    // 检查完整 API 配置
-    const fullConfig = state.fullApiConfig
-    if (!fullConfig.image.apiKey || !fullConfig.image.baseUrl) {
-      setGenerationError('请先配置图像模型 API')
-      return
-    }
-    if (!fullConfig.text.apiKey || !fullConfig.text.baseUrl) {
-      setGenerationError('请先配置文本模型 API')
       return
     }
     
@@ -96,7 +85,8 @@ export function useGeneration() {
       {
         content: state.fileContent,
         fullApiConfig: state.fullApiConfig,
-        generationConfig: state.generationConfig
+        generationConfig: state.generationConfig,
+        slidePrompts
       },
       {
         onProgress: handleProgress,
@@ -110,8 +100,7 @@ export function useGeneration() {
     state.fileContent,
     state.fullApiConfig,
     state.generationConfig,
-    state.generationProgress.current,
-    state.generationProgress.total,
+    state.generationProgress,
     startGenerationState,
     updateProgress,
     addSlide,

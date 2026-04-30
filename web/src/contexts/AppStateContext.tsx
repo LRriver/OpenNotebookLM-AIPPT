@@ -1,7 +1,7 @@
-import { createContext, useContext, useReducer, useCallback, ReactNode } from 'react'
+import { createContext, useReducer, useCallback, ReactNode } from 'react'
 import { Slide, EditSession, ApiConfig, GenerationConfig, FullApiConfig } from '../types'
-import { loadApiConfig, loadFullApiConfig } from '../components/ApiConfigForm'
-import { DEFAULT_GENERATION_CONFIG } from '../components/GenerationConfigForm'
+import { loadApiConfig, loadFullApiConfig } from '../utils/apiConfig'
+import { DEFAULT_GENERATION_CONFIG } from '../utils/generationConfig'
 
 /**
  * 应用状态接口
@@ -68,6 +68,28 @@ interface RestoreStatePayload {
   fileName: string
   slides: Slide[]
   generationConfig: GenerationConfig
+}
+
+function sortSlides(slides: Slide[]): Slide[] {
+  return [...slides].sort((a, b) => a.pageNumber - b.pageNumber)
+}
+
+function upsertSlide(slides: Slide[], nextSlide: Slide): Slide[] {
+  const existingIndex = slides.findIndex(slide => slide.id === nextSlide.id)
+  if (existingIndex >= 0) {
+    const updated = [...slides]
+    updated[existingIndex] = nextSlide
+    return sortSlides(updated)
+  }
+  return sortSlides([...slides, nextSlide])
+}
+
+function dedupeSlides(slides: Slide[]): Slide[] {
+  const byId = new Map<string, Slide>()
+  for (const slide of slides) {
+    byId.set(slide.id, slide)
+  }
+  return sortSlides(Array.from(byId.values()))
 }
 
 /**
@@ -168,13 +190,9 @@ function appReducer(state: AppState, action: AppAction): AppState {
       }
 
     case 'ADD_SLIDE': {
-      // 按页码顺序插入幻灯片
-      const newSlides = [...state.slides, action.payload].sort(
-        (a, b) => a.pageNumber - b.pageNumber
-      )
       return {
         ...state,
-        slides: newSlides
+        slides: upsertSlide(state.slides, action.payload)
       }
     }
 
@@ -191,7 +209,7 @@ function appReducer(state: AppState, action: AppAction): AppState {
     case 'SET_SLIDES':
       return {
         ...state,
-        slides: action.payload.sort((a, b) => a.pageNumber - b.pageNumber)
+        slides: dedupeSlides(action.payload)
       }
 
     case 'COMPLETE_GENERATION':
@@ -259,7 +277,7 @@ function appReducer(state: AppState, action: AppAction): AppState {
         uploadedFile: null,
         fileContent: action.payload.fileContent,
         fileName: action.payload.fileName,
-        slides: action.payload.slides.sort((a, b) => a.pageNumber - b.pageNumber),
+        slides: dedupeSlides(action.payload.slides),
         generationConfig: action.payload.generationConfig,
         generationProgress: {
           current: action.payload.slides.length,
@@ -277,7 +295,7 @@ function appReducer(state: AppState, action: AppAction): AppState {
 /**
  * Context 类型
  */
-interface AppStateContextType {
+export interface AppStateContextType {
   state: AppState
   dispatch: React.Dispatch<AppAction>
   // 便捷方法
@@ -425,17 +443,6 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       {children}
     </AppStateContext.Provider>
   )
-}
-
-/**
- * 自定义 Hook 用于访问 Context
- */
-export function useAppState(): AppStateContextType {
-  const context = useContext(AppStateContext)
-  if (!context) {
-    throw new Error('useAppState must be used within an AppStateProvider')
-  }
-  return context
 }
 
 export { AppStateContext }

@@ -2,26 +2,284 @@
 @tailwind components;
 @tailwind utilities;
 
-/* 基础样式 - 暖色调背景 */
+:root {
+  color-scheme: light;
+  --app-bg: #edf1fb;
+  --app-bg-2: #f5f8f1;
+  --header-bg: rgba(250, 251, 255, 0.88);
+  --panel-bg: rgba(255, 255, 255, 0.88);
+  --panel-border: rgba(214, 220, 235, 0.9);
+  --card-bg: rgba(255, 255, 255, 0.72);
+  --card-border: rgba(212, 218, 232, 0.9);
+  --text-strong: #20222a;
+  --text: #3e424d;
+  --text-muted: #667085;
+  --text-faint: #98a2b3;
+  --resize-handle: #ccd3e2;
+  --shadow-panel: 0 24px 58px rgba(38, 45, 71, 0.12);
+  --model-header-bg: #050817;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --app-bg: #10131b;
+  --app-bg-2: #171b24;
+  --header-bg: rgba(18, 22, 32, 0.9);
+  --panel-bg: rgba(24, 29, 42, 0.9);
+  --panel-border: rgba(70, 79, 102, 0.72);
+  --card-bg: rgba(30, 36, 50, 0.78);
+  --card-border: rgba(82, 92, 116, 0.72);
+  --text-strong: #f5f7fb;
+  --text: #d9dee9;
+  --text-muted: #aab3c4;
+  --text-faint: #7f8a9e;
+  --resize-handle: #4b5568;
+  --shadow-panel: 0 24px 58px rgba(0, 0, 0, 0.36);
+  --model-header-bg: #080b14;
+}
+
+/* 基础样式 */
 body {
-  @apply bg-warm-50 text-warm-900;
+  background: var(--app-bg);
+  color: var(--text);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.aippt-shell {
+  background: var(--app-bg);
+  color: var(--text);
+}
+
+.aippt-topbar {
+  border-bottom: 1px solid var(--panel-border);
+  background: var(--header-bg);
+  backdrop-filter: blur(18px);
+}
+
+.aippt-app-bg {
+  background-color: var(--app-bg);
+  background-image:
+    linear-gradient(rgba(90, 111, 156, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(90, 111, 156, 0.07) 1px, transparent 1px),
+    linear-gradient(135deg, var(--app-bg) 0%, #f7f2e9 45%, var(--app-bg-2) 100%);
+  background-size: 28px 28px, 28px 28px, 100% 100%;
+}
+
+:root[data-theme='dark'] .aippt-app-bg {
+  background-image:
+    linear-gradient(rgba(144, 158, 190, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(144, 158, 190, 0.06) 1px, transparent 1px),
+    linear-gradient(135deg, #10131b 0%, #181721 48%, #111c20 100%);
+}
+
+.aippt-panel {
+  border: 1px solid var(--panel-border);
+  border-radius: 18px;
+  background: var(--panel-bg);
+  box-shadow: var(--shadow-panel);
+  color: var(--text);
+  backdrop-filter: blur(18px);
+}
+
+.aippt-section-icon {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+}
+
+.aippt-section-icon-warm {
+  background: linear-gradient(135deg, #ff9f1c 0%, #f97316 100%);
+}
+
+.aippt-top-pill,
+.aippt-pref-button,
+.aippt-language-switch {
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
+  color: var(--text);
+  box-shadow: 0 4px 14px rgba(21, 28, 45, 0.05);
+}
+
+.aippt-top-pill {
+  border-radius: 999px;
+  padding: 0.38rem 0.7rem;
+}
+
+.aippt-top-pill-warm {
+  color: #a5530b;
+  background: rgba(255, 246, 225, 0.86);
+  border-color: rgba(245, 158, 11, 0.28);
+}
+
+.aippt-top-pill-cyan {
+  color: #0e7490;
+  background: rgba(220, 249, 255, 0.82);
+  border-color: rgba(6, 182, 212, 0.28);
+}
+
+.aippt-language-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  border-radius: 999px;
+  padding: 0.2rem;
+}
+
+.aippt-language-switch button,
+.aippt-pref-button {
+  min-height: 2.25rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  transition: all 180ms ease;
+}
+
+.aippt-language-switch button {
+  padding: 0 0.75rem;
+  color: var(--text-muted);
+}
+
+.aippt-language-switch button.is-active {
+  background: var(--text-strong);
+  color: var(--panel-bg);
+}
+
+.aippt-pref-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0 0.85rem;
+}
+
+.aippt-theme-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.5rem);
+  z-index: 30;
+  width: 13rem;
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  background: var(--panel-bg);
+  box-shadow: var(--shadow-panel);
+  overflow: hidden;
+  padding: 0.35rem;
+}
+
+.aippt-theme-menu button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-radius: 10px;
+  padding: 0.75rem 0.8rem;
+  color: var(--text);
+  font-weight: 600;
+  text-align: left;
+}
+
+.aippt-theme-menu button:hover,
+.aippt-theme-menu button.is-active {
+  background: rgba(125, 144, 185, 0.14);
+}
+
+.aippt-dropzone {
+  border-color: rgba(154, 163, 182, 0.54);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.62), rgba(248, 250, 252, 0.7));
+}
+
+.aippt-dropzone:hover,
+.aippt-dropzone.is-dragging {
+  border-color: #f59e0b;
+  background: linear-gradient(180deg, rgba(255, 250, 235, 0.86), rgba(240, 253, 244, 0.68));
+  box-shadow: 0 16px 32px rgba(245, 158, 11, 0.12);
+}
+
+:root[data-theme='dark'] .aippt-top-pill-warm {
+  color: #fcd34d;
+  background: rgba(120, 79, 20, 0.22);
+}
+
+:root[data-theme='dark'] .aippt-top-pill-cyan {
+  color: #67e8f9;
+  background: rgba(16, 78, 94, 0.22);
+}
+
+:root[data-theme='dark'] .aippt-dropzone {
+  border-color: rgba(113, 124, 148, 0.68);
+  background: rgba(24, 29, 42, 0.72);
+}
+
+:root[data-theme='dark'] .aippt-dropzone:hover,
+:root[data-theme='dark'] .aippt-dropzone.is-dragging {
+  border-color: #f59e0b;
+  background: rgba(48, 39, 29, 0.72);
+}
+
+:root[data-theme='dark'] .aippt-panel .bg-white,
+:root[data-theme='dark'] .aippt-panel [class*='bg-warm-50'],
+:root[data-theme='dark'] .aippt-panel [class*='bg-gray-50'],
+:root[data-theme='dark'] .aippt-panel [class*='bg-slate-50'],
+:root[data-theme='dark'] .aippt-panel [class*='bg-amber-50'],
+:root[data-theme='dark'] .aippt-panel [class*='bg-violet-50'],
+:root[data-theme='dark'] .aippt-panel [class*='bg-emerald-50'] {
+  background-color: rgba(28, 34, 48, 0.86) !important;
+}
+
+:root[data-theme='dark'] .aippt-panel .text-warm-900,
+:root[data-theme='dark'] .aippt-panel .text-warm-800,
+:root[data-theme='dark'] .aippt-panel .text-slate-900,
+:root[data-theme='dark'] .aippt-panel .text-gray-900,
+:root[data-theme='dark'] .aippt-panel .text-stone-900 {
+  color: var(--text-strong) !important;
+}
+
+:root[data-theme='dark'] .aippt-panel .text-warm-700,
+:root[data-theme='dark'] .aippt-panel .text-warm-600,
+:root[data-theme='dark'] .aippt-panel .text-slate-700,
+:root[data-theme='dark'] .aippt-panel .text-slate-600,
+:root[data-theme='dark'] .aippt-panel .text-gray-700,
+:root[data-theme='dark'] .aippt-panel .text-gray-600,
+:root[data-theme='dark'] .aippt-panel .text-stone-500 {
+  color: var(--text) !important;
+}
+
+:root[data-theme='dark'] .aippt-panel .text-warm-500,
+:root[data-theme='dark'] .aippt-panel .text-warm-400,
+:root[data-theme='dark'] .aippt-panel .text-slate-500,
+:root[data-theme='dark'] .aippt-panel .text-gray-500,
+:root[data-theme='dark'] .aippt-panel .text-stone-400 {
+  color: var(--text-muted) !important;
+}
+
+:root[data-theme='dark'] .aippt-panel .border-warm-100,
+:root[data-theme='dark'] .aippt-panel .border-warm-200,
+:root[data-theme='dark'] .aippt-panel .border-gray-200,
+:root[data-theme='dark'] .aippt-panel .border-gray-300,
+:root[data-theme='dark'] .aippt-panel .border-slate-200,
+:root[data-theme='dark'] .aippt-panel .border-stone-200 {
+  border-color: var(--card-border) !important;
 }
 
 /* 自定义组件样式 */
 @layer components {
-  /* 主要按钮 - 橙黄渐变 */
+  /* 主要按钮 */
   .btn-primary {
-    @apply bg-gradient-to-r from-primary-500 to-accent-500 text-white px-5 py-2.5 rounded-xl 
-           font-medium shadow-warm hover:shadow-warm-lg hover:from-primary-600 hover:to-accent-600 
+    @apply bg-slate-950 text-white px-5 py-2.5 rounded-lg
+           font-medium shadow-sm hover:bg-slate-800 hover:shadow-md
            transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed
            disabled:hover:shadow-warm;
   }
 
   /* 次要按钮 */
   .btn-secondary {
-    @apply bg-white text-warm-700 px-5 py-2.5 rounded-xl font-medium border border-warm-200
-           hover:bg-warm-50 hover:border-primary-300 hover:text-primary-700
+    @apply bg-white text-slate-700 px-5 py-2.5 rounded-lg font-medium border border-slate-200
+           hover:bg-slate-50 hover:border-cyan-300 hover:text-slate-900
            transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
@@ -34,9 +292,9 @@ body {
 
   /* 输入框 */
   .input-field {
-    @apply w-full px-4 py-3 bg-white border border-warm-200 rounded-xl 
-           focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent
-           placeholder:text-warm-400 transition-all duration-200;
+    @apply w-full px-4 py-3 bg-white border border-slate-200 rounded-lg
+           focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent
+           placeholder:text-slate-400 transition-all duration-200;
   }
 
   /* 面板卡片 */

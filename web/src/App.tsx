@@ -5,12 +5,16 @@ import CenterPanel from './components/CenterPanel'
 import RightPanel from './components/RightPanel'
 import ApiConfigForm from './components/ApiConfigForm'
 import GenerationConfigForm from './components/GenerationConfigForm'
+import DesignWorkflowPanel from './components/DesignWorkflowPanel'
 import GenerateButton from './components/GenerateButton'
 import ProgressIndicator from './components/ProgressIndicator'
 import ConfirmDialog from './components/ConfirmDialog'
 import NewProjectButton from './components/NewProjectButton'
 import RestoreSessionDialog from './components/RestoreSessionDialog'
-import { AppStateProvider, useAppState } from './contexts/AppStateContext'
+import { AppStateProvider } from './contexts/AppStateContext'
+import { useAppState } from './contexts/useAppState'
+import { UiPreferencesProvider } from './contexts/UiPreferencesContext'
+import { useUiPreferences } from './contexts/useUiPreferences'
 import { useGeneration } from './hooks/useGeneration'
 import { useEdit } from './hooks/useEdit'
 import { useEditConflict } from './hooks/useEditConflict'
@@ -18,14 +22,16 @@ import { useExport } from './hooks/useExport'
 import { useAutoSave } from './hooks/useAutoSave'
 import { useStateRestore } from './hooks/useStateRestore'
 import { StorageService } from './services/storageService'
-import { saveFullApiConfig } from './components/ApiConfigForm'
-import { GenerationConfig, ExportFormat, FullApiConfig } from './types'
+import { uploadDocument } from './services/uploadService'
+import { saveFullApiConfig } from './utils/apiConfig'
+import { ConfirmedSlidePrompt, GenerationConfig, ExportFormat, FullApiConfig } from './types'
 
 /**
  * 主应用内容组件
  * 使用 Context 中的状态
  */
 function AppContent() {
+  const { t } = useUiPreferences()
   const {
     state,
     setFile,
@@ -56,7 +62,7 @@ function AppContent() {
   const {
     state: exportState,
     startExport
-  } = useExport(slides)
+  } = useExport(slides, state.generationConfig.aspectRatio)
   const [exportError, setExportError] = useState<string | null>(null)
 
   // 状态恢复
@@ -68,6 +74,7 @@ function AppContent() {
   } = useStateRestore()
 
   const [showRestoreDialog, setShowRestoreDialog] = useState(false)
+  const [confirmedSlidePrompts, setConfirmedSlidePrompts] = useState<ConfirmedSlidePrompt[] | null>(null)
 
   // 检查是否有可恢复的数据
   useEffect(() => {
@@ -109,16 +116,12 @@ function AppContent() {
   // 处理新建项目
   const handleNewProject = useCallback(() => {
     resetState()
+    setConfirmedSlidePrompts(null)
   }, [resetState])
 
-  const handleFileSelect = useCallback((file: File) => {
-    // Read file content
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      const content = e.target?.result as string
-      setFile(file, content, file.name)
-    }
-    reader.readAsText(file)
+  const handleFileSelect = useCallback(async (file: File) => {
+    const uploadResult = await uploadDocument(file)
+    setFile(file, uploadResult.content, uploadResult.filename || file.name)
   }, [setFile])
 
   const handleSlideSelect = useCallback((slideId: string) => {
@@ -150,8 +153,16 @@ function AppContent() {
   }, [setGenerationConfig])
 
   const handleGenerate = useCallback(() => {
-    generate()
-  }, [generate])
+    generate(confirmedSlidePrompts || undefined)
+  }, [confirmedSlidePrompts, generate])
+
+  const handlePromptsReady = useCallback((prompts: ConfirmedSlidePrompt[]) => {
+    setConfirmedSlidePrompts(prompts)
+  }, [])
+
+  const handleClearPrompts = useCallback(() => {
+    setConfirmedSlidePrompts(null)
+  }, [])
 
   // 处理取消编辑（带冲突检测）
   const handleEditCancel = useCallback(() => {
@@ -189,9 +200,9 @@ function AppContent() {
     try {
       await startExport(format)
     } catch (err) {
-      setExportError(err instanceof Error ? err.message : '导出失败')
+      setExportError(err instanceof Error ? err.message : t('export.failed'))
     }
-  }, [startExport])
+  }, [startExport, t])
 
   return (
     <>
@@ -234,32 +245,34 @@ function AppContent() {
             initialConfig={state.fullApiConfig}
             onConfigChange={handleApiConfigChange}
           />
-          
-          {/* 分隔线 */}
-          <hr className="my-6 border-gray-200" />
-          
+
           {/* 生成配置表单 */}
           <GenerationConfigForm
             initialConfig={state.generationConfig}
             onConfigChange={handleGenerationConfigChange}
           />
-          
-          {/* 分隔线 */}
-          <hr className="my-6 border-gray-200" />
-          
-          {/* 生成按钮 */}
-          <GenerateButton
+
+          <DesignWorkflowPanel
             fileContent={state.fileContent}
-            apiConfig={state.fullApiConfig}
+            fullApiConfig={state.fullApiConfig}
             generationConfig={state.generationConfig}
-            isGenerating={isGenerating}
-            onGenerate={handleGenerate}
-          />
-          
-          {/* 进度指示器 - 仅在生成中或有进度时显示 */}
-          {(isGenerating || progress.status === 'completed' || error) && (
-            <>
-              <hr className="my-6 border-gray-200" />
+            confirmedPrompts={confirmedSlidePrompts}
+            onPromptsReady={handlePromptsReady}
+            onClearPrompts={handleClearPrompts}
+          >
+            <GenerateButton
+              fileContent={state.fileContent}
+              apiConfig={state.fullApiConfig}
+              generationConfig={state.generationConfig}
+              isGenerating={isGenerating}
+              onGenerate={handleGenerate}
+              canGenerate={Boolean(confirmedSlidePrompts?.length) && !isGenerating}
+              disabledReason={t('workflow.generateBlocked')}
+              readyLabel={t('workflow.generateImages')}
+            />
+
+            {(isGenerating || progress.status === 'completed' || error) && (
+              <div className="mt-4">
               <ProgressIndicator
                 current={progress.current}
                 total={progress.total}
@@ -267,8 +280,9 @@ function AppContent() {
                 message={progress.message}
                 error={error}
               />
-            </>
-          )}
+              </div>
+            )}
+          </DesignWorkflowPanel>
         </CenterPanel>
       }
       rightPanel={
@@ -287,10 +301,10 @@ function AppContent() {
     {/* 编辑冲突确认对话框 */}
     <ConfirmDialog
       isOpen={showConfirmDialog}
-      title="放弃当前编辑？"
-      message="您有未保存的编辑内容。如果继续，这些修改将会丢失。"
-      confirmText="放弃编辑"
-      cancelText="继续编辑"
+      title={t('edit.conflictTitle')}
+      message={t('edit.conflictMessage')}
+      confirmText={t('edit.discard')}
+      cancelText={t('edit.continue')}
       confirmVariant="danger"
       onConfirm={handleConfirmDiscard}
       onCancel={handleCancelDiscard}
@@ -325,9 +339,11 @@ function AppContent() {
  */
 function App() {
   return (
-    <AppStateProvider>
-      <AppContent />
-    </AppStateProvider>
+    <UiPreferencesProvider>
+      <AppStateProvider>
+        <AppContent />
+      </AppStateProvider>
+    </UiPreferencesProvider>
   )
 }
 

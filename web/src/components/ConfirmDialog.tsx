@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { useUiPreferences } from '../contexts/useUiPreferences'
 
 interface ConfirmDialogProps {
   isOpen: boolean
@@ -20,14 +21,17 @@ function ConfirmDialog({
   isOpen,
   title,
   message,
-  confirmText = '确认',
-  cancelText = '取消',
+  confirmText,
+  cancelText,
   confirmVariant = 'primary',
   onConfirm,
   onCancel
 }: ConfirmDialogProps) {
+  const { t } = useUiPreferences()
   const dialogRef = useRef<HTMLDivElement>(null)
   const confirmButtonRef = useRef<HTMLButtonElement>(null)
+  const resolvedConfirmText = confirmText || t('common.confirm')
+  const resolvedCancelText = cancelText || t('common.cancel')
 
   // 打开时聚焦确认按钮
   useEffect(() => {
@@ -110,7 +114,7 @@ function ConfirmDialog({
             className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
             data-testid="confirm-dialog-cancel"
           >
-            {cancelText}
+            {resolvedCancelText}
           </button>
           <button
             ref={confirmButtonRef}
@@ -119,7 +123,7 @@ function ConfirmDialog({
             className={`px-4 py-2 text-sm font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors ${confirmButtonClass}`}
             data-testid="confirm-dialog-confirm"
           >
-            {confirmText}
+            {resolvedConfirmText}
           </button>
         </div>
       </div>

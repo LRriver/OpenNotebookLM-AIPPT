@@ -1,4 +1,5 @@
 import { EditHistoryItem } from '../types'
+import { useUiPreferences } from '../contexts/useUiPreferences'
 
 interface EditHistoryProps {
   history: EditHistoryItem[]
@@ -11,13 +12,14 @@ interface EditHistoryProps {
  * Requirements: 8.3, 8.4
  */
 function EditHistory({ history, onRevert }: EditHistoryProps) {
+  const { language, t } = useUiPreferences()
   if (history.length === 0) {
     return null
   }
 
   const formatTimestamp = (timestamp: number): string => {
     const date = new Date(timestamp)
-    return date.toLocaleTimeString('zh-CN', {
+    return date.toLocaleTimeString(language === 'zh' ? 'zh-CN' : 'en-US', {
       hour: '2-digit',
       minute: '2-digit',
       second: '2-digit'
@@ -27,7 +29,7 @@ function EditHistory({ history, onRevert }: EditHistoryProps) {
   return (
     <div className="border rounded-lg p-3 bg-gray-50" data-testid="edit-history">
       <h3 className="text-sm font-medium text-gray-700 mb-2">
-        编辑历史 ({history.length} 次修改)
+        {t('edit.historyTitle', { count: history.length })}
       </h3>
       <div className="space-y-2 max-h-40 overflow-y-auto">
         {history.map((item, index) => (
@@ -66,10 +68,10 @@ function EditHistory({ history, onRevert }: EditHistoryProps) {
             <button
               onClick={() => onRevert(item)}
               className="flex-shrink-0 px-2 py-1 text-xs text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors"
-              title="回退到此版本"
+              title={t('edit.revertTitle')}
               data-testid={`revert-button-${index}`}
             >
-              回退
+              {t('edit.revert')}
             </button>
           </div>
         ))}

@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react'
 import { EditSession, EditHistoryItem } from '../types'
 import EditHistory from './EditHistory'
+import { useUiPreferences } from '../contexts/useUiPreferences'
 
 interface EditPanelProps {
   editSession: EditSession
@@ -24,6 +25,7 @@ function EditPanel({
   onCancel,
   onRevertToVersion
 }: EditPanelProps) {
+  const { t } = useUiPreferences()
   const [instruction, setInstruction] = useState('')
 
   const handleSubmit = useCallback((e: React.FormEvent) => {
@@ -60,9 +62,9 @@ function EditPanel({
     <div className="flex flex-col h-full" data-testid="edit-panel">
       {/* 标题区域 */}
       <div className="mb-4">
-        <h2 className="text-lg font-semibold text-gray-900">编辑幻灯片</h2>
+        <h2 className="text-lg font-semibold text-gray-900">{t('edit.title')}</h2>
         <p className="text-sm text-gray-600 mt-1">
-          输入修改指令，AI 将根据指令修改图片
+          {t('edit.subtitle')}
         </p>
       </div>
 
@@ -70,7 +72,7 @@ function EditPanel({
       <div className="flex gap-4 mb-4">
         {/* 原始图片 */}
         <div className="flex-1">
-          <p className="text-xs text-gray-500 mb-2 text-center">原始图片</p>
+          <p className="text-xs text-gray-500 mb-2 text-center">{t('edit.original')}</p>
           <div className="border rounded-lg overflow-hidden bg-gray-100 aspect-video">
             <img
               src={originalImageSrc}
@@ -84,7 +86,7 @@ function EditPanel({
         {/* 当前图片 */}
         <div className="flex-1">
           <p className="text-xs text-gray-500 mb-2 text-center">
-            {hasChanges ? '当前版本' : '原始图片'}
+            {hasChanges ? t('edit.current') : t('edit.original')}
           </p>
           <div className="border rounded-lg overflow-hidden bg-gray-100 aspect-video relative">
             <img
@@ -116,7 +118,7 @@ function EditPanel({
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     />
                   </svg>
-                  <span>正在生成...</span>
+                  <span>{t('edit.generating')}</span>
                 </div>
               </div>
             )}
@@ -140,7 +142,7 @@ function EditPanel({
           htmlFor="edit-instruction"
           className="block text-sm font-medium text-gray-700 mb-2"
         >
-          修改指令
+          {t('edit.instruction')}
         </label>
         <div className="flex gap-2">
           <textarea
@@ -148,7 +150,7 @@ function EditPanel({
             value={instruction}
             onChange={(e) => setInstruction(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="例如：将背景颜色改为蓝色、添加公司 logo、调整文字大小..."
+            placeholder={t('edit.placeholder')}
             className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
             rows={3}
             disabled={isEditing}
@@ -167,7 +169,7 @@ function EditPanel({
           `}
           data-testid="submit-edit-button"
         >
-          {isEditing ? '正在生成...' : '提交修改'}
+          {isEditing ? t('edit.generating') : t('edit.submit')}
         </button>
       </form>
 
@@ -185,7 +187,7 @@ function EditPanel({
           `}
           data-testid="cancel-edit-button"
         >
-          取消
+          {t('edit.cancel')}
         </button>
         <button
           onClick={onConfirm}
@@ -199,7 +201,7 @@ function EditPanel({
           `}
           data-testid="confirm-edit-button"
         >
-          确认修改
+          {t('edit.confirm')}
         </button>
       </div>
     </div>

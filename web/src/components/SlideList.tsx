@@ -1,5 +1,6 @@
 import { Slide } from '../types'
 import SlideCard from './SlideCard'
+import { useUiPreferences } from '../contexts/useUiPreferences'
 
 interface SlideListProps {
   slides: Slide[]
@@ -13,6 +14,7 @@ interface SlideListProps {
  * 垂直滚动列表，显示所有幻灯片缩略图
  */
 function SlideList({ slides, selectedSlideId, onSlideSelect, onSlideEdit }: SlideListProps) {
+  const { t } = useUiPreferences()
   // 空状态
   if (slides.length === 0) {
     return (
@@ -31,7 +33,7 @@ function SlideList({ slides, selectedSlideId, onSlideSelect, onSlideEdit }: Slid
           />
         </svg>
         <p className="mt-2 text-sm text-gray-500">
-          生成幻灯片后将在此处显示
+          {t('slide.empty')}
         </p>
       </div>
     )
@@ -42,7 +44,7 @@ function SlideList({ slides, selectedSlideId, onSlideSelect, onSlideEdit }: Slid
       className="space-y-4"
       data-testid="slide-list"
       role="list"
-      aria-label="幻灯片列表"
+      aria-label={t('slide.listAria')}
     >
       {slides.map((slide) => (
         <SlideCard

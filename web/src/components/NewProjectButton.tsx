@@ -9,6 +9,7 @@
 import { useState, useCallback } from 'react'
 import { StorageService } from '../services/storageService'
 import ConfirmDialog from './ConfirmDialog'
+import { useUiPreferences } from '../contexts/useUiPreferences'
 
 interface NewProjectButtonProps {
   hasUnsavedChanges: boolean
@@ -24,20 +25,8 @@ export function NewProjectButton({
   onNewProject,
   className = ''
 }: NewProjectButtonProps) {
+  const { t } = useUiPreferences()
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
-
-  /**
-   * 处理点击新建项目
-   */
-  const handleClick = useCallback(() => {
-    if (hasUnsavedChanges) {
-      // 有未保存的更改，显示确认对话框
-      setShowConfirmDialog(true)
-    } else {
-      // 没有未保存的更改，直接新建
-      handleConfirmNewProject()
-    }
-  }, [hasUnsavedChanges])
 
   /**
    * 确认新建项目
@@ -52,6 +41,19 @@ export function NewProjectButton({
     // 关闭对话框
     setShowConfirmDialog(false)
   }, [onNewProject])
+
+  /**
+   * 处理点击新建项目
+   */
+  const handleClick = useCallback(() => {
+    if (hasUnsavedChanges) {
+      // 有未保存的更改，显示确认对话框
+      setShowConfirmDialog(true)
+    } else {
+      // 没有未保存的更改，直接新建
+      handleConfirmNewProject()
+    }
+  }, [hasUnsavedChanges, handleConfirmNewProject])
 
   /**
    * 取消新建项目
@@ -73,7 +75,7 @@ export function NewProjectButton({
           transition-colors duration-200
           ${className}
         `}
-        title="新建项目"
+        title={t('newProject.button')}
       >
         <svg
           className="w-4 h-4"
@@ -88,16 +90,16 @@ export function NewProjectButton({
             d="M12 4v16m8-8H4"
           />
         </svg>
-        新建项目
+        {t('newProject.button')}
       </button>
 
       {/* 确认对话框 */}
       <ConfirmDialog
         isOpen={showConfirmDialog}
-        title="新建项目？"
-        message="当前项目有未保存的更改。新建项目将清除所有当前内容，此操作无法撤销。"
-        confirmText="新建项目"
-        cancelText="取消"
+        title={t('newProject.title')}
+        message={t('newProject.message')}
+        confirmText={t('newProject.confirm')}
+        cancelText={t('common.cancel')}
         confirmVariant="danger"
         onConfirm={handleConfirmNewProject}
         onCancel={handleCancelNewProject}

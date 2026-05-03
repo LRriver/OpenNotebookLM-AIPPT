@@ -1,7 +1,9 @@
 import { useState, useRef, useCallback } from 'react'
+import { isSupportedDocument, supportedDocumentLabel, supportedDocumentAccept } from '../utils/fileValidation'
+import { useUiPreferences } from '../contexts/useUiPreferences'
 
 interface FileUploadProps {
-  onFileSelect: (file: File) => void
+  onFileSelect: (file: File) => Promise<void> | void
   onError: (error: string) => void
   accept?: string
   maxSizeBytes?: number
@@ -19,22 +21,23 @@ interface FileInfo {
 function FileUpload({
   onFileSelect,
   onError,
-  accept = '.md',
-  maxSizeBytes = 10 * 1024 * 1024,
+  accept = supportedDocumentAccept(),
+  maxSizeBytes = 50 * 1024 * 1024,
 }: FileUploadProps) {
+  const { t } = useUiPreferences()
   const [isDragging, setIsDragging] = useState(false)
   const [fileInfo, setFileInfo] = useState<FileInfo | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const validateFile = useCallback((file: File): string | null => {
-    if (!file.name.toLowerCase().endsWith('.md')) {
-      return '仅支持 .md 文件格式'
+    if (!isSupportedDocument(file.name)) {
+      return t('upload.invalid', { formats: supportedDocumentLabel() })
     }
     if (file.size > maxSizeBytes) {
-      return `文件大小超过限制 (最大 ${Math.round(maxSizeBytes / 1024 / 1024)}MB)`
+      return t('upload.tooLarge', { size: Math.round(maxSizeBytes / 1024 / 1024) })
     }
     return null
-  }, [maxSizeBytes])
+  }, [maxSizeBytes, t])
 
   const handleFile = useCallback((file: File) => {
     const error = validateFile(file)
@@ -42,9 +45,10 @@ function FileUpload({
       onError(error)
       return
     }
-    setFileInfo({ name: file.name, size: file.size })
-    onFileSelect(file)
-  }, [validateFile, onFileSelect, onError])
+    Promise.resolve(onFileSelect(file))
+      .then(() => setFileInfo({ name: file.name, size: file.size }))
+      .catch(error => onError(error instanceof Error ? error.message : t('upload.failed')))
+  }, [validateFile, onFileSelect, onError, t])
 
   const handleDragEnter = useCallback((e: React.DragEvent) => {
     e.preventDefault()
@@ -95,14 +99,14 @@ function FileUpload({
 
   return (
     <div className="w-full">
-      {/* 拖拽上传区域 - 橙黄主题 */}
+      {/* 拖拽上传区域 */}
       <div
         className={`
-          border-2 border-dashed rounded-xl p-6 text-center cursor-pointer
+          aippt-dropzone border-2 border-dashed rounded-lg p-6 text-center cursor-pointer
           transition-all duration-300 ease-out
           ${isDragging
-            ? 'border-primary-500 bg-primary-50 scale-[1.02] shadow-warm'
-            : 'border-warm-300 bg-warm-50/50 hover:border-primary-400 hover:bg-primary-50/50'
+            ? 'is-dragging scale-[1.02]'
+            : ''
           }
         `}
         onDragEnter={handleDragEnter}
@@ -115,7 +119,7 @@ function FileUpload({
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') handleClick()
         }}
-        aria-label="点击或拖拽上传 Markdown 文件"
+        aria-label={t('upload.aria')}
       >
         {/* 上传图标 */}
         <div className={`
@@ -143,9 +147,11 @@ function FileUpload({
 
         {/* 提示文字 */}
         <p className={`text-sm font-medium transition-colors duration-300 ${isDragging ? 'text-primary-700' : 'text-warm-600'}`}>
-          {isDragging ? '释放文件以上传' : '点击或拖拽文件到此处'}
+          {isDragging ? t('upload.release') : t('upload.drop')}
         </p>
-        <p className="mt-1 text-xs text-warm-400">仅支持 Markdown (.md) 文件</p>
+        <p className="mt-1 text-xs text-[var(--text-faint)]">
+          {t('upload.support', { formats: supportedDocumentLabel() })}
+        </p>
 
         <input
           ref={fileInputRef}
@@ -172,7 +178,7 @@ function FileUpload({
                 <p className="text-xs text-warm-500">{formatFileSize(fileInfo.size)}</p>
               </div>
             </div>
-            <span className="badge-success text-xs">已上传</span>
+            <span className="badge-success text-xs">{t('upload.uploaded')}</span>
           </div>
         </div>
       )}
@@ -181,7 +187,3 @@ function FileUpload({
 }
 
 export default FileUpload
-
-export function validateMarkdownFile(fileName: string): boolean {
-  return fileName.toLowerCase().endsWith('.md')
-}

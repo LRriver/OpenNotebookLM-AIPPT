@@ -1,6 +1,8 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import * as fc from 'fast-check'
-import { loadApiConfig, saveApiConfig, validateApiConfig, loadFullApiConfig } from '../ApiConfigForm'
+import { fireEvent, render, screen, waitFor, cleanup } from '@testing-library/react'
+import ApiConfigForm from '../ApiConfigForm'
+import { loadApiConfig, saveApiConfig, validateApiConfig, loadFullApiConfig } from '../../utils/apiConfig'
 import { ApiConfig } from '../../types'
 
 /**
@@ -21,6 +23,8 @@ describe('ApiConfigForm Property Tests', () => {
   
   afterEach(() => {
     localStorage.clear()
+    cleanup()
+    vi.unstubAllGlobals()
   })
 
   /**
@@ -42,6 +46,51 @@ describe('ApiConfigForm Property Tests', () => {
     expect(loaded.image.baseUrl).toBe('')
     expect(loaded.text.apiKey).toBe('')
     expect(loaded.text.baseUrl).toBe('')
+  })
+
+  it('should collapse configured model details after backend profiles load', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        success: true,
+        profiles: {
+          prompt_model: {
+            model: 'text-model',
+            base_url: 'https://text.example/v1',
+            adapter: 'openai_chat'
+          },
+          image_model: {
+            model: 'image-model',
+            base_url: 'https://image.example/v1',
+            adapter: 'raw_chat_multimodal'
+          },
+          edit_model: {
+            model: 'edit-model',
+            base_url: 'https://edit.example/v1',
+            adapter: 'raw_chat_multimodal'
+          }
+        }
+      })
+    }))
+
+    render(<ApiConfigForm />)
+
+    const configToggle = screen.getByRole('button', { name: /模型配置/ })
+    expect(configToggle).toHaveAttribute('aria-expanded', 'false')
+    expect(screen.queryByText('图像生成模型')).not.toBeInTheDocument()
+
+    fireEvent.click(configToggle)
+
+    await screen.findByText('image-model')
+    expect(screen.getByText('text-model')).toBeInTheDocument()
+    expect(screen.getByText('edit-model')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /图像生成模型/ })).toHaveAttribute('aria-expanded', 'false')
+
+    await waitFor(() => {
+      expect(screen.queryByDisplayValue('https://image.example/v1')).not.toBeInTheDocument()
+      expect(screen.queryByDisplayValue('https://text.example/v1')).not.toBeInTheDocument()
+      expect(screen.queryByDisplayValue('https://edit.example/v1')).not.toBeInTheDocument()
+    })
   })
 
   /**

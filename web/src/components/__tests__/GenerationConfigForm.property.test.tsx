@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest'
+import { fireEvent, render, screen } from '@testing-library/react'
 import * as fc from 'fast-check'
-import { validatePageCount, validateGenerationConfig, DEFAULT_GENERATION_CONFIG } from '../GenerationConfigForm'
+import GenerationConfigForm from '../GenerationConfigForm'
+import { validatePageCount, validateGenerationConfig, DEFAULT_GENERATION_CONFIG } from '../../utils/generationConfig'
 import { GenerationConfig } from '../../types'
 
 /**
@@ -14,6 +16,24 @@ import { GenerationConfig } from '../../types'
  * the system should display a validation error and prevent submission.
  */
 describe('GenerationConfigForm Property Tests', () => {
+  it('presents all deck content controls together in user-facing language', () => {
+    render(<GenerationConfigForm />)
+
+    const toggle = screen.getByRole('button', { name: /PPT 内容设置/ })
+    expect(toggle).toHaveAttribute('aria-expanded', 'false')
+    fireEvent.click(toggle)
+
+    expect(screen.getByLabelText('页数 (1-20)')).toBeInTheDocument()
+    expect(screen.getByText('清晰度')).toBeInTheDocument()
+    expect(screen.getByText('画面比例')).toBeInTheDocument()
+    expect(screen.getByText('输出语言')).toBeInTheDocument()
+    expect(screen.getByText('PPT 风格')).toBeInTheDocument()
+    expect(screen.getByText('目标受众')).toBeInTheDocument()
+    expect(screen.getByLabelText('内容要求')).toBeInTheDocument()
+    expect(screen.queryByText('高级设置')).not.toBeInTheDocument()
+    expect(screen.queryByText('用户定制要求')).not.toBeInTheDocument()
+  })
+
   /**
    * Property 3: Configuration Parameter Validation
    * Valid page counts (1-20) should pass validation

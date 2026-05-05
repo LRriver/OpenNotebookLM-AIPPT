@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { render } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import * as fc from 'fast-check'
 import Layout from '../Layout'
 
@@ -51,15 +51,15 @@ describe('Layout Property Tests', () => {
           expect(centerPanel).toBeTruthy()
           expect(rightPanel).toBeTruthy()
 
-          // Property: Layout should have grid structure
+          // Property: Layout should have a resizable workbench structure
           const mainContent = container.querySelector('main')
           expect(mainContent).toBeTruthy()
           
-          const gridContainer = mainContent?.querySelector('.grid')
-          expect(gridContainer).toBeTruthy()
+          const workbench = mainContent?.querySelector('[data-testid="resizable-layout"]')
+          expect(workbench).toBeTruthy()
 
-          // Property: Grid should have 12 columns defined
-          expect(gridContainer?.classList.contains('grid-cols-12')).toBe(true)
+          // Property: Three panel shells should be present for desktop resizing
+          expect(workbench?.querySelectorAll('[data-layout-panel]').length).toBe(3)
         }
       ),
       { numRuns: 100 } // Run 100 iterations as specified in design doc
@@ -84,7 +84,7 @@ describe('Layout Property Tests', () => {
           // Property: Header must exist
           const header = container.querySelector('header')
           expect(header).toBeTruthy()
-          expect(header?.textContent).toContain('AI PPT Generator')
+          expect(header?.textContent).toContain('AI PPT 工作台')
 
           // Property: Main content must exist
           const main = container.querySelector('main')
@@ -98,5 +98,44 @@ describe('Layout Property Tests', () => {
       ),
       { numRuns: 100 }
     )
+  })
+
+  it('should keep the top bar product-focused without technical capability tags', () => {
+    render(
+      <Layout
+        leftPanel={<div>Left</div>}
+        centerPanel={<div>Center</div>}
+        rightPanel={<div>Right</div>}
+      />
+    )
+
+    expect(screen.queryByText('逐页编辑')).not.toBeInTheDocument()
+    expect(screen.queryByText('OpenAI-compatible')).not.toBeInTheDocument()
+    expect(screen.queryByText('PDF / PPTX')).not.toBeInTheDocument()
+  })
+
+  it('should account for resize handles and gaps in desktop width allocation', () => {
+    Object.defineProperty(window, 'innerWidth', {
+      writable: true,
+      configurable: true,
+      value: 1920,
+    })
+
+    const { container } = render(
+      <Layout
+        leftPanel={<div>Left</div>}
+        centerPanel={<div>Center</div>}
+        rightPanel={<div>Right</div>}
+      />
+    )
+
+    const workbench = container.querySelector('[data-testid="resizable-layout"]') as HTMLElement
+    expect(workbench.style.gridTemplateColumns).toBe('25fr 0.5rem 34fr 0.5rem 41fr')
+
+    const panels = Array.from(container.querySelectorAll('[data-layout-panel]')) as HTMLElement[]
+    expect(panels).toHaveLength(3)
+    panels.forEach(panel => {
+      expect(panel.style.flexBasis).toBe('')
+    })
   })
 })

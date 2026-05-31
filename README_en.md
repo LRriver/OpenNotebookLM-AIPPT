@@ -4,9 +4,9 @@
 
 Recreate NotebookLM's AI PPT feature to automatically convert papers, documents, and other materials into beautiful PPT images.
 
-<video src="docs/assets/aippt-demo.webm" poster="docs/assets/aippt-demo-poster.png" controls muted playsinline width="100%"></video>
+![AIPPT workbench demo](docs/assets/aippt-demo.gif)
 
-[Watch the demo video](docs/assets/aippt-demo.webm)
+[Watch the HD demo video](docs/assets/aippt-demo.webm)
 
 The demo covers uploading `doc/L9.md`, entering custom requirements, generating and editing the design outline, confirming page designs, generating a 6-slide deck, editing one slide, confirming the replacement, and exporting PDF/PPTX. Model waiting time is fast-forwarded.
 

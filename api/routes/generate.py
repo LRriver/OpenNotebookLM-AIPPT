@@ -52,7 +52,7 @@ def _to_ppt_config(config) -> PPTConfig:
 
 
 def _prompt_data_from_confirmed(request: GenerationRequest, ppt_config: PPTConfig) -> PromptData:
-    slide_prompts = request.slide_prompts or []
+    slide_prompts = sorted(request.slide_prompts or [], key=lambda item: item.page)
     if len(slide_prompts) != ppt_config.num_pages:
         raise ValueError(f"确认后的逐页设计数量不匹配: 期望{ppt_config.num_pages}页，实际{len(slide_prompts)}页")
 

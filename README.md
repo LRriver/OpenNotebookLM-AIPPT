@@ -4,9 +4,9 @@
 
 复刻 NotebookLM 的 AI PPT 功能，将论文、文档等资料自动转换为精美的 PPT 图片。
 
-<video src="docs/assets/aippt-demo.webm" poster="docs/assets/aippt-demo-poster.png" controls muted playsinline width="100%"></video>
+![AIPPT 工作台演示](docs/assets/aippt-demo.gif)
 
-[查看演示视频](docs/assets/aippt-demo.webm)
+[查看高清演示视频](docs/assets/aippt-demo.webm)
 
 演示视频覆盖上传 `doc/L9.md`、填写用户要求、生成并编辑设计大纲、确认逐页设计、生成 6 页 PPT、单页编辑、确认替换、导出 PDF/PPTX；模型等待阶段已做快进剪辑。
 

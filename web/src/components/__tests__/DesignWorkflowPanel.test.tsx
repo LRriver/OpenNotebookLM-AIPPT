@@ -107,6 +107,8 @@ describe('DesignWorkflowPanel', () => {
     fireEvent.click(screen.getByRole('button', { name: '展开第 1 页大纲' }))
     expect(screen.getByLabelText('第 1 页叙事目标')).toHaveValue('建立主题')
     expect(screen.getByLabelText('第 1 页关键要点')).toHaveValue('L9\n实验')
+    fireEvent.change(screen.getByLabelText('第 1 页关键要点'), { target: { value: 'L9\n实验\n' } })
+    expect(screen.getByLabelText('第 1 页关键要点')).toHaveValue('L9\n实验\n')
 
     fireEvent.click(screen.getByRole('button', { name: '确认大纲并生成逐页设计' }))
 
@@ -123,5 +125,7 @@ describe('DesignWorkflowPanel', () => {
     expect(screen.queryByText('封面展示标题、来源和一个抽象架构图。')).not.toBeInTheDocument()
     expect(fetchMock).toHaveBeenCalledTimes(2)
     expect(fetchMock.mock.calls[1][1]?.body).toContain('封面：技术实验')
+    const promptRequest = JSON.parse(fetchMock.mock.calls[1][1]?.body as string)
+    expect(promptRequest.outline.slides[0].key_points).toEqual(['L9', '实验'])
   })
 })

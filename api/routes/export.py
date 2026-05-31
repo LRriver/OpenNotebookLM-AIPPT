@@ -5,9 +5,11 @@
 import sys
 import base64
 import tempfile
+import shutil
 from pathlib import Path
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse
+from starlette.background import BackgroundTask
 
 # 添加项目根目录到 Python 路径
 project_root = Path(__file__).parent.parent.parent
@@ -31,7 +33,6 @@ async def export_presentation(request: ExportRequest):
         FileResponse: 导出的文件
     """
     try:
-        # 创建临时目录保存图片
         temp_dir = Path(tempfile.mkdtemp())
         image_paths = []
         
@@ -54,7 +55,8 @@ async def export_presentation(request: ExportRequest):
             return FileResponse(
                 path=str(output_path),
                 media_type="application/pdf",
-                filename="presentation.pdf"
+                filename="presentation.pdf",
+                background=BackgroundTask(shutil.rmtree, temp_dir, ignore_errors=True)
             )
         
         elif request.format == "pptx":
@@ -64,7 +66,8 @@ async def export_presentation(request: ExportRequest):
             return FileResponse(
                 path=str(output_path),
                 media_type="application/vnd.openxmlformats-officedocument.presentationml.presentation",
-                filename="presentation.pptx"
+                filename="presentation.pptx",
+                background=BackgroundTask(shutil.rmtree, temp_dir, ignore_errors=True)
             )
         
         else:
@@ -73,7 +76,14 @@ async def export_presentation(request: ExportRequest):
                 detail=f"不支持的导出格式: {request.format}"
             )
     
+    except HTTPException:
+        if "temp_dir" in locals():
+            shutil.rmtree(temp_dir, ignore_errors=True)
+        raise
+
     except Exception as e:
+        if "temp_dir" in locals():
+            shutil.rmtree(temp_dir, ignore_errors=True)
         raise HTTPException(
             status_code=500,
             detail=f"导出失败: {str(e)}"

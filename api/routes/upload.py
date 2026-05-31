@@ -85,6 +85,10 @@ async def upload_file(file: UploadFile = File(...)):
 
         try:
             content_str = DocumentParser().parse(temp_path).normalized_markdown
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        except RuntimeError as exc:
+            raise HTTPException(status_code=500, detail=str(exc)) from exc
         finally:
             temp_path.unlink(missing_ok=True)
         

@@ -31,6 +31,8 @@ class ModelRouter:
             messages.append({"role": "system", "content": system_instruction})
         messages.append({"role": "user", "content": prompt})
         response = client.chat.completions.create(model=profile.model, messages=messages)
+        if not response.choices:
+            return ""
         return response.choices[0].message.content or ""
 
     def generate_image(

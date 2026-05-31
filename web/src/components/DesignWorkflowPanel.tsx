@@ -28,6 +28,16 @@ function renderLines(content: string): string[] {
     .filter(Boolean)
 }
 
+function cleanOutlineForSubmit(outline: DeckOutline): DeckOutline {
+  return {
+    ...outline,
+    slides: outline.slides.map((slide) => ({
+      ...slide,
+      key_points: slide.key_points.map((item) => item.trim()).filter(Boolean)
+    }))
+  }
+}
+
 function DesignWorkflowPanel({
   fileContent,
   fullApiConfig,
@@ -101,7 +111,7 @@ function DesignWorkflowPanel({
     onClearPrompts()
 
     try {
-      const parsedOutline = outline
+      const parsedOutline = cleanOutlineForSubmit(outline)
       if (!Array.isArray(parsedOutline.slides) || parsedOutline.slides.length !== generationConfig.pageCount) {
         throw new Error(t('workflow.pageCountMismatch', { count: generationConfig.pageCount }))
       }
@@ -154,10 +164,7 @@ function DesignWorkflowPanel({
 
   const updateSlideKeyPoints = useCallback((page: number, value: string) => {
     markOutlineDirty()
-    const keyPoints = value
-      .split('\n')
-      .map((item) => item.trim())
-      .filter(Boolean)
+    const keyPoints = value.split('\n')
     setOutline((current) => current
       ? {
           ...current,

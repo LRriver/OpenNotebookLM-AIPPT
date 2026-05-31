@@ -17,7 +17,7 @@ NotebookLM's PPT feature is closer to a one-click result generator, with limited
 - **Visible process**: Review the deck outline and page-by-page design notes before image generation
 - **Per-slide control**: Edit any slide independently, generate new versions, revert history, and confirm replacements
 - **Model control**: Configure separate OpenAI-compatible models for text planning, image generation, and image editing
-- **Local-first config**: Store settings in local `config.yaml`; API keys are not hardcoded into the frontend repository
+- **Local-first config**: Store settings in local `config.yaml`; API keys are not exposed to the frontend or browser
 - **Export-ready output**: Export generated decks to PDF/PPTX for presentation or further editing
 
 ## ✨ Features

@@ -140,7 +140,7 @@ describe('Edit Session State Management Property Tests', () => {
           (editSession, slides) => {
             // Make sure one slide matches the edit session
             const slidesWithMatch = slides.map((slide, index) => 
-              index === 0 ? { ...slide, id: editSession.slideId } : slide
+              index === 0 ? { ...slide, id: editSession.slideId } : { ...slide, id: `other_${index}_${slide.id}` }
             )
 
             // Simulate confirm
@@ -171,7 +171,7 @@ describe('Edit Session State Management Property Tests', () => {
           (editSession, slides) => {
             // Make sure one slide matches the edit session
             const slidesWithMatch = slides.map((slide, index) => 
-              index === 0 ? { ...slide, id: editSession.slideId } : slide
+              index === 0 ? { ...slide, id: editSession.slideId } : { ...slide, id: `other_${index}_${slide.id}` }
             )
 
             // Simulate confirm

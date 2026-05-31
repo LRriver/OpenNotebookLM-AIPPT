@@ -1,51 +1,26 @@
 import { useState, useEffect } from 'react'
 import { GenerationConfig } from '../types'
-import { validatePageCount, validateGenerationConfig } from '../utils/validation'
-
-export { validatePageCount, validateGenerationConfig }
+import { validatePageCount } from '../utils/generationConfig'
+import { DEFAULT_GENERATION_CONFIG } from '../utils/generationConfig'
+import { audiencePresets, stylePresets } from '../i18n'
+import { useUiPreferences } from '../contexts/useUiPreferences'
 
 interface GenerationConfigFormProps {
   onConfigChange?: (config: GenerationConfig) => void
   initialConfig?: GenerationConfig
 }
 
-export const DEFAULT_GENERATION_CONFIG: GenerationConfig = {
-  pageCount: 10,
-  quality: '1K',
-  aspectRatio: '16:9',
-  language: '中文',
-  style: '现代简约商务风格',
-  targetAudience: '专业人士'
-}
-
-const STYLE_PRESETS = [
-  '现代简约商务风格',
-  '科技感未来风格',
-  '学术专业风格',
-  '创意艺术风格',
-  '清新自然风格',
-  '经典传统风格'
-]
-
-const AUDIENCE_PRESETS = [
-  '专业人士',
-  '学生群体',
-  '企业管理层',
-  '技术开发者',
-  '普通大众',
-  '投资者'
-]
-
 /**
  * 生成配置表单组件 - 橙黄主题
  */
 function GenerationConfigForm({ onConfigChange, initialConfig }: GenerationConfigFormProps) {
+  const { language, t } = useUiPreferences()
   const [config, setConfig] = useState<GenerationConfig>(initialConfig || DEFAULT_GENERATION_CONFIG)
   const [errors, setErrors] = useState<{ pageCount?: string }>({})
   const [pageCountInput, setPageCountInput] = useState<string>(
     String(initialConfig?.pageCount || DEFAULT_GENERATION_CONFIG.pageCount)
   )
-  const [showAdvanced, setShowAdvanced] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
     onConfigChange?.(config)
@@ -56,7 +31,7 @@ function GenerationConfigForm({ onConfigChange, initialConfig }: GenerationConfi
     setPageCountInput(inputValue)
     
     if (inputValue === '') {
-      setErrors({ pageCount: '页数不能为空' })
+      setErrors({ pageCount: t('generation.pageRequired') })
       return
     }
     
@@ -91,22 +66,47 @@ function GenerationConfigForm({ onConfigChange, initialConfig }: GenerationConfi
     setConfig(prev => ({ ...prev, targetAudience: audience }))
   }
 
+  const handleUserRequirementsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setConfig(prev => ({ ...prev, userRequirements: e.target.value }))
+  }
+
   return (
-    <div className="space-y-5">
-      {/* Header */}
-      <div className="flex items-center gap-2">
-        <div className="w-7 h-7 bg-gradient-to-br from-primary-400 to-accent-500 rounded-lg flex items-center justify-center">
-          <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-          </svg>
+    <section className="rounded-xl border border-[var(--card-border)] bg-[var(--card-bg)] overflow-hidden shadow-sm">
+      <button
+        type="button"
+        onClick={() => setIsOpen(open => !open)}
+        className="w-full px-4 py-3 text-left flex items-center justify-between gap-3 hover:bg-white/35 transition-colors"
+        aria-expanded={isOpen}
+      >
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="aippt-section-icon aippt-section-icon-warm !w-9 !h-9">
+            <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+            </svg>
+          </div>
+          <div className="min-w-0">
+            <h3 className="text-sm font-semibold text-[var(--text-strong)]">{t('generation.title')}</h3>
+            <p className="truncate text-xs text-[var(--text-muted)]">
+              {t('generation.summary', { pages: config.pageCount, quality: config.quality, ratio: config.aspectRatio })}
+            </p>
+          </div>
         </div>
-        <span className="text-sm font-semibold text-warm-800">生成参数</span>
-      </div>
-      
+        <svg
+          className={`h-4 w-4 shrink-0 text-[var(--text-muted)] transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m6 9 6 6 6-6" />
+        </svg>
+      </button>
+
+      {isOpen && (
+        <div className="space-y-5 border-t border-[var(--card-border)] p-4">
       {/* 页数选择器 */}
       <div>
         <label htmlFor="pageCount" className="block text-xs font-medium text-warm-600 mb-1.5">
-          页数 (1-20)
+          {t('generation.pageCount')}
         </label>
         <input
           type="number"
@@ -127,7 +127,7 @@ function GenerationConfigForm({ onConfigChange, initialConfig }: GenerationConfi
 
       {/* 清晰度选择 */}
       <div>
-        <label className="block text-xs font-medium text-warm-600 mb-2">清晰度</label>
+        <label className="block text-xs font-medium text-warm-600 mb-2">{t('generation.quality')}</label>
         <div className="flex gap-2">
           {(['1K', '2K', '4K'] as const).map((quality) => (
             <button
@@ -144,12 +144,12 @@ function GenerationConfigForm({ onConfigChange, initialConfig }: GenerationConfi
             </button>
           ))}
         </div>
-        <p className="mt-1.5 text-xs text-warm-400">更高清晰度需要更长生成时间</p>
+        <p className="mt-1.5 text-xs text-warm-400">{t('generation.qualityHint')}</p>
       </div>
 
       {/* 比例选择 */}
       <div>
-        <label className="block text-xs font-medium text-warm-600 mb-2">画面比例</label>
+        <label className="block text-xs font-medium text-warm-600 mb-2">{t('generation.aspectRatio')}</label>
         <div className="flex gap-2">
           {(['16:9', '4:3'] as const).map((ratio) => (
             <button
@@ -164,118 +164,115 @@ function GenerationConfigForm({ onConfigChange, initialConfig }: GenerationConfi
             >
               <span>{ratio}</span>
               <span className="block text-xs mt-0.5 opacity-75">
-                {ratio === '16:9' ? '宽屏' : '标准'}
+                {ratio === '16:9' ? t('generation.wide') : t('generation.standard')}
               </span>
             </button>
           ))}
         </div>
       </div>
 
-      {/* 高级设置折叠区 */}
-      <div className="border-t border-warm-200 pt-4">
-        <button
-          type="button"
-          onClick={() => setShowAdvanced(!showAdvanced)}
-          className="flex items-center gap-2 text-sm font-medium text-warm-700 hover:text-primary-600 transition-colors"
-        >
-          <svg 
-            className={`w-4 h-4 transition-transform duration-200 ${showAdvanced ? 'rotate-90' : ''}`} 
-            fill="none" 
-            stroke="currentColor" 
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-          PPT 内容设置
-        </button>
-        
-        {showAdvanced && (
-          <div className="mt-4 space-y-4 pl-6">
-            {/* 语言设置 */}
-            <div>
-              <label className="block text-xs font-medium text-warm-600 mb-1.5">输出语言</label>
-              <input
-                type="text"
-                value={config.language || ''}
-                onChange={handleLanguageChange}
-                placeholder="中文"
-                className="w-full px-4 py-2.5 text-sm border border-warm-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent"
-              />
-            </div>
+      {/* 语言设置 */}
+      <div>
+        <label className="block text-xs font-medium text-warm-600 mb-1.5">{t('generation.outputLanguage')}</label>
+        <input
+          type="text"
+          value={config.language || ''}
+          onChange={handleLanguageChange}
+          placeholder={t('generation.outputLanguagePlaceholder')}
+          className="w-full px-4 py-2.5 text-sm border border-warm-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent"
+        />
+      </div>
 
-            {/* 风格设置 */}
-            <div>
-              <label className="block text-xs font-medium text-warm-600 mb-2">PPT 风格</label>
-              <div className="flex flex-wrap gap-2">
-                {STYLE_PRESETS.map((style) => (
-                  <button
-                    key={style}
-                    type="button"
-                    onClick={() => handleStyleChange(style)}
-                    className={`px-3 py-1.5 text-xs font-medium rounded-full border transition-all duration-200 ${
-                      config.style === style
-                        ? 'bg-purple-500 text-white border-purple-500'
-                        : 'bg-white text-warm-600 border-warm-200 hover:border-purple-300'
-                    }`}
-                  >
-                    {style}
-                  </button>
-                ))}
-              </div>
-              <input
-                type="text"
-                value={config.style || ''}
-                onChange={(e) => handleStyleChange(e.target.value)}
-                placeholder="或输入自定义风格..."
-                className="mt-2 w-full px-4 py-2.5 text-sm border border-warm-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent"
-              />
-            </div>
+      {/* 风格设置 */}
+      <div>
+        <label className="block text-xs font-medium text-warm-600 mb-2">{t('generation.style')}</label>
+        <div className="flex flex-wrap gap-2">
+          {stylePresets[language].map((style) => (
+            <button
+              key={style}
+              type="button"
+              onClick={() => handleStyleChange(style)}
+              className={`px-3 py-1.5 text-xs font-medium rounded-full border transition-all duration-200 ${
+                config.style === style
+                  ? 'bg-purple-500 text-white border-purple-500'
+                  : 'bg-white text-warm-600 border-warm-200 hover:border-purple-300'
+              }`}
+            >
+              {style}
+            </button>
+          ))}
+        </div>
+        <input
+          type="text"
+          value={config.style || ''}
+          onChange={(e) => handleStyleChange(e.target.value)}
+          placeholder={t('generation.styleCustom')}
+          className="mt-2 w-full px-4 py-2.5 text-sm border border-warm-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent"
+        />
+      </div>
 
-            {/* 目标受众设置 */}
-            <div>
-              <label className="block text-xs font-medium text-warm-600 mb-2">目标受众</label>
-              <div className="flex flex-wrap gap-2">
-                {AUDIENCE_PRESETS.map((audience) => (
-                  <button
-                    key={audience}
-                    type="button"
-                    onClick={() => handleAudienceChange(audience)}
-                    className={`px-3 py-1.5 text-xs font-medium rounded-full border transition-all duration-200 ${
-                      config.targetAudience === audience
-                        ? 'bg-primary-500 text-white border-primary-500'
-                        : 'bg-white text-warm-600 border-warm-200 hover:border-primary-300'
-                    }`}
-                  >
-                    {audience}
-                  </button>
-                ))}
-              </div>
-              <input
-                type="text"
-                value={config.targetAudience || ''}
-                onChange={(e) => handleAudienceChange(e.target.value)}
-                placeholder="或输入自定义受众..."
-                className="mt-2 w-full px-4 py-2.5 text-sm border border-warm-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent"
-              />
-            </div>
-          </div>
-        )}
+      {/* 目标受众设置 */}
+      <div>
+        <label className="block text-xs font-medium text-warm-600 mb-2">{t('generation.audience')}</label>
+        <div className="flex flex-wrap gap-2">
+          {audiencePresets[language].map((audience) => (
+            <button
+              key={audience}
+              type="button"
+              onClick={() => handleAudienceChange(audience)}
+              className={`px-3 py-1.5 text-xs font-medium rounded-full border transition-all duration-200 ${
+                config.targetAudience === audience
+                  ? 'bg-primary-500 text-white border-primary-500'
+                  : 'bg-white text-warm-600 border-warm-200 hover:border-primary-300'
+              }`}
+            >
+              {audience}
+            </button>
+          ))}
+        </div>
+        <input
+          type="text"
+          value={config.targetAudience || ''}
+          onChange={(e) => handleAudienceChange(e.target.value)}
+          placeholder={t('generation.audienceCustom')}
+          className="mt-2 w-full px-4 py-2.5 text-sm border border-warm-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent"
+        />
+      </div>
+
+      <div>
+        <label htmlFor="userRequirements" className="block text-xs font-medium text-warm-600 mb-1.5">
+          {t('generation.requirements')}
+        </label>
+        <textarea
+          id="userRequirements"
+          name="userRequirements"
+          value={config.userRequirements || ''}
+          onChange={handleUserRequirementsChange}
+          rows={4}
+          placeholder={t('generation.requirementsPlaceholder')}
+          className="w-full px-4 py-3 text-sm border border-warm-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent resize-y"
+        />
       </div>
 
       {/* 当前配置摘要 */}
       <div className="p-3 bg-gradient-to-r from-primary-50 to-accent-50 rounded-xl border border-primary-100">
         <p className="text-xs text-warm-700 font-medium">
-          当前配置：{config.pageCount} 页 · {config.quality} 清晰度 · {config.aspectRatio} 比例
+          {t('generation.summary', { pages: config.pageCount, quality: config.quality, ratio: config.aspectRatio })}
           {config.language && ` · ${config.language}`}
         </p>
         {config.style && (
-          <p className="text-xs text-warm-500 mt-1">风格：{config.style}</p>
+          <p className="text-xs text-warm-500 mt-1">{t('generation.summaryStyle', { style: config.style })}</p>
         )}
         {config.targetAudience && (
-          <p className="text-xs text-warm-500">受众：{config.targetAudience}</p>
+          <p className="text-xs text-warm-500">{t('generation.summaryAudience', { audience: config.targetAudience })}</p>
+        )}
+        {config.userRequirements && (
+          <p className="text-xs text-warm-500 line-clamp-2">{t('generation.summaryRequirements', { requirements: config.userRequirements })}</p>
         )}
       </div>
-    </div>
+        </div>
+      )}
+    </section>
   )
 }
 

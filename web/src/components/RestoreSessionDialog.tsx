@@ -7,6 +7,7 @@
  */
 
 import { RestoredProject } from '../hooks/useStateRestore'
+import { useUiPreferences } from '../contexts/useUiPreferences'
 
 interface RestoreSessionDialogProps {
   isOpen: boolean
@@ -24,12 +25,13 @@ export function RestoreSessionDialog({
   onRestore,
   onDiscard
 }: RestoreSessionDialogProps) {
+  const { t } = useUiPreferences()
   if (!isOpen || !restoredProject) {
     return null
   }
 
   const slideCount = restoredProject.slides.length
-  const fileName = restoredProject.fileName || '未命名文件'
+  const fileName = restoredProject.fileName || t('restore.unnamed')
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -60,12 +62,12 @@ export function RestoreSessionDialog({
 
         {/* 标题 */}
         <h3 className="text-lg font-semibold text-center text-gray-900 mb-2">
-          发现未完成的项目
+          {t('restore.title')}
         </h3>
 
         {/* 描述 */}
         <p className="text-sm text-gray-600 text-center mb-4">
-          检测到您之前有未完成的工作，是否要恢复？
+          {t('restore.message')}
         </p>
 
         {/* 项目信息 */}
@@ -92,8 +94,8 @@ export function RestoreSessionDialog({
               </p>
               <p className="text-xs text-gray-500">
                 {slideCount > 0
-                  ? `${slideCount} 张幻灯片`
-                  : '尚未生成幻灯片'}
+                  ? t('restore.slideCount', { count: slideCount })
+                  : t('restore.noSlides')}
               </p>
             </div>
           </div>
@@ -105,13 +107,13 @@ export function RestoreSessionDialog({
             onClick={onDiscard}
             className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
           >
-            开始新项目
+            {t('restore.new')}
           </button>
           <button
             onClick={onRestore}
             className="flex-1 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
           >
-            恢复项目
+            {t('restore.restore')}
           </button>
         </div>
       </div>

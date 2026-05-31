@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { Slide, ExportFormat } from '../types'
+import { Slide, ExportFormat, GenerationConfig } from '../types'
 import { exportPresentation, canExport } from '../services/exportService'
 
 /**
@@ -27,7 +27,10 @@ export interface UseExportReturn {
  * @param slides 幻灯片列表
  * @returns 导出状态和方法
  */
-export function useExport(slides: Slide[]): UseExportReturn {
+export function useExport(
+  slides: Slide[],
+  aspectRatio: GenerationConfig['aspectRatio']
+): UseExportReturn {
   const [state, setState] = useState<ExportState>({
     isExporting: false,
     progress: 0,
@@ -53,7 +56,7 @@ export function useExport(slides: Slide[]): UseExportReturn {
 
     try {
       await exportPresentation(
-        { slides, format },
+        { slides, format, aspectRatio },
         {
           onStart: () => {
             setState(prev => ({ ...prev, progress: 5 }))
@@ -80,7 +83,7 @@ export function useExport(slides: Slide[]): UseExportReturn {
     } catch {
       // Error already handled by callback
     }
-  }, [slides, canExportSlides])
+  }, [slides, canExportSlides, aspectRatio])
 
   const clearError = useCallback(() => {
     setState(prev => ({ ...prev, error: null }))

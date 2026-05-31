@@ -4,12 +4,20 @@
 
 Recreate NotebookLM's AI PPT feature to automatically convert papers, documents, and other materials into beautiful PPT images.
 
+<video src="docs/assets/aippt-demo.webm" poster="docs/assets/aippt-demo-poster.png" controls muted playsinline width="100%"></video>
+
+[Watch the demo video](docs/assets/aippt-demo.webm)
+
+The demo covers uploading `doc/L9.md`, entering custom requirements, generating and editing the design outline, confirming page designs, generating a 6-slide deck, editing one slide, confirming the replacement, and exporting PDF/PPTX. Model waiting time is fast-forwarded.
+
 ## ✨ Features
 
-- 🎨 **AI Image Generation**: Use AI models to convert document content into beautiful PPT images
-- 🌐 **WebUI Interface**: User-friendly web interface with file upload, real-time preview, editing, and export
-- 📝 **Multi-format Support**: Markdown document input, PDF/PPTX format export
-- ✏️ **Image-to-Image Editing**: Support secondary editing of generated slides
+- 🎨 **Per-slide image generation**: Create an editable outline and page designs before converting them into PPT page images
+- 🌐 **PPT Workbench**: Upload sources, configure model roles, preview slides, edit pages, track history, and export
+- 📝 **Multi-format parsing**: Supports `.md/.txt/.pdf/.docx/.pptx` input and converts content to Markdown
+- ✏️ **Full-page image editing**: Edit each generated slide independently, revert history, and confirm replacements
+- 🔀 **Three model roles**: Configure `prompt_model`, `image_model`, and `edit_model` separately
+- 🖼️ **Image result compatibility**: Accepts URLs, Markdown image links, data URLs, `b64_json`, and raw base64
 - 💾 **State Persistence**: Auto-save work progress with session recovery
 
 ## 🚀 Quick Start
@@ -56,10 +64,10 @@ cd web && npm install && npm run dev
 pip install -r requirements.txt
 
 # Basic usage
-python main.py -i doc/sample_paper.txt -n 5
+python main.py -i doc/L9.md -n 5
 
 # Generate prompts only
-python main.py -i doc/sample_paper.txt -n 5 --prompt-only -o prompts.json
+python main.py -i doc/L9.md -n 5 --prompt-only -o prompts.json
 
 # Generate from prompt file
 python main.py --from-prompt prompts.json
@@ -67,12 +75,15 @@ python main.py --from-prompt prompts.json
 
 ### 3. WebUI Usage Flow
 
-1. **Upload Document**: Drag and drop or click to upload Markdown files in the left panel
-2. **Configure API**: Fill in API Key and Base URL in the center panel
-3. **Set Parameters**: Choose page count, resolution, aspect ratio, etc.
-4. **Generate PPT**: Click "Start Generation" button and watch real-time progress
-5. **Preview & Edit**: Preview generated slides in the right panel, click to edit
-6. **Export**: Choose PDF or PPTX format to export
+1. **Upload Document**: Drag and drop or click to upload a source file in the left panel
+2. **Configure Models**: Configure text, image generation, and image editing model roles
+3. **Set Parameters & Requirements**: Choose page count, resolution, aspect ratio, language, style, audience, and custom requirements
+4. **Confirm Design**: Generate an editable outline, confirm it, then review the generated page designs
+5. **Generate PPT**: Generate slide images after page-design confirmation and watch real-time progress
+6. **Preview & Edit**: Preview generated slides in the right panel and edit a single page when needed
+7. **Export**: Export to PDF or PPTX
+
+The built-in demo source is `doc/L9.md`. This is a repository-relative path, so a fresh clone can use it directly in the WebUI or CLI examples.
 
 ## 📁 Project Structure
 
@@ -83,6 +94,7 @@ OpenNotebookLM-AIPPT/
 ├── web/                    # React frontend
 ├── tests/                  # Tests
 ├── doc/                    # Input documents directory
+│   └── L9.md               # Default demo source
 ├── config.yaml             # Configuration file
 ├── start.sh                # One-click startup script
 └── main.py                 # CLI entry point
@@ -91,7 +103,7 @@ OpenNotebookLM-AIPPT/
 ## ⚙️ Configuration
 
 All configurations are managed in `config.yaml`, including:
-- API configuration (image generation, text generation)
+- API configuration (`prompt_model`, `image_model`, `edit_model`)
 - PPT default settings (language, style, page count)
 - Timeout and retry settings
 
@@ -101,11 +113,22 @@ See `config.example.yaml` for detailed configuration examples.
 
 ```yaml
 api:
-  text:
-    format: "openai"
-    model: "gpt-4o"
-    base_url: "https://api.openai.com/v1"
-    api_key: "sk-xxx"
+  models:
+    prompt_model:
+      adapter: "openai_chat"
+      model: "gpt-4o"
+      base_url: "https://api.openai.com/v1"
+      api_key: "sk-xxx"
+    image_model:
+      adapter: "raw_chat_multimodal"
+      model: "gpt-image-2"
+      base_url: "https://api.example.com/v1"
+      api_key: "sk-xxx"
+    edit_model:
+      adapter: "raw_chat_multimodal"
+      model: "gpt-image-2"
+      base_url: "https://api.example.com/v1"
+      api_key: "sk-xxx"
 ```
 
 ## 📤 Output Structure
@@ -121,8 +144,8 @@ output/ppt_20241201_123456/
 
 ## 📋 TODO
 
-- [ ] 🔌 Support more LLM API interfaces
-- [ ] 💾 Support multiple input formats and export formats
+- [ ] Support region selection for partial slide editing
+- [ ] Add more provider profile templates
 
 ## 📄 License
 

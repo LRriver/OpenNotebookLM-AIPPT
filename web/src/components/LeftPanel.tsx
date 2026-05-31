@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import FileUpload from './FileUpload'
 import FilePreview from './FilePreview'
+import { useUiPreferences } from '../contexts/useUiPreferences'
 
 interface LeftPanelProps {
   fileName: string | null
   fileContent: string
-  onFileSelect: (file: File) => void
+  onFileSelect: (file: File) => Promise<void> | void
 }
 
 /**
@@ -13,11 +14,12 @@ interface LeftPanelProps {
  * 包含文件拖拽上传区域和文件内容预览
  */
 function LeftPanel({ fileName, fileContent, onFileSelect }: LeftPanelProps) {
+  const { t } = useUiPreferences()
   const [uploadError, setUploadError] = useState<string | null>(null)
 
   const handleFileSelect = (file: File) => {
     setUploadError(null)
-    onFileSelect(file)
+    return onFileSelect(file)
   }
 
   const handleError = (error: string) => {
@@ -28,14 +30,14 @@ function LeftPanel({ fileName, fileContent, onFileSelect }: LeftPanelProps) {
     <div className="h-full flex flex-col p-5">
       {/* Section Header */}
       <div className="flex items-center space-x-2 mb-4">
-        <div className="w-8 h-8 bg-gradient-to-br from-primary-400 to-accent-500 rounded-lg flex items-center justify-center">
+        <div className="aippt-section-icon aippt-section-icon-warm">
           <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
           </svg>
         </div>
         <div>
-          <h2 className="text-base font-semibold text-warm-900">上传文件</h2>
-          <p className="text-xs text-warm-500">支持 Markdown 格式</p>
+          <h2 className="text-base font-semibold text-[var(--text-strong)]">{t('left.title')}</h2>
+          <p className="text-xs text-[var(--text-muted)]">{t('left.subtitle')}</p>
         </div>
       </div>
 
@@ -68,7 +70,7 @@ function LeftPanel({ fileName, fileContent, onFileSelect }: LeftPanelProps) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <span className="text-sm font-medium text-warm-700">文件已加载</span>
+            <span className="text-sm font-medium text-[var(--text)]">{t('left.loaded')}</span>
           </div>
           <FilePreview
             fileName={fileName || ''}

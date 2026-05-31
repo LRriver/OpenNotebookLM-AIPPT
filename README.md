@@ -4,12 +4,20 @@
 
 复刻 NotebookLM 的 AI PPT 功能，将论文、文档等资料自动转换为精美的 PPT 图片。
 
+<video src="docs/assets/aippt-demo.webm" poster="docs/assets/aippt-demo-poster.png" controls muted playsinline width="100%"></video>
+
+[查看演示视频](docs/assets/aippt-demo.webm)
+
+演示视频覆盖上传 `doc/L9.md`、填写用户要求、生成并编辑设计大纲、确认逐页设计、生成 6 页 PPT、单页编辑、确认替换、导出 PDF/PPTX；模型等待阶段已做快进剪辑。
+
 ## ✨ 功能特性
 
-- 🎨 **AI 图片生成**：使用 AI 模型将文档内容转换为精美的 PPT 图片
-- 🌐 **WebUI 界面**：提供友好的 Web 界面，支持文件上传、实时预览、编辑和导出
-- 📝 **多格式支持**：支持 Markdown 文档输入，PDF/PPTX 格式导出
-- ✏️ **图生图编辑**：支持对生成的幻灯片进行二次编辑修改
+- 🎨 **逐页图片生成**：先生成可编辑设计大纲和逐页设计，再使用 AI 模型转换为 PPT 页面图片
+- 🌐 **PPT 工作台**：支持资料上传、模型配置、当前页大预览、缩略图列表、编辑历史和导出
+- 📝 **多格式解析**：支持 `.md/.txt/.pdf/.docx/.pptx` 输入，统一转 Markdown 后生成
+- ✏️ **整页图像编辑**：支持对每页幻灯片单独二次编辑、历史回退和确认替换
+- 🔀 **三模型角色**：支持 `prompt_model`、`image_model`、`edit_model` 分别配置
+- 🖼️ **图像结果兼容**：兼容 URL、Markdown 图片链接、data URL、`b64_json` 和纯 base64
 - 💾 **状态持久化**：自动保存工作进度，支持会话恢复
 
 ## 🚀 快速开始
@@ -56,10 +64,10 @@ cd web && npm install && npm run dev
 pip install -r requirements.txt
 
 # 基础用法
-python main.py -i doc/sample_paper.txt -n 5
+python main.py -i doc/L9.md -n 5
 
 # 仅生成 Prompt
-python main.py -i doc/sample_paper.txt -n 5 --prompt-only -o prompts.json
+python main.py -i doc/L9.md -n 5 --prompt-only -o prompts.json
 
 # 从 Prompt 文件生成
 python main.py --from-prompt prompts.json
@@ -67,12 +75,15 @@ python main.py --from-prompt prompts.json
 
 ### 3. WebUI 使用流程
 
-1. **上传文档**：在左侧面板拖拽或点击上传 Markdown 文件
-2. **配置 API**：在中间面板填写 API Key 和 Base URL
-3. **设置参数**：选择页数、清晰度、比例等生成参数
-4. **生成 PPT**：点击"开始生成"按钮，实时查看生成进度
-5. **预览编辑**：在右侧面板预览生成的幻灯片，点击可进行编辑
-6. **导出文件**：选择 PDF 或 PPTX 格式导出
+1. **上传文档**：在左侧面板拖拽或点击上传资料文件
+2. **配置模型**：在中间面板配置文本、生图和编辑模型
+3. **设置参数与要求**：选择页数、清晰度、比例、语言、风格、受众，并填写用户定制要求
+4. **确认设计**：先生成设计大纲，用户可编辑后确认，再生成逐页设计预览
+5. **生成 PPT**：确认逐页设计后生成 PPT 图片，实时查看进度
+6. **预览编辑**：在右侧面板预览生成的幻灯片，点击可进行单页编辑
+7. **导出文件**：选择 PDF 或 PPTX 格式导出
+
+仓库内置演示资料为 `doc/L9.md`。该路径是仓库相对路径，clone 后可直接用于 WebUI 上传或命令行示例。
 
 ## 📁 项目结构
 
@@ -83,6 +94,7 @@ OpenNotebookLM-AIPPT/
 ├── web/                    # React 前端
 ├── tests/                  # 测试
 ├── doc/                    # 输入文档目录
+│   └── L9.md               # 默认演示资料
 ├── config.yaml             # 配置文件
 ├── start.sh                # 一键启动脚本
 └── main.py                 # 命令行入口
@@ -91,7 +103,7 @@ OpenNotebookLM-AIPPT/
 ## ⚙️ 配置说明
 
 所有配置统一在 `config.yaml` 中管理，包括：
-- API 配置（图像生成、文本生成）
+- API 配置（文本 prompt、生图、编辑三角色模型）
 - PPT 默认配置（语言、风格、页数）
 - 超时和重试配置
 
@@ -101,11 +113,22 @@ OpenNotebookLM-AIPPT/
 
 ```yaml
 api:
-  text:
-    format: "openai"
-    model: "gpt-4o"
-    base_url: "https://api.openai.com/v1"
-    api_key: "sk-xxx"
+  models:
+    prompt_model:
+      adapter: "openai_chat"
+      model: "gpt-4o"
+      base_url: "https://api.openai.com/v1"
+      api_key: "sk-xxx"
+    image_model:
+      adapter: "raw_chat_multimodal"
+      model: "gpt-image-2"
+      base_url: "https://api.example.com/v1"
+      api_key: "sk-xxx"
+    edit_model:
+      adapter: "raw_chat_multimodal"
+      model: "gpt-image-2"
+      base_url: "https://api.example.com/v1"
+      api_key: "sk-xxx"
 ```
 
 ## 📤 输出结构
@@ -121,8 +144,8 @@ output/ppt_20241201_123456/
 
 ## 📋 TODO
 
-- [ ] 🔌 兼容更多 LLM API 接口
-- [ ] 💾 兼容多种输入格式，更多导出格式
+- [ ] 支持框选局部区域编辑
+- [ ] 增加更多 provider profile 模板
 
 ## 📄 许可证
 

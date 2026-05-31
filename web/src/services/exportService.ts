@@ -1,4 +1,4 @@
-import { Slide, ExportFormat } from '../types'
+import { Slide, ExportFormat, GenerationConfig } from '../types'
 
 /**
  * 导出请求配置
@@ -6,6 +6,7 @@ import { Slide, ExportFormat } from '../types'
 export interface ExportRequestConfig {
   slides: Slide[]
   format: ExportFormat
+  aspectRatio: GenerationConfig['aspectRatio']
 }
 
 /**
@@ -51,7 +52,7 @@ export async function exportPresentation(
   config: ExportRequestConfig,
   callbacks?: ExportCallbacks
 ): Promise<void> {
-  const { slides, format } = config
+  const { slides, format, aspectRatio } = config
 
   // 验证输入
   if (!slides || slides.length === 0) {
@@ -68,7 +69,8 @@ export async function exportPresentation(
       slides: slides.map(slide => ({
         image_base64: slide.imageBase64 || extractBase64FromDataUrl(slide.imageUrl)
       })),
-      format
+      format,
+      aspect_ratio: aspectRatio
     }
 
     callbacks?.onProgress?.(30)

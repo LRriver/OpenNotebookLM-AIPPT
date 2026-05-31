@@ -56,6 +56,7 @@ export interface TextApiConfig {
 export interface FullApiConfig {
   image: ImageApiConfig
   text: TextApiConfig
+  edit?: ImageApiConfig
 }
 
 /**
@@ -87,6 +88,31 @@ export interface GenerationConfig {
   language?: string
   style?: string
   targetAudience?: string
+  userRequirements?: string
+}
+
+export interface SlideOutline {
+  page: number
+  title: string
+  narrative_goal: string
+  key_points: string[]
+  visual_direction: string
+}
+
+export interface DeckOutline {
+  title: string
+  user_requirements: string
+  design_style: string
+  audience: string
+  slides: SlideOutline[]
+}
+
+export interface ConfirmedSlidePrompt {
+  page: number
+  title: string
+  content_summary: string
+  display_content?: string
+  prompt: string
 }
 
 /**
@@ -147,6 +173,7 @@ export interface GenerationRequestConfig {
   text_model: string
   text_format: string
   text_thinking_level?: string | null
+  model_profiles?: ModelProfilesRequestConfig
   // 生成参数
   page_count: number
   quality: string
@@ -155,16 +182,53 @@ export interface GenerationRequestConfig {
   language?: string
   style?: string
   target_audience?: string
+  user_requirements?: string
 }
 
 /**
  * 编辑请求配置
  */
 export interface EditRequestConfig {
-  api_key: string
-  base_url: string
+  api_key?: string
+  base_url?: string
+  model?: string
+  model_profiles?: ModelProfilesRequestConfig
   quality: string
   aspect_ratio: string
+}
+
+export interface ModelProfileRequestConfig {
+  id?: string
+  label?: string
+  model: string
+  base_url: string
+  api_key: string
+  adapter: 'openai_chat' | 'raw_chat_multimodal' | string
+}
+
+export interface ModelProfilesRequestConfig {
+  prompt_model: ModelProfileRequestConfig
+  image_model: ModelProfileRequestConfig
+  edit_model?: ModelProfileRequestConfig
+}
+
+export interface ModelProfilePublic {
+  id: string
+  label: string
+  model: string
+  base_url: string
+  adapter: string
+  has_api_key: boolean
+}
+
+export interface ModelProfilesResponse {
+  success: boolean
+  profiles?: {
+    prompt_model: ModelProfilePublic
+    image_model: ModelProfilePublic
+    edit_model: ModelProfilePublic
+  }
+  message?: string
 }
 
 /**

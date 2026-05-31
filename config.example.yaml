@@ -3,27 +3,24 @@
 
 # API 配置
 api:
-  # 图像生成 API 配置（必填）
-  image:
-    api_key: "your-image-api-key"
-    base_url: "your-base_url"
-    model: "gemini-3-pro-image-preview"
-  
-  # 文本生成 API 配置
-  text:
-    # API 格式: "gemini" 或 "openai"
-    format: "gemini"
-    model: "gemini-3-pro-preview"
-    
-    # 思考深度配置（仅支持 Gemini 3+ 系列模型）
-    # 可选值: "low", "high", null（不使用思考功能）
-    thinking_level: "high"
-    
-    # 如果使用与图像生成不同的 API 源，请配置以下项：
-    # api_key: "your-text-api-key-here"
-    # base_url: "https://api.openai.com/v1"
-    
-    # 如果不配置，将使用图像生成的 API 配置
+  # 三角色模型配置。后端会优先读取这里，前端只负责选择/覆盖 profile。
+  models:
+    prompt_model:
+      api_key: "your-text-api-key"
+      base_url: "https://api.example.com/v1"
+      model: "DeepSeek-V4-Pro"
+      adapter: "openai_chat"
+    image_model:
+      api_key: "your-image-api-key"
+      base_url: "https://api.example.com/v1"
+      model: "gpt-image-2"
+      adapter: "raw_chat_multimodal"
+    # 可省略；省略时默认继承 image_model
+    edit_model:
+      api_key: "your-edit-api-key"
+      base_url: "https://api.example.com/v1"
+      model: "gpt-image-2"
+      adapter: "raw_chat_multimodal"
 
 # PPT 默认配置
 ppt:
@@ -52,4 +49,4 @@ output:
 # 文档配置
 doc:
   dir: "doc"
-  sample_file: "sample_paper.txt"
+  sample_file: "L9.md"

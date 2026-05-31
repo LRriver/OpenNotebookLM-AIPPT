@@ -1,23 +1,23 @@
 import { describe, it, expect } from 'vitest'
 import * as fc from 'fast-check'
-import { validateMarkdownFile } from '../FileUpload'
+import { validateMarkdownFile } from '../../utils/fileValidation'
 
 /**
  * Feature: webui-frontend, Property 1: File Upload Validation
  * Validates: Requirements 2.1, 2.2, 2.3
  * 
  * Property-based test to verify that the file upload validation correctly
- * accepts .md files and rejects all other file types.
+ * accepts supported document files and rejects other file types.
  * 
- * For any uploaded file, if the file extension is not .md, the system should
- * reject it; if the extension is .md, the system should accept it.
+ * For any uploaded file, if the file extension is not supported, the system should
+ * reject it; if the extension is supported, the system should accept it.
  */
 describe('FileUpload Property Tests', () => {
   /**
    * Property 1: File Upload Validation
-   * For any file with .md extension, validation should return true
+   * For any supported extension, validation should return true
    */
-  it('should accept any file with .md extension', () => {
+  it('should accept any supported document extension', () => {
     fc.assert(
       fc.property(
         // Generate random valid filenames with .md extension
@@ -29,13 +29,13 @@ describe('FileUpload Property Tests', () => {
             ),
             { minLength: 1, maxLength: 50 }
           ),
-          // Random case for .md extension
-          fc.constantFrom('.md', '.MD', '.Md', '.mD')
+          // Random case for supported extensions
+          fc.constantFrom('.md', '.MD', '.markdown', '.txt', '.TXT', '.pdf', '.PDF', '.docx', '.pptx')
         ),
         ([baseName, extension]) => {
           const filename = baseName + extension
           
-          // Property: All .md files should be accepted
+          // Property: All supported files should be accepted
           expect(validateMarkdownFile(filename)).toBe(true)
         }
       ),
@@ -45,9 +45,9 @@ describe('FileUpload Property Tests', () => {
 
   /**
    * Property 1: File Upload Validation
-   * For any file without .md extension, validation should return false
+   * For any unsupported extension, validation should return false
    */
-  it('should reject any file without .md extension', () => {
+  it('should reject any unsupported document extension', () => {
     fc.assert(
       fc.property(
         // Generate random filenames with non-.md extensions
@@ -59,20 +59,20 @@ describe('FileUpload Property Tests', () => {
             ),
             { minLength: 1, maxLength: 50 }
           ),
-          // Random non-.md extension
+          // Random unsupported extension
           fc.constantFrom(
-            '.txt', '.pdf', '.doc', '.docx', '.html', '.js', '.ts', '.tsx',
+            '.doc', '.html', '.js', '.ts', '.tsx',
             '.json', '.xml', '.csv', '.png', '.jpg', '.gif', '.mp4', '.zip',
             '.exe', '.py', '.java', '.cpp', '.c', '.h', '.css', '.scss',
             '.yaml', '.yml', '.toml', '.ini', '.conf', '.log', '.sql',
-            '.mdx', '.markdown', '.mdown', '.mkd', '.mkdn', '.mdwn', '.mdtxt',
-            '', '.m', '.d', '.md.txt', '.md.bak'
+            '.mdx', '.mdown', '.mkd', '.mkdn', '.mdwn', '.mdtxt',
+            '', '.m', '.d', '.md.bak'
           )
         ),
         ([baseName, extension]) => {
           const filename = baseName + extension
           
-          // Property: All non-.md files should be rejected
+          // Property: All unsupported files should be rejected
           expect(validateMarkdownFile(filename)).toBe(false)
         }
       ),
@@ -100,9 +100,9 @@ describe('FileUpload Property Tests', () => {
 
   /**
    * Property 1: File Upload Validation
-   * The validation should be case-insensitive for .md extension
+   * The validation should be case-insensitive for supported extensions
    */
-  it('should be case-insensitive for .md extension', () => {
+  it('should be case-insensitive for supported extensions', () => {
     fc.assert(
       fc.property(
         // Generate random filename base
@@ -113,8 +113,8 @@ describe('FileUpload Property Tests', () => {
           { minLength: 1, maxLength: 30 }
         ),
         (baseName) => {
-          // All case variations of .md should be accepted
-          const variations = ['.md', '.MD', '.Md', '.mD']
+          // Case variations of supported extensions should be accepted
+          const variations = ['.md', '.MD', '.Md', '.mD', '.TXT', '.PDF']
           
           for (const ext of variations) {
             const filename = baseName + ext
@@ -141,8 +141,8 @@ describe('FileUpload Property Tests', () => {
             ),
             { minLength: 1, maxLength: 20 }
           ),
-          // Non-.md extension
-          fc.constantFrom('.txt', '.pdf', '.doc', '.html', '.bak')
+          // Unsupported extension
+          fc.constantFrom('.doc', '.html', '.bak')
         ),
         ([baseName, extension]) => {
           // Filename like "readme.md.bak" or "file.md.txt"

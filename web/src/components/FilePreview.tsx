@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { useUiPreferences } from '../contexts/useUiPreferences'
 
 interface FilePreviewProps {
   fileName: string
@@ -13,6 +14,7 @@ interface FilePreviewProps {
  * Requirements: 2.2
  */
 function FilePreview({ fileName, content, maxHeight = '100%' }: FilePreviewProps) {
+  const { t } = useUiPreferences()
   /**
    * 简单的 Markdown 语法高亮
    * 为标题、代码块、链接等添加不同的样式
@@ -189,10 +191,10 @@ function FilePreview({ fileName, content, maxHeight = '100%' }: FilePreviewProps
     <div className="h-full flex flex-col">
       {/* 标题栏 */}
       <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-medium text-gray-700">文件预览</h3>
+        <h3 className="text-sm font-medium text-[var(--text)]">{t('preview.title')}</h3>
         <div className="flex items-center space-x-3 text-xs text-gray-500">
-          <span>{stats.lines} 行</span>
-          <span>{stats.chars} 字符</span>
+          <span>{t('preview.lines', { count: stats.lines })}</span>
+          <span>{t('preview.chars', { count: stats.chars })}</span>
         </div>
       </div>
 

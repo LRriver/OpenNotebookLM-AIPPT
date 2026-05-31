@@ -61,18 +61,32 @@ export const DEFAULT_GENERATION_CONFIG = _DEFAULT_GENERATION_CONFIG
  * 提供状态持久化的所有操作
  */
 export class StorageService {
-  /**
-   * 保存完整状态到 localStorage
-   */
-  static saveState(state: PersistedState): boolean {
+  private static writeState(state: PersistedState, logError = true): boolean {
     try {
       const serialized = JSON.stringify(state)
       localStorage.setItem(STORAGE_KEYS.STATE, serialized)
       return true
     } catch (error) {
-      console.error('Failed to save state to localStorage:', error)
+      if (logError) {
+        console.error('Failed to save state to localStorage:', error)
+      }
       return false
     }
+  }
+
+  private static stripLargeSlideImages(slides: Slide[]): Slide[] {
+    return slides.map(slide => ({
+      ...slide,
+      imageUrl: slide.imageUrl?.startsWith('data:') ? '' : slide.imageUrl,
+      imageBase64: undefined
+    }))
+  }
+
+  /**
+   * 保存完整状态到 localStorage
+   */
+  static saveState(state: PersistedState): boolean {
+    return StorageService.writeState(state)
   }
 
   /**
@@ -120,7 +134,20 @@ export class StorageService {
           generationConfig
         }
       }
-      return StorageService.saveState(newState)
+      if (StorageService.writeState(newState, false)) {
+        return true
+      }
+
+      const compactState: PersistedState = {
+        ...newState,
+        currentProject: {
+          fileContent,
+          fileName,
+          slides: StorageService.stripLargeSlideImages(slides),
+          generationConfig
+        }
+      }
+      return StorageService.writeState(compactState)
     } catch (error) {
       console.error('Failed to save project:', error)
       return false

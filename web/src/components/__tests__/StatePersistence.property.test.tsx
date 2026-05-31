@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import * as fc from 'fast-check'
 import {
   StorageService,
@@ -30,6 +30,10 @@ describe('State Persistence Property Tests', () => {
   // Clear localStorage before each test
   beforeEach(() => {
     localStorage.clear()
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
   })
 
   /**
@@ -261,6 +265,40 @@ describe('State Persistence Property Tests', () => {
       ),
       { numRuns: 50 }
     )
+  })
+
+  it('should fall back to lightweight slide metadata when image payload exceeds storage quota', () => {
+    const originalSetItem = Storage.prototype.setItem
+    const setItemSpy = vi
+      .spyOn(Storage.prototype, 'setItem')
+      .mockImplementationOnce(() => {
+        throw new DOMException('Quota exceeded', 'QuotaExceededError')
+      })
+      .mockImplementation(function (this: Storage, key: string, value: string) {
+        return originalSetItem.call(this, key, value)
+      })
+
+    const slide: Slide = {
+      id: 'slide-1',
+      pageNumber: 1,
+      imageUrl: 'data:image/png;base64,' + 'a'.repeat(1000),
+      imageBase64: 'a'.repeat(1000),
+      prompt: 'prompt'
+    }
+
+    const generationConfig: GenerationConfig = {
+      pageCount: 1,
+      quality: '1K',
+      aspectRatio: '16:9'
+    }
+
+    expect(saveProject('content', 'demo.md', [slide], generationConfig)).toBe(true)
+
+    const loaded = loadProject()
+    expect(loaded?.slides).toHaveLength(1)
+    expect(loaded?.slides[0].imageUrl).toBe('')
+    expect(loaded?.slides[0].imageBase64).toBeUndefined()
+    expect(setItemSpy).toHaveBeenCalledTimes(2)
   })
 
   /**

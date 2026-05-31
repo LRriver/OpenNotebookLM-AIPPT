@@ -4,10 +4,11 @@ FastAPI 后端服务，为 WebUI 前端提供 PPT 生成、编辑和导出功能
 
 ## 功能特性
 
-- **文件上传**: 支持上传 Markdown 文件作为输入材料
+- **文件上传**: 支持 `.md/.txt/.pdf/.docx/.pptx`，统一解析为 Markdown
 - **PPT 生成**: 基于输入材料生成 PPT 幻灯片，支持流式返回进度
 - **图生图编辑**: 对单页幻灯片进行修改
 - **导出功能**: 支持导出为 PDF 和 PPTX 格式
+- **模型路由**: 支持 prompt/image/edit 三角色模型 profile
 
 ## API 端点
 
@@ -22,7 +23,7 @@ POST /api/upload
 Content-Type: multipart/form-data
 
 参数:
-- file: Markdown 文件 (.md)
+- file: 文档文件 (.md/.txt/.pdf/.docx/.pptx)
 
 响应:
 {
@@ -42,8 +43,20 @@ Content-Type: application/json
 {
   "content": "Markdown 内容",
   "config": {
-    "api_key": "your-api-key",
-    "base_url": "https://api.example.com",
+    "model_profiles": {
+      "prompt_model": {
+        "model": "DeepSeek-V4-Pro",
+        "base_url": "https://api.example.com/v1",
+        "api_key": "your-text-key",
+        "adapter": "openai_chat"
+      },
+      "image_model": {
+        "model": "gpt-image-2",
+        "base_url": "https://api.example.com/v1",
+        "api_key": "your-image-key",
+        "adapter": "raw_chat_multimodal"
+      }
+    },
     "page_count": 10,
     "quality": "1K",
     "aspect_ratio": "16:9"
@@ -67,8 +80,11 @@ Content-Type: application/json
   "image_base64": "base64编码的图片",
   "instruction": "修改指令",
   "config": {
-    "api_key": "your-api-key",
-    "base_url": "https://api.example.com",
+    "model_profiles": {
+      "prompt_model": {"model": "DeepSeek-V4-Pro", "base_url": "https://api.example.com/v1", "api_key": "key", "adapter": "openai_chat"},
+      "image_model": {"model": "gpt-image-2", "base_url": "https://api.example.com/v1", "api_key": "key", "adapter": "raw_chat_multimodal"},
+      "edit_model": {"model": "gpt-image-2", "base_url": "https://api.example.com/v1", "api_key": "key", "adapter": "raw_chat_multimodal"}
+    },
     "quality": "1K",
     "aspect_ratio": "16:9"
   }
@@ -92,7 +108,8 @@ Content-Type: application/json
   "slides": [
     {"image_base64": "base64编码的图片"}
   ],
-  "format": "pdf" | "pptx"
+  "format": "pdf" | "pptx",
+  "aspect_ratio": "16:9" | "4:3"
 }
 
 响应: 文件下载
@@ -138,6 +155,7 @@ api/
 │   ├── upload.py        # 文件上传路由
 │   ├── generate.py      # PPT 生成路由
 │   ├── edit.py          # 图生图编辑路由
+│   ├── models.py        # 模型 profile 路由
 │   └── export.py        # 导出路由
 └── README.md
 ```
@@ -146,8 +164,9 @@ api/
 
 API 服务器直接使用项目中现有的 Python 模块：
 
-- `src.generator.PPTGenerator` - PPT 生成器
-- `src.client.AIClient` - AI 客户端
+- `src.model_router.ModelRouter` - 三角色模型路由
+- `src.image_result.ImageResultNormalizer` - URL/base64 图片结果规范化
+- `src.document_parser.DocumentParser` - 文档解析
 - `src.exporter.PDFExporter` - PDF 导出器
 - `src.config` - 配置管理
 

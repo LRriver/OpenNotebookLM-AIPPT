@@ -7,16 +7,21 @@ Requirements: 2.1, 2.2
 - 返回文件内容
 """
 
+import tempfile
+from pathlib import Path
+
 from fastapi import APIRouter, UploadFile, File, HTTPException
 from ..models import UploadResponse
+from src.document_parser import DocumentParser
 
 router = APIRouter(prefix="/api", tags=["upload"])
 
 # 最大文件大小限制 (10MB)
-MAX_FILE_SIZE = 10 * 1024 * 1024
+MAX_FILE_SIZE = 50 * 1024 * 1024
+SUPPORTED_EXTENSIONS = {".md", ".markdown", ".txt", ".pdf", ".docx", ".pptx"}
 
 
-def validate_markdown_file(filename: str) -> bool:
+def validate_supported_file(filename: str) -> bool:
     """
     验证文件是否为 Markdown 文件
     
@@ -32,7 +37,7 @@ def validate_markdown_file(filename: str) -> bool:
     """
     if not filename:
         return False
-    return filename.lower().endswith('.md')
+    return Path(filename).suffix.lower() in SUPPORTED_EXTENSIONS
 
 
 @router.post("/upload", response_model=UploadResponse)
@@ -55,10 +60,10 @@ async def upload_file(file: UploadFile = File(...)):
         HTTPException 500: 服务器内部错误
     """
     # 验证文件类型
-    if not validate_markdown_file(file.filename):
+    if not validate_supported_file(file.filename):
         raise HTTPException(
             status_code=400,
-            detail="仅支持 .md 文件格式"
+            detail="仅支持 .md/.txt/.pdf/.docx/.pptx 文件格式"
         )
     
     try:
@@ -73,15 +78,22 @@ async def upload_file(file: UploadFile = File(...)):
                 detail=f"文件大小超过限制 (最大 {MAX_FILE_SIZE // 1024 // 1024}MB)"
             )
         
-        # 解码文件内容
-        content_str = content.decode('utf-8')
+        suffix = Path(file.filename).suffix.lower()
+        with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as temp_file:
+            temp_file.write(content)
+            temp_path = Path(temp_file.name)
+
+        try:
+            content_str = DocumentParser().parse(temp_path).normalized_markdown
+        finally:
+            temp_path.unlink(missing_ok=True)
         
         return UploadResponse(
             success=True,
             content=content_str,
             filename=file.filename,
             file_size=file_size,
-            message="文件上传成功"
+            message="文件上传并解析成功"
         )
     
     except UnicodeDecodeError:

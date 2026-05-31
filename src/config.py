@@ -106,6 +106,7 @@ class PPTConfig:
     language: str = None
     style: str = None
     target_audience: str = None
+    user_requirements: str = None
     num_pages: int = None
     aspect_ratio: Literal["16:9", "4:3", "1:1"] = None
     quality: Literal["1K", "2K", "4K"] = None
@@ -122,6 +123,8 @@ class PPTConfig:
             self.style = config.get("style", "现代简约商务风格")
         if self.target_audience is None:
             self.target_audience = config.get("target_audience", "专业人士")
+        if self.user_requirements is None:
+            self.user_requirements = config.get("user_requirements", "")
         if self.num_pages is None:
             self.num_pages = config.get("num_pages", 10)
         if self.aspect_ratio is None:
@@ -161,7 +164,7 @@ def get_sample_file() -> Path:
     """获取示例文件路径"""
     config = get_config().get("doc", {})
     doc_dir = get_doc_dir()
-    return doc_dir / config.get("sample_file", "sample_paper.txt")
+    return doc_dir / config.get("sample_file", "L9.md")
 
 
 def get_timeout_config() -> Dict[str, int]:

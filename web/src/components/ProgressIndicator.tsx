@@ -1,3 +1,5 @@
+import { useUiPreferences } from '../contexts/useUiPreferences'
+
 interface ProgressIndicatorProps {
   current: number
   total: number
@@ -16,6 +18,7 @@ function ProgressIndicator({
   message,
   error
 }: ProgressIndicatorProps) {
+  const { t } = useUiPreferences()
   const percentage = total > 0 ? Math.round((current / total) * 100) : 0
   
   const getStatusColor = () => {
@@ -67,7 +70,7 @@ function ProgressIndicator({
         <div>
           <span className={`text-sm font-semibold ${getStatusColor()}`}>{message}</span>
           {total > 0 && (
-            <p className="text-xs text-warm-500 mt-0.5">{current} / {total} 页</p>
+            <p className="text-xs text-warm-500 mt-0.5">{t('progress.pages', { current, total })}</p>
           )}
         </div>
       </div>
@@ -82,7 +85,7 @@ function ProgressIndicator({
             />
           </div>
           <div className="flex justify-between text-xs text-warm-500 mt-2">
-            <span>进度</span>
+            <span>{t('progress.label')}</span>
             <span className="font-medium text-warm-700">{percentage}%</span>
           </div>
         </div>
@@ -93,11 +96,11 @@ function ProgressIndicator({
         <div className="flex items-center gap-4 text-sm pt-2 border-t border-warm-200">
           <div className="flex items-center gap-2">
             <div className="w-2.5 h-2.5 rounded-full bg-green-500" />
-            <span className="text-warm-600">已完成 {current}</span>
+            <span className="text-warm-600">{t('progress.done', { count: current })}</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-2.5 h-2.5 rounded-full bg-warm-300" />
-            <span className="text-warm-600">剩余 {total - current}</span>
+            <span className="text-warm-600">{t('progress.remaining', { count: total - current })}</span>
           </div>
         </div>
       )}

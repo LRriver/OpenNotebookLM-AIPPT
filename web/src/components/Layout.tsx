@@ -147,15 +147,17 @@ function Layout({ leftPanel, centerPanel, rightPanel }: LayoutProps) {
   return (
     <div className="aippt-shell h-screen flex flex-col">
       <header className="aippt-topbar relative z-50 flex-shrink-0">
-        <div className="px-5 py-3 flex items-center justify-between gap-4">
+        <div className="px-5 py-3.5 flex items-center justify-between gap-4 lg:px-6">
           <div className="flex items-center gap-3 min-w-0">
-            <img src="/aippt-logo.svg" alt="AIPPT" className="w-9 h-9 shrink-0" />
-            <div>
-              <h1 className="text-lg font-semibold text-[var(--text-strong)]">{t('app.title')}</h1>
-              <p className="text-xs text-[var(--text-muted)]">{t('app.subtitle')}</p>
+            <div className="h-10 w-10 shrink-0 rounded-2xl bg-white/75 p-1.5 shadow-[0_10px_24px_rgba(249,115,22,0.18)] ring-1 ring-white/70">
+              <img src="/aippt-logo.svg" alt="AIPPT" className="h-full w-full" />
+            </div>
+            <div className="min-w-0">
+              <h1 className="truncate text-xl font-bold tracking-normal text-[var(--text-strong)]">{t('app.title')}</h1>
+              <p className="truncate text-xs text-[var(--text-muted)]">{t('app.subtitle')}</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-2">
             <div className="aippt-language-switch" aria-label={t('prefs.language')}>
               {languageOptions.map(option => (
                 <button
@@ -206,10 +208,10 @@ function Layout({ leftPanel, centerPanel, rightPanel }: LayoutProps) {
         </div>
       </header>
 
-      <main className="aippt-app-bg flex-1 min-h-0 overflow-hidden p-3">
+      <main className="aippt-app-bg flex-1 min-h-0 overflow-hidden p-4 lg:p-5">
         <div
           ref={containerRef}
-          className="aippt-workbench h-full flex flex-col lg:grid gap-3"
+          className="aippt-workbench h-full flex flex-col lg:grid gap-4"
           style={isDesktop ? { gridTemplateColumns: `${widths.left}fr 0.5rem ${widths.center}fr 0.5rem ${rightWidth}fr` } : undefined}
           data-testid="resizable-layout"
         >
@@ -229,7 +231,7 @@ function Layout({ leftPanel, centerPanel, rightPanel }: LayoutProps) {
             aria-label={t('layout.resizeLeft')}
             onPointerDown={startDrag('left-center')}
           >
-            <div className="h-16 w-1 rounded-full bg-[var(--resize-handle)] group-hover:bg-amber-400 transition-colors" />
+            <div className="h-20 w-1 rounded-full bg-[var(--resize-handle)] shadow-sm transition-all group-hover:h-24 group-hover:bg-primary-400" />
           </div>
 
           <section
@@ -248,7 +250,7 @@ function Layout({ leftPanel, centerPanel, rightPanel }: LayoutProps) {
             aria-label={t('layout.resizeRight')}
             onPointerDown={startDrag('center-right')}
           >
-            <div className="h-16 w-1 rounded-full bg-[var(--resize-handle)] group-hover:bg-cyan-400 transition-colors" />
+            <div className="h-20 w-1 rounded-full bg-[var(--resize-handle)] shadow-sm transition-all group-hover:h-24 group-hover:bg-teal-400" />
           </div>
 
           <section

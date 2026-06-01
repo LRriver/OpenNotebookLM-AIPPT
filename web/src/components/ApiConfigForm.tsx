@@ -27,19 +27,19 @@ interface ModelCardProps {
 
 const toneStyles = {
   amber: {
-    card: 'border-amber-200 bg-amber-50/70',
-    icon: 'bg-amber-100 text-amber-700',
-    badge: 'bg-amber-100 text-amber-800 border-amber-200'
+    card: 'border-amber-200 bg-amber-50/75',
+    icon: 'bg-white text-amber-700 shadow-sm',
+    badge: 'bg-white/80 text-amber-800 border-amber-200'
   },
   violet: {
-    card: 'border-violet-200 bg-violet-50/60',
-    icon: 'bg-violet-100 text-violet-700',
-    badge: 'bg-violet-100 text-violet-800 border-violet-200'
+    card: 'border-violet-200 bg-violet-50/55',
+    icon: 'bg-white text-violet-700 shadow-sm',
+    badge: 'bg-white/80 text-violet-800 border-violet-200'
   },
   emerald: {
-    card: 'border-emerald-200 bg-emerald-50/60',
-    icon: 'bg-emerald-100 text-emerald-700',
-    badge: 'bg-emerald-100 text-emerald-800 border-emerald-200'
+    card: 'border-emerald-200 bg-emerald-50/55',
+    icon: 'bg-white text-emerald-700 shadow-sm',
+    badge: 'bg-white/80 text-emerald-800 border-emerald-200'
   }
 }
 
@@ -59,15 +59,15 @@ function ModelCard({
   const styles = toneStyles[tone]
 
   return (
-    <section className={`rounded-lg border ${styles.card} overflow-hidden`}>
+    <section className={`rounded-2xl border ${styles.card} overflow-hidden shadow-sm`}>
       <button
         type="button"
         onClick={() => onToggle(id)}
-        className="w-full p-4 text-left flex items-center justify-between gap-3 hover:bg-white/40 transition-colors"
+        className="w-full p-4 text-left flex items-center justify-between gap-3 hover:bg-white/45 transition-colors"
         aria-expanded={isOpen}
       >
         <div className="flex min-w-0 items-center gap-3">
-          <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${styles.icon}`}>
+          <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${styles.icon}`}>
             {id === 'text' ? (
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -84,10 +84,10 @@ function ModelCard({
           </div>
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <h4 className="text-sm font-semibold text-slate-900">{title}</h4>
+              <h4 className="text-sm font-semibold text-[var(--text-strong)]">{title}</h4>
               {hasError && <span className="rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-medium text-red-700">{errorLabel}</span>}
             </div>
-            {isOpen && <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>}
+            {isOpen && <p className="text-xs text-[var(--text-muted)] mt-0.5">{subtitle}</p>}
             <div className={`${isOpen ? 'mt-3' : 'mt-1'} flex flex-wrap gap-2`}>
               <span className={`max-w-full truncate rounded-full border px-2.5 py-1 text-[11px] font-medium ${styles.badge}`}>
                 {model || emptyModelLabel}
@@ -96,7 +96,7 @@ function ModelCard({
           </div>
         </div>
         <svg
-          className={`mt-1 h-4 w-4 shrink-0 text-slate-500 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          className={`mt-1 h-4 w-4 shrink-0 text-[var(--text-muted)] transition-transform ${isOpen ? 'rotate-180' : ''}`}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -262,9 +262,9 @@ function ApiConfigForm({ onConfigChange, initialConfig }: ApiConfigFormProps) {
   }
 
   const inputClass = (hasError: boolean) => `
-    w-full px-4 py-2.5 text-sm border rounded-lg transition-all duration-200
-    focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent
-    ${hasError ? 'border-red-400 bg-red-50' : 'border-slate-200 bg-white'}
+    w-full px-4 py-2.5 text-sm border rounded-xl transition-all duration-200
+    focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-transparent
+    ${hasError ? 'border-red-400 bg-red-50' : 'border-[var(--border-soft)] bg-white/85'}
   `
   const keyPlaceholder = (hasBaseUrl: boolean, label: string) =>
     hasBaseUrl ? t('api.keyConfiguredPlaceholder') : t('api.keyPlaceholder', { label })
@@ -278,7 +278,7 @@ function ApiConfigForm({ onConfigChange, initialConfig }: ApiConfigFormProps) {
     hasError: boolean
   ) => (
     <div>
-      <label className="block text-xs font-medium text-slate-600 mb-1.5">{t('api.key')}</label>
+      <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">{t('api.key')}</label>
       <div className="relative">
         <input
           type={showKey ? 'text' : 'password'}
@@ -290,7 +290,7 @@ function ApiConfigForm({ onConfigChange, initialConfig }: ApiConfigFormProps) {
         <button
           type="button"
           onClick={() => setShowKey(!showKey)}
-          className="absolute inset-y-0 right-0 px-3 flex items-center text-slate-400 hover:text-slate-700"
+          className="absolute inset-y-0 right-0 px-3 flex items-center text-[var(--text-faint)] hover:text-[var(--text-strong)]"
           aria-label={showKey ? t('api.hideKey') : t('api.showKey')}
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -310,16 +310,16 @@ function ApiConfigForm({ onConfigChange, initialConfig }: ApiConfigFormProps) {
   const modelSummary = configuredModels.length > 0 ? configuredModels.join(' / ') : t('api.unsetModel')
 
   return (
-    <section className="rounded-xl border border-[var(--card-border)] bg-[var(--card-bg)] overflow-hidden shadow-sm">
+    <section className="aippt-soft-card overflow-hidden">
       <button
         type="button"
         onClick={() => setIsOpen(open => !open)}
-        className="w-full px-4 py-3 text-left flex items-center justify-between gap-3 hover:bg-white/35 transition-colors"
+        className="w-full px-4 py-3.5 text-left flex items-center justify-between gap-3 hover:bg-white/45 transition-colors"
         aria-expanded={isOpen}
       >
         <div className="flex min-w-0 items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-[var(--model-header-bg)] flex items-center justify-center shrink-0">
-            <svg className="w-4 h-4 text-cyan-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="w-9 h-9 rounded-xl bg-[var(--model-header-bg)] flex items-center justify-center shrink-0 shadow-[0_10px_20px_rgba(0,0,0,0.12)]">
+            <svg className="w-4 h-4 text-primary-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
             </svg>
           </div>
@@ -340,12 +340,12 @@ function ApiConfigForm({ onConfigChange, initialConfig }: ApiConfigFormProps) {
 
       {isOpen && (
         <div className="space-y-4 border-t border-[var(--card-border)] p-4">
-          <div className="rounded-lg border border-[var(--card-border)] bg-[var(--model-header-bg)] text-white p-4 shadow-sm">
+          <div className="rounded-2xl border border-[var(--card-border)] bg-[var(--model-header-bg)] text-white p-4 shadow-sm">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
-                    <svg className="w-4 h-4 text-cyan-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center">
+                    <svg className="w-4 h-4 text-primary-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                     </svg>
                   </div>
@@ -360,7 +360,7 @@ function ApiConfigForm({ onConfigChange, initialConfig }: ApiConfigFormProps) {
                   type="checkbox"
                   checked={useSharedConfig}
                   onChange={(event) => setUseSharedConfig(event.target.checked)}
-                  className="w-4 h-4 rounded border-slate-400 text-cyan-500 focus:ring-cyan-400"
+                  className="w-4 h-4 rounded border-slate-400 text-primary-500 focus:ring-primary-400"
                 />
                 {t('api.shared')}
               </label>
@@ -389,7 +389,7 @@ function ApiConfigForm({ onConfigChange, initialConfig }: ApiConfigFormProps) {
             )}
             {errors.image?.apiKey && <p className="text-xs text-red-500">{errors.image.apiKey}</p>}
             <div>
-              <label className="block text-xs font-medium text-slate-600 mb-1.5">{t('api.baseUrl')}</label>
+              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">{t('api.baseUrl')}</label>
               <input
                 type="text"
                 value={config.image.baseUrl}
@@ -400,7 +400,7 @@ function ApiConfigForm({ onConfigChange, initialConfig }: ApiConfigFormProps) {
               {errors.image?.baseUrl && <p className="mt-1 text-xs text-red-500">{errors.image.baseUrl}</p>}
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-600 mb-1.5">{t('api.modelName')}</label>
+              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">{t('api.modelName')}</label>
               <input
                 type="text"
                 value={config.image.model}
@@ -434,7 +434,7 @@ function ApiConfigForm({ onConfigChange, initialConfig }: ApiConfigFormProps) {
             )}
             {errors.edit?.apiKey && <p className="text-xs text-red-500">{errors.edit.apiKey}</p>}
             <div>
-              <label className="block text-xs font-medium text-slate-600 mb-1.5">{t('api.baseUrl')}</label>
+              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">{t('api.baseUrl')}</label>
               <input
                 type="text"
                 value={editConfig.baseUrl}
@@ -445,7 +445,7 @@ function ApiConfigForm({ onConfigChange, initialConfig }: ApiConfigFormProps) {
               {errors.edit?.baseUrl && <p className="mt-1 text-xs text-red-500">{errors.edit.baseUrl}</p>}
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-600 mb-1.5">{t('api.modelName')}</label>
+              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">{t('api.modelName')}</label>
               <input
                 type="text"
                 value={editConfig.model}
@@ -479,7 +479,7 @@ function ApiConfigForm({ onConfigChange, initialConfig }: ApiConfigFormProps) {
             )}
             {errors.text?.apiKey && <p className="text-xs text-red-500">{errors.text.apiKey}</p>}
             <div>
-              <label className="block text-xs font-medium text-slate-600 mb-1.5">{t('api.baseUrl')}</label>
+              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">{t('api.baseUrl')}</label>
               <input
                 type="text"
                 value={config.text.baseUrl}
@@ -490,7 +490,7 @@ function ApiConfigForm({ onConfigChange, initialConfig }: ApiConfigFormProps) {
               {errors.text?.baseUrl && <p className="mt-1 text-xs text-red-500">{errors.text.baseUrl}</p>}
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-600 mb-1.5">{t('api.modelName')}</label>
+              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">{t('api.modelName')}</label>
               <input
                 type="text"
                 value={config.text.model}
@@ -501,7 +501,7 @@ function ApiConfigForm({ onConfigChange, initialConfig }: ApiConfigFormProps) {
               {errors.text?.model && <p className="mt-1 text-xs text-red-500">{errors.text.model}</p>}
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-600 mb-1.5">{t('api.format')}</label>
+              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">{t('api.format')}</label>
               <div className="grid grid-cols-2 gap-2">
                 {(['gemini', 'openai'] as const).map(format => (
                   <button
@@ -510,8 +510,8 @@ function ApiConfigForm({ onConfigChange, initialConfig }: ApiConfigFormProps) {
                     onClick={() => handleTextConfigChange('format', format)}
                     className={`px-3 py-2 text-xs font-medium rounded-lg border transition-all duration-200 ${
                       config.text.format === format
-                        ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
-                        : 'bg-white text-slate-600 border-slate-200 hover:border-emerald-300'
+                        ? 'bg-[var(--text-strong)] text-white border-[var(--text-strong)] shadow-sm'
+                        : 'bg-white/85 text-[var(--text)] border-[var(--border-soft)] hover:border-emerald-300'
                     }`}
                   >
                     {format.toUpperCase()}
@@ -521,7 +521,7 @@ function ApiConfigForm({ onConfigChange, initialConfig }: ApiConfigFormProps) {
             </div>
             {config.text.format === 'gemini' && (
               <div>
-                <label className="block text-xs font-medium text-slate-600 mb-1.5">{t('api.thinking')}</label>
+                <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">{t('api.thinking')}</label>
                 <div className="grid grid-cols-3 gap-2">
                   {[
                     { value: null, label: t('api.thinking.off') },
@@ -535,7 +535,7 @@ function ApiConfigForm({ onConfigChange, initialConfig }: ApiConfigFormProps) {
                       className={`px-3 py-2 text-xs font-medium rounded-lg border transition-all duration-200 ${
                         config.text.thinkingLevel === option.value
                           ? 'bg-emerald-600 text-white border-emerald-600'
-                          : 'bg-white text-slate-600 border-slate-200 hover:border-emerald-300'
+                          : 'bg-white/85 text-[var(--text)] border-[var(--border-soft)] hover:border-emerald-300'
                       }`}
                     >
                       {option.label}
@@ -552,7 +552,7 @@ function ApiConfigForm({ onConfigChange, initialConfig }: ApiConfigFormProps) {
             </button>
             {saved && (
               <span className="text-sm text-emerald-600 flex items-center gap-1.5">
-                <svg className="w-4 h-4 text-cyan-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-4 h-4 text-primary-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
                 {t('common.saved')}

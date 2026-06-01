@@ -41,9 +41,9 @@ function ExportButton({ disabled = false, isExporting = false, onExport }: Expor
         disabled={buttonDisabled}
         className={`
           inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl
-          font-medium text-sm transition-all duration-300
+          font-semibold text-sm transition-all duration-300
           ${buttonDisabled
-            ? 'bg-warm-100 text-warm-400 cursor-not-allowed'
+            ? 'bg-[var(--surface-muted)] text-[var(--text-faint)] cursor-not-allowed'
             : 'bg-gradient-to-r from-primary-500 to-accent-500 text-white hover:from-primary-600 hover:to-accent-600 shadow-warm hover:shadow-warm-lg'
           }
         `}
@@ -73,38 +73,38 @@ function ExportButton({ disabled = false, isExporting = false, onExport }: Expor
 
       {/* 下拉菜单 */}
       {isOpen && !buttonDisabled && (
-        <div className="absolute right-0 mt-2 w-52 rounded-xl bg-white shadow-lg ring-1 ring-warm-200 z-10 overflow-hidden" role="listbox">
+        <div className="absolute right-0 mt-2 w-52 rounded-2xl bg-[var(--surface)] shadow-lg ring-1 ring-[var(--border-soft)] z-10 overflow-hidden" role="listbox">
           <div className="py-1">
             <button
               type="button"
               onClick={() => handleExport('pdf')}
-              className="w-full flex items-center gap-3 px-4 py-3 text-sm text-warm-700 hover:bg-primary-50 transition-colors"
+              className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[var(--text)] hover:bg-primary-50 transition-colors"
               role="option"
             >
-              <div className="w-9 h-9 bg-red-100 rounded-lg flex items-center justify-center">
+              <div className="w-9 h-9 bg-red-100 rounded-xl flex items-center justify-center">
                 <svg className="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                 </svg>
               </div>
               <div className="text-left">
-                <div className="font-medium text-warm-800">{t('export.pdfTitle')}</div>
-                <div className="text-xs text-warm-500">{t('export.pdfSubtitle')}</div>
+                <div className="font-semibold text-[var(--text-strong)]">{t('export.pdfTitle')}</div>
+                <div className="text-xs text-[var(--text-muted)]">{t('export.pdfSubtitle')}</div>
               </div>
             </button>
             <button
               type="button"
               onClick={() => handleExport('pptx')}
-              className="w-full flex items-center gap-3 px-4 py-3 text-sm text-warm-700 hover:bg-primary-50 transition-colors"
+              className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[var(--text)] hover:bg-primary-50 transition-colors"
               role="option"
             >
-              <div className="w-9 h-9 bg-primary-100 rounded-lg flex items-center justify-center">
+              <div className="w-9 h-9 bg-primary-100 rounded-xl flex items-center justify-center">
                 <svg className="h-5 w-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
                 </svg>
               </div>
               <div className="text-left">
-                <div className="font-medium text-warm-800">{t('export.pptxTitle')}</div>
-                <div className="text-xs text-warm-500">{t('export.pptxSubtitle')}</div>
+                <div className="font-semibold text-[var(--text-strong)]">{t('export.pptxTitle')}</div>
+                <div className="text-xs text-[var(--text-muted)]">{t('export.pptxSubtitle')}</div>
               </div>
             </button>
           </div>

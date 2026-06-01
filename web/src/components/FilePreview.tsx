@@ -30,17 +30,17 @@ function FilePreview({ fileName, content, maxHeight = '100%' }: FilePreviewProps
         const level = headingMatch[1].length
         const text = headingMatch[2]
         const sizeClass = {
-          1: 'text-lg font-bold text-gray-900',
-          2: 'text-base font-bold text-gray-800',
-          3: 'text-sm font-semibold text-gray-800',
-          4: 'text-sm font-semibold text-gray-700',
-          5: 'text-xs font-semibold text-gray-700',
-          6: 'text-xs font-semibold text-gray-600',
-        }[level] || 'text-sm font-semibold text-gray-700'
+          1: 'text-lg font-bold text-[var(--text-strong)]',
+          2: 'text-base font-bold text-[var(--text-strong)]',
+          3: 'text-sm font-semibold text-[var(--text-strong)]',
+          4: 'text-sm font-semibold text-[var(--text)]',
+          5: 'text-xs font-semibold text-[var(--text)]',
+          6: 'text-xs font-semibold text-[var(--text-muted)]',
+        }[level] || 'text-sm font-semibold text-[var(--text)]'
 
         return (
           <div key={index} className={`${sizeClass} py-1`}>
-            <span className="text-blue-500">{headingMatch[1]}</span> {text}
+            <span className="text-primary-500">{headingMatch[1]}</span> {text}
           </div>
         )
       }
@@ -49,9 +49,9 @@ function FilePreview({ fileName, content, maxHeight = '100%' }: FilePreviewProps
       if (line.startsWith('```')) {
         const lang = line.slice(3).trim()
         return (
-          <div key={index} className="text-purple-600 bg-gray-100 px-1 rounded">
+          <div key={index} className="text-teal-700 bg-[var(--surface-muted)] px-2 py-0.5 rounded-lg">
             {line}
-            {lang && <span className="text-gray-500 ml-2">({lang})</span>}
+            {lang && <span className="text-[var(--text-muted)] ml-2">({lang})</span>}
           </div>
         )
       }
@@ -60,13 +60,13 @@ function FilePreview({ fileName, content, maxHeight = '100%' }: FilePreviewProps
       if (line.includes('`')) {
         const parts = line.split(/(`[^`]+`)/)
         return (
-          <div key={index} className="text-gray-700">
+          <div key={index} className="text-[var(--text)]">
             {parts.map((part, i) => {
               if (part.startsWith('`') && part.endsWith('`')) {
                 return (
                   <code
                     key={i}
-                    className="bg-gray-100 text-pink-600 px-1 rounded text-xs"
+                    className="bg-[var(--surface-muted)] text-primary-700 px-1.5 py-0.5 rounded-md text-xs"
                   >
                     {part}
                   </code>
@@ -85,9 +85,9 @@ function FilePreview({ fileName, content, maxHeight = '100%' }: FilePreviewProps
         const marker = listMatch[2]
         const text = listMatch[3]
         return (
-          <div key={index} className="text-gray-700">
-            <span className="text-gray-400">{indent}</span>
-            <span className="text-blue-500">{marker}</span> {text}
+          <div key={index} className="text-[var(--text)]">
+            <span className="text-[var(--text-faint)]">{indent}</span>
+            <span className="text-primary-500">{marker}</span> {text}
           </div>
         )
       }
@@ -97,7 +97,7 @@ function FilePreview({ fileName, content, maxHeight = '100%' }: FilePreviewProps
         return (
           <div
             key={index}
-            className="text-gray-600 italic border-l-2 border-gray-300 pl-2"
+            className="text-[var(--text-muted)] italic border-l-2 border-primary-200 pl-2"
           >
             {line}
           </div>
@@ -120,7 +120,7 @@ function FilePreview({ fileName, content, maxHeight = '100%' }: FilePreviewProps
         return (
           <div
             key={index}
-            className="text-gray-700"
+            className="text-[var(--text)]"
             dangerouslySetInnerHTML={{ __html: processed }}
           />
         )
@@ -138,7 +138,7 @@ function FilePreview({ fileName, content, maxHeight = '100%' }: FilePreviewProps
             parts.push(line.slice(lastIndex, match.index))
           }
           parts.push(
-            <span key={match.index} className="text-blue-600 underline">
+            <span key={match.index} className="text-teal-700 underline">
               [{match[1]}]({match[2]})
             </span>
           )
@@ -150,7 +150,7 @@ function FilePreview({ fileName, content, maxHeight = '100%' }: FilePreviewProps
         }
 
         return (
-          <div key={index} className="text-gray-700">
+          <div key={index} className="text-[var(--text)]">
             {parts}
           </div>
         )
@@ -163,7 +163,7 @@ function FilePreview({ fileName, content, maxHeight = '100%' }: FilePreviewProps
 
       // 普通文本
       return (
-        <div key={index} className="text-gray-700">
+        <div key={index} className="text-[var(--text)]">
           {line}
         </div>
       )
@@ -192,7 +192,7 @@ function FilePreview({ fileName, content, maxHeight = '100%' }: FilePreviewProps
       {/* 标题栏 */}
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-sm font-medium text-[var(--text)]">{t('preview.title')}</h3>
-        <div className="flex items-center space-x-3 text-xs text-gray-500">
+        <div className="flex items-center space-x-3 text-xs text-[var(--text-muted)]">
           <span>{t('preview.lines', { count: stats.lines })}</span>
           <span>{t('preview.chars', { count: stats.chars })}</span>
         </div>
@@ -200,7 +200,7 @@ function FilePreview({ fileName, content, maxHeight = '100%' }: FilePreviewProps
 
       {/* 文件名 */}
       {fileName && (
-        <div className="flex items-center space-x-2 mb-2 text-xs text-gray-500">
+        <div className="flex items-center space-x-2 mb-2 text-xs text-[var(--text-muted)]">
           <svg
             className="h-4 w-4"
             fill="none"
@@ -220,7 +220,7 @@ function FilePreview({ fileName, content, maxHeight = '100%' }: FilePreviewProps
 
       {/* 内容预览区域 */}
       <div
-        className="flex-1 overflow-y-auto border border-gray-200 rounded-lg p-4 bg-white"
+        className="flex-1 overflow-y-auto border border-[var(--border-soft)] rounded-2xl p-4 bg-[var(--surface)] shadow-inner"
         style={{ maxHeight }}
       >
         <div className="font-mono text-xs leading-relaxed">

@@ -29,6 +29,10 @@ const STORAGE_KEYS = {
   API_CONFIG: 'aippt_api_config'
 } as const
 
+const IMAGE_DB_NAME = 'aippt_slide_images'
+const IMAGE_DB_STORE = 'slide_images'
+const IMAGE_DB_VERSION = 1
+
 /**
  * 当前持久化版本号
  * 用于处理数据结构升级
@@ -56,11 +60,18 @@ const _DEFAULT_GENERATION_CONFIG: GenerationConfig = {
 // Export for use in other modules if needed
 export const DEFAULT_GENERATION_CONFIG = _DEFAULT_GENERATION_CONFIG
 
+interface SlideImageRecord {
+  key: string
+  imageBase64: string
+}
+
 /**
  * StorageService 类
  * 提供状态持久化的所有操作
  */
 export class StorageService {
+  private static pendingImageSave: Promise<void> | null = null
+
   private static writeState(state: PersistedState, logError = true): boolean {
     try {
       const serialized = JSON.stringify(state)
@@ -74,12 +85,108 @@ export class StorageService {
     }
   }
 
-  private static stripLargeSlideImages(slides: Slide[]): Slide[] {
+  private static extractBase64(slide: Slide): string {
+    if (slide.imageBase64) {
+      return slide.imageBase64
+    }
+    const match = slide.imageUrl?.match(/^data:[^;]+;base64,(.+)$/)
+    return match?.[1] || ''
+  }
+
+  private static imageKey(fileName: string, slide: Slide): string {
+    const projectName = fileName || 'untitled'
+    return `${projectName}:${slide.id}`
+  }
+
+  private static compactSlides(fileName: string, slides: Slide[]): Slide[] {
     return slides.map(slide => ({
       ...slide,
+      imageStorageKey: StorageService.extractBase64(slide)
+        ? StorageService.imageKey(fileName, slide)
+        : slide.imageStorageKey,
       imageUrl: slide.imageUrl?.startsWith('data:') ? '' : slide.imageUrl,
       imageBase64: undefined
     }))
+  }
+
+  private static canUseIndexedDb(): boolean {
+    return typeof indexedDB !== 'undefined'
+  }
+
+  private static openImageDb(): Promise<IDBDatabase> {
+    return new Promise((resolve, reject) => {
+      if (!StorageService.canUseIndexedDb()) {
+        reject(new Error('IndexedDB is not available'))
+        return
+      }
+
+      const request = indexedDB.open(IMAGE_DB_NAME, IMAGE_DB_VERSION)
+      request.onupgradeneeded = () => {
+        const db = request.result
+        if (!db.objectStoreNames.contains(IMAGE_DB_STORE)) {
+          db.createObjectStore(IMAGE_DB_STORE, { keyPath: 'key' })
+        }
+      }
+      request.onsuccess = () => resolve(request.result)
+      request.onerror = () => reject(request.error || new Error('Failed to open image store'))
+    })
+  }
+
+  private static saveSlideImages(fileName: string, slides: Slide[]): Promise<void> {
+    const records: SlideImageRecord[] = slides
+      .map((slide) => ({
+        key: StorageService.imageKey(fileName, slide),
+        imageBase64: StorageService.extractBase64(slide)
+      }))
+      .filter((record) => record.imageBase64)
+
+    if (records.length === 0 || !StorageService.canUseIndexedDb()) {
+      return Promise.resolve()
+    }
+
+    return StorageService.openImageDb().then((db) => new Promise<void>((resolve, reject) => {
+      const transaction = db.transaction(IMAGE_DB_STORE, 'readwrite')
+      const store = transaction.objectStore(IMAGE_DB_STORE)
+      records.forEach((record) => store.put(record))
+      transaction.oncomplete = () => {
+        db.close()
+        resolve()
+      }
+      transaction.onerror = () => {
+        db.close()
+        reject(transaction.error || new Error('Failed to save slide images'))
+      }
+    }))
+  }
+
+  private static loadSlideImage(key: string): Promise<string | null> {
+    if (!StorageService.canUseIndexedDb()) {
+      return Promise.resolve(null)
+    }
+
+    return StorageService.openImageDb().then((db) => new Promise<string | null>((resolve, reject) => {
+      const transaction = db.transaction(IMAGE_DB_STORE, 'readonly')
+      const store = transaction.objectStore(IMAGE_DB_STORE)
+      const request = store.get(key)
+      request.onsuccess = () => {
+        db.close()
+        resolve((request.result as SlideImageRecord | undefined)?.imageBase64 || null)
+      }
+      request.onerror = () => {
+        db.close()
+        reject(request.error || new Error('Failed to load slide image'))
+      }
+    })).catch(() => null)
+  }
+
+  private static clearImageStore(): void {
+    if (!StorageService.canUseIndexedDb()) {
+      return
+    }
+    const request = indexedDB.deleteDatabase(IMAGE_DB_NAME)
+    request.onerror = () => {
+      console.error('Failed to clear slide image store:', request.error)
+    }
   }
 
   /**
@@ -138,12 +245,15 @@ export class StorageService {
         return true
       }
 
+      StorageService.pendingImageSave = StorageService.saveSlideImages(fileName, slides).catch((error) => {
+        console.error('Failed to save slide images to IndexedDB:', error)
+      })
       const compactState: PersistedState = {
         ...newState,
         currentProject: {
           fileContent,
           fileName,
-          slides: StorageService.stripLargeSlideImages(slides),
+          slides: StorageService.compactSlides(fileName, slides),
           generationConfig
         }
       }
@@ -189,6 +299,43 @@ export class StorageService {
   }
 
   /**
+   * 加载项目数据，并从 IndexedDB 补回超出 localStorage 配额的大图
+   */
+  static async loadProjectWithImages(): Promise<PersistedState['currentProject']> {
+    const project = StorageService.loadProject()
+    if (!project) {
+      return null
+    }
+
+    if (StorageService.pendingImageSave) {
+      await StorageService.pendingImageSave
+    }
+
+    const slides = await Promise.all(project.slides.map(async (slide) => {
+      if (slide.imageBase64 || slide.imageUrl) {
+        return slide
+      }
+      if (!slide.imageStorageKey) {
+        return slide
+      }
+      const imageBase64 = await StorageService.loadSlideImage(slide.imageStorageKey)
+      if (!imageBase64) {
+        return slide
+      }
+      return {
+        ...slide,
+        imageBase64,
+        imageUrl: `data:image/png;base64,${imageBase64}`
+      }
+    }))
+
+    return {
+      ...project,
+      slides
+    }
+  }
+
+  /**
    * 清除项目数据（保留 API 配置）
    */
   static clearProject(): boolean {
@@ -199,6 +346,7 @@ export class StorageService {
         apiConfig: currentState?.apiConfig || DEFAULT_API_CONFIG,
         currentProject: null
       }
+      StorageService.clearImageStore()
       return StorageService.saveState(newState)
     } catch (error) {
       console.error('Failed to clear project:', error)
@@ -213,6 +361,7 @@ export class StorageService {
     try {
       localStorage.removeItem(STORAGE_KEYS.STATE)
       localStorage.removeItem(STORAGE_KEYS.API_CONFIG)
+      StorageService.clearImageStore()
       return true
     } catch (error) {
       console.error('Failed to clear all data:', error)
@@ -275,6 +424,7 @@ export const saveProject = StorageService.saveProject
 export const saveApiConfig = StorageService.saveApiConfig
 export const loadApiConfig = StorageService.loadApiConfig
 export const loadProject = StorageService.loadProject
+export const loadProjectWithImages = StorageService.loadProjectWithImages
 export const clearProject = StorageService.clearProject
 export const clearAll = StorageService.clearAll
 export const hasProject = StorageService.hasProject

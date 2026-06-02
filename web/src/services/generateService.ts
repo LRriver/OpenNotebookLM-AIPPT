@@ -4,7 +4,7 @@ import {
   SSEEventType,
   FullApiConfig,
   DeckOutline,
-  ConfirmedSlidePrompt
+  ConfirmedSlidePrompt,
 } from '../types'
 import { buildModelProfiles } from './modelProfileService'
 
@@ -73,13 +73,13 @@ function parseSSELine(line: string): { type: SSEEventType; data: unknown } | nul
   if (!line.startsWith('data: ')) {
     return null
   }
-  
+
   try {
     const jsonStr = line.slice(6) // 移除 'data: ' 前缀
     const parsed = JSON.parse(jsonStr)
     return {
       type: parsed.type as SSEEventType,
-      data: parsed.data
+      data: parsed.data,
     }
   } catch (e) {
     console.error('Failed to parse SSE data:', e)
@@ -96,16 +96,19 @@ function convertToSlide(data: SSESlideData): Slide {
     pageNumber: data.page_number,
     imageUrl: `data:image/png;base64,${data.image_base64}`,
     imageBase64: data.image_base64,
-    prompt: data.prompt
+    prompt: data.prompt,
   }
 }
 
 function hasCompleteModelConfig(config: FullApiConfig): boolean {
   const editConfig = config.edit || config.image
   return Boolean(
-    config.text.apiKey && config.text.baseUrl &&
-    config.image.apiKey && config.image.baseUrl &&
-    editConfig.apiKey && editConfig.baseUrl
+    config.text.apiKey &&
+    config.text.baseUrl &&
+    config.image.apiKey &&
+    config.image.baseUrl &&
+    editConfig.apiKey &&
+    editConfig.baseUrl
   )
 }
 
@@ -122,14 +125,14 @@ function buildBackendConfig(fullApiConfig: FullApiConfig, generationConfig: Gene
     image: {
       api_key: fullApiConfig.image.apiKey,
       base_url: fullApiConfig.image.baseUrl,
-      model: fullApiConfig.image.model
+      model: fullApiConfig.image.model,
     },
     text: {
       api_key: fullApiConfig.text.apiKey,
       base_url: fullApiConfig.text.baseUrl,
       model: fullApiConfig.text.model,
       format: fullApiConfig.text.format,
-      thinking_level: fullApiConfig.text.thinkingLevel
+      thinking: fullApiConfig.text.thinking || 'disabled',
     },
     ...(modelProfiles ? { model_profiles: modelProfiles } : {}),
     page_count: generationConfig.pageCount,
@@ -138,7 +141,7 @@ function buildBackendConfig(fullApiConfig: FullApiConfig, generationConfig: Gene
     language: generationConfig.language || '中文',
     style: generationConfig.style || '现代简约商务风格',
     target_audience: generationConfig.targetAudience || '专业人士',
-    user_requirements: generationConfig.userRequirements || ''
+    user_requirements: generationConfig.userRequirements || '',
   }
 }
 
@@ -146,9 +149,9 @@ async function postJson<T>(url: string, body: unknown): Promise<T> {
   const response = await fetch(url, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
-    body: JSON.stringify(body)
+    body: JSON.stringify(body),
   })
   const data = await response.json().catch(() => ({}))
   if (!response.ok) {
@@ -163,7 +166,7 @@ export async function requestDeckOutline(config: OutlineRequestConfig): Promise<
     '/api/generate-outline',
     {
       content: config.content,
-      config: buildBackendConfig(config.fullApiConfig, config.generationConfig)
+      config: buildBackendConfig(config.fullApiConfig, config.generationConfig),
     }
   )
   if (!data.success || !data.outline) {
@@ -172,15 +175,18 @@ export async function requestDeckOutline(config: OutlineRequestConfig): Promise<
   return data.outline
 }
 
-export async function requestSlidePrompts(config: PromptPlanRequestConfig): Promise<ConfirmedSlidePrompt[]> {
-  const data = await postJson<{ success: boolean; slide_prompts?: ConfirmedSlidePrompt[]; message?: string }>(
-    '/api/generate-prompts',
-    {
-      content: config.content,
-      config: buildBackendConfig(config.fullApiConfig, config.generationConfig),
-      outline: config.outline
-    }
-  )
+export async function requestSlidePrompts(
+  config: PromptPlanRequestConfig
+): Promise<ConfirmedSlidePrompt[]> {
+  const data = await postJson<{
+    success: boolean
+    slide_prompts?: ConfirmedSlidePrompt[]
+    message?: string
+  }>('/api/generate-prompts', {
+    content: config.content,
+    config: buildBackendConfig(config.fullApiConfig, config.generationConfig),
+    outline: config.outline,
+  })
   if (!data.success || !data.slide_prompts) {
     throw new Error(data.message || '生成逐页设计失败')
   }
@@ -189,9 +195,9 @@ export async function requestSlidePrompts(config: PromptPlanRequestConfig): Prom
 
 /**
  * 开始 PPT 生成
- * 
+ *
  * 使用 fetch API 处理 SSE 流式响应
- * 
+ *
  * @param config 生成配置
  * @param callbacks SSE 事件回调
  * @returns AbortController 用于取消请求
@@ -201,59 +207,59 @@ export function startGeneration(
   callbacks: SSECallbacks
 ): AbortController {
   const abortController = new AbortController()
-  
+
   const requestBody = {
     content: config.content,
     config: buildBackendConfig(config.fullApiConfig, config.generationConfig),
-    ...(config.slidePrompts ? { slide_prompts: config.slidePrompts } : {})
+    ...(config.slidePrompts ? { slide_prompts: config.slidePrompts } : {}),
   }
-  
+
   // 发起请求
   fetch('/api/generate', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Accept': 'text/event-stream'
+      Accept: 'text/event-stream',
     },
     body: JSON.stringify(requestBody),
-    signal: abortController.signal
+    signal: abortController.signal,
   })
     .then(async (response) => {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
-      
+
       const reader = response.body?.getReader()
       if (!reader) {
         throw new Error('Response body is not readable')
       }
-      
+
       const decoder = new TextDecoder()
       let buffer = ''
-      
+
       let done = false
       while (!done) {
         const result = await reader.read()
         done = result.done
-        
+
         if (done) {
           break
         }
-        
+
         // 解码并添加到缓冲区
         buffer += decoder.decode(result.value, { stream: true })
-        
+
         // 按行处理
         const lines = buffer.split('\n')
         buffer = lines.pop() || '' // 保留最后一个不完整的行
-        
+
         for (const line of lines) {
           const trimmedLine = line.trim()
           if (!trimmedLine) continue
-          
+
           const event = parseSSELine(trimmedLine)
           if (!event) continue
-          
+
           // 根据事件类型调用相应回调
           switch (event.type) {
             case 'progress':
@@ -273,7 +279,7 @@ export function startGeneration(
           }
         }
       }
-      
+
       // 处理缓冲区中剩余的数据
       if (buffer.trim()) {
         const event = parseSSELine(buffer.trim())
@@ -302,13 +308,13 @@ export function startGeneration(
         // 请求被取消，不需要处理
         return
       }
-      
+
       callbacks.onError({
         fatal: true,
-        message: `请求失败: ${error.message}`
+        message: `请求失败: ${error.message}`,
       })
     })
-  
+
   return abortController
 }
 

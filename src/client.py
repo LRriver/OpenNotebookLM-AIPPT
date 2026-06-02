@@ -96,10 +96,14 @@ class AIClient:
         
         messages.append({"role": "user", "content": prompt})
         
-        response = self._openai_client.chat.completions.create(
-            model=self.config.text_model,
-            messages=messages
-        )
+        kwargs = {
+            "model": self.config.text_model,
+            "messages": messages,
+        }
+        if self.config.text_thinking in {"enabled", "disabled"}:
+            kwargs["extra_body"] = {"thinking": {"type": self.config.text_thinking}}
+
+        response = self._openai_client.chat.completions.create(**kwargs)
         
         return response.choices[0].message.content
     

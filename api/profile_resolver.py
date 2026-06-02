@@ -46,6 +46,7 @@ def profiles_from_generation_config(config: Any) -> ModelProfileSet:
                 "base_url": config.text.base_url,
                 "api_key": config.text.api_key,
                 "adapter": "openai_chat",
+                "thinking": getattr(config.text, "thinking", "disabled"),
             },
             "image_model": {
                 "model": config.image.model,
@@ -72,6 +73,7 @@ def profiles_from_generation_config(config: Any) -> ModelProfileSet:
                 "base_url": config.get_text_base_url(),
                 "api_key": config.get_text_api_key(),
                 "adapter": "openai_chat",
+                "thinking": config.get_thinking(),
             },
             "image_model": {
                 "model": config.get_image_model(),

@@ -8,14 +8,16 @@ export async function loadBackendModelProfiles(): Promise<ModelProfilesResponse>
   return response.json()
 }
 
-export async function saveBackendModelProfiles(config: FullApiConfig): Promise<ModelProfilesResponse> {
+export async function saveBackendModelProfiles(
+  config: FullApiConfig
+): Promise<ModelProfilesResponse> {
   const profiles = buildModelProfiles(config)
   const response = await fetch('/api/model-profiles', {
     method: 'PUT',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
-    body: JSON.stringify(profiles)
+    body: JSON.stringify(profiles),
   })
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}))
@@ -31,19 +33,20 @@ export function buildModelProfiles(config: FullApiConfig): ModelProfilesRequestC
       model: config.text.model,
       base_url: config.text.baseUrl,
       api_key: config.text.apiKey,
-      adapter: 'openai_chat'
+      adapter: 'openai_chat',
+      thinking: config.text.thinking || 'disabled',
     },
     image_model: {
       model: config.image.model,
       base_url: config.image.baseUrl,
       api_key: config.image.apiKey,
-      adapter: 'raw_chat_multimodal'
+      adapter: 'raw_chat_multimodal',
     },
     edit_model: {
       model: editConfig.model,
       base_url: editConfig.baseUrl,
       api_key: editConfig.apiKey,
-      adapter: 'raw_chat_multimodal'
-    }
+      adapter: 'raw_chat_multimodal',
+    },
   }
 }

@@ -71,11 +71,11 @@ function GenerationConfigForm({ onConfigChange, initialConfig }: GenerationConfi
   }
 
   return (
-    <section className="rounded-xl border border-[var(--card-border)] bg-[var(--card-bg)] overflow-hidden shadow-sm">
+    <section className="aippt-soft-card overflow-hidden">
       <button
         type="button"
         onClick={() => setIsOpen(open => !open)}
-        className="w-full px-4 py-3 text-left flex items-center justify-between gap-3 hover:bg-white/35 transition-colors"
+        className="w-full px-4 py-3.5 text-left flex items-center justify-between gap-3 hover:bg-white/45 transition-colors"
         aria-expanded={isOpen}
       >
         <div className="flex min-w-0 items-center gap-3">
@@ -105,7 +105,7 @@ function GenerationConfigForm({ onConfigChange, initialConfig }: GenerationConfi
         <div className="space-y-5 border-t border-[var(--card-border)] p-4">
       {/* 页数选择器 */}
       <div>
-        <label htmlFor="pageCount" className="block text-xs font-medium text-warm-600 mb-1.5">
+        <label htmlFor="pageCount" className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
           {t('generation.pageCount')}
         </label>
         <input
@@ -116,8 +116,8 @@ function GenerationConfigForm({ onConfigChange, initialConfig }: GenerationConfi
           max={20}
           value={pageCountInput}
           onChange={handlePageCountChange}
-          className={`w-full px-4 py-2.5 text-sm border rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent ${
-            errors.pageCount ? 'border-red-400 bg-red-50' : 'border-warm-200 bg-white'
+          className={`w-full px-4 py-2.5 text-sm border rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-transparent ${
+            errors.pageCount ? 'border-red-400 bg-red-50' : 'border-[var(--border-soft)] bg-white/85'
           }`}
         />
         {errors.pageCount && (
@@ -127,7 +127,7 @@ function GenerationConfigForm({ onConfigChange, initialConfig }: GenerationConfi
 
       {/* 清晰度选择 */}
       <div>
-        <label className="block text-xs font-medium text-warm-600 mb-2">{t('generation.quality')}</label>
+        <label className="block text-xs font-semibold text-[var(--text-muted)] mb-2">{t('generation.quality')}</label>
         <div className="flex gap-2">
           {(['1K', '2K', '4K'] as const).map((quality) => (
             <button
@@ -137,19 +137,19 @@ function GenerationConfigForm({ onConfigChange, initialConfig }: GenerationConfi
               className={`flex-1 px-4 py-2.5 text-sm font-medium rounded-xl border transition-all duration-200 ${
                 config.quality === quality
                   ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-white border-transparent shadow-warm'
-                  : 'bg-white text-warm-600 border-warm-200 hover:border-primary-300'
+                  : 'bg-white/80 text-[var(--text)] border-[var(--border-soft)] hover:border-primary-300'
               }`}
             >
               {quality}
             </button>
           ))}
         </div>
-        <p className="mt-1.5 text-xs text-warm-400">{t('generation.qualityHint')}</p>
+        <p className="mt-1.5 text-xs text-[var(--text-faint)]">{t('generation.qualityHint')}</p>
       </div>
 
       {/* 比例选择 */}
       <div>
-        <label className="block text-xs font-medium text-warm-600 mb-2">{t('generation.aspectRatio')}</label>
+        <label className="block text-xs font-semibold text-[var(--text-muted)] mb-2">{t('generation.aspectRatio')}</label>
         <div className="flex gap-2">
           {(['16:9', '4:3'] as const).map((ratio) => (
             <button
@@ -159,7 +159,7 @@ function GenerationConfigForm({ onConfigChange, initialConfig }: GenerationConfi
               className={`flex-1 px-4 py-2.5 text-sm font-medium rounded-xl border transition-all duration-200 ${
                 config.aspectRatio === ratio
                   ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-white border-transparent shadow-warm'
-                  : 'bg-white text-warm-600 border-warm-200 hover:border-primary-300'
+                  : 'bg-white/80 text-[var(--text)] border-[var(--border-soft)] hover:border-primary-300'
               }`}
             >
               <span>{ratio}</span>
@@ -173,19 +173,19 @@ function GenerationConfigForm({ onConfigChange, initialConfig }: GenerationConfi
 
       {/* 语言设置 */}
       <div>
-        <label className="block text-xs font-medium text-warm-600 mb-1.5">{t('generation.outputLanguage')}</label>
+        <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">{t('generation.outputLanguage')}</label>
         <input
           type="text"
           value={config.language || ''}
           onChange={handleLanguageChange}
           placeholder={t('generation.outputLanguagePlaceholder')}
-          className="w-full px-4 py-2.5 text-sm border border-warm-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent"
+          className="w-full px-4 py-2.5 text-sm border border-[var(--border-soft)] rounded-xl bg-white/85 focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-transparent"
         />
       </div>
 
       {/* 风格设置 */}
       <div>
-        <label className="block text-xs font-medium text-warm-600 mb-2">{t('generation.style')}</label>
+        <label className="block text-xs font-semibold text-[var(--text-muted)] mb-2">{t('generation.style')}</label>
         <div className="flex flex-wrap gap-2">
           {stylePresets[language].map((style) => (
             <button
@@ -194,8 +194,8 @@ function GenerationConfigForm({ onConfigChange, initialConfig }: GenerationConfi
               onClick={() => handleStyleChange(style)}
               className={`px-3 py-1.5 text-xs font-medium rounded-full border transition-all duration-200 ${
                 config.style === style
-                  ? 'bg-purple-500 text-white border-purple-500'
-                  : 'bg-white text-warm-600 border-warm-200 hover:border-purple-300'
+                  ? 'bg-teal-500 text-white border-teal-500'
+                  : 'bg-white/80 text-[var(--text)] border-[var(--border-soft)] hover:border-teal-300'
               }`}
             >
               {style}
@@ -207,13 +207,13 @@ function GenerationConfigForm({ onConfigChange, initialConfig }: GenerationConfi
           value={config.style || ''}
           onChange={(e) => handleStyleChange(e.target.value)}
           placeholder={t('generation.styleCustom')}
-          className="mt-2 w-full px-4 py-2.5 text-sm border border-warm-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent"
+          className="mt-2 w-full px-4 py-2.5 text-sm border border-[var(--border-soft)] rounded-xl bg-white/85 focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-transparent"
         />
       </div>
 
       {/* 目标受众设置 */}
       <div>
-        <label className="block text-xs font-medium text-warm-600 mb-2">{t('generation.audience')}</label>
+        <label className="block text-xs font-semibold text-[var(--text-muted)] mb-2">{t('generation.audience')}</label>
         <div className="flex flex-wrap gap-2">
           {audiencePresets[language].map((audience) => (
             <button
@@ -223,7 +223,7 @@ function GenerationConfigForm({ onConfigChange, initialConfig }: GenerationConfi
               className={`px-3 py-1.5 text-xs font-medium rounded-full border transition-all duration-200 ${
                 config.targetAudience === audience
                   ? 'bg-primary-500 text-white border-primary-500'
-                  : 'bg-white text-warm-600 border-warm-200 hover:border-primary-300'
+                  : 'bg-white/80 text-[var(--text)] border-[var(--border-soft)] hover:border-primary-300'
               }`}
             >
               {audience}
@@ -235,12 +235,12 @@ function GenerationConfigForm({ onConfigChange, initialConfig }: GenerationConfi
           value={config.targetAudience || ''}
           onChange={(e) => handleAudienceChange(e.target.value)}
           placeholder={t('generation.audienceCustom')}
-          className="mt-2 w-full px-4 py-2.5 text-sm border border-warm-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent"
+          className="mt-2 w-full px-4 py-2.5 text-sm border border-[var(--border-soft)] rounded-xl bg-white/85 focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-transparent"
         />
       </div>
 
       <div>
-        <label htmlFor="userRequirements" className="block text-xs font-medium text-warm-600 mb-1.5">
+        <label htmlFor="userRequirements" className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
           {t('generation.requirements')}
         </label>
         <textarea
@@ -250,12 +250,12 @@ function GenerationConfigForm({ onConfigChange, initialConfig }: GenerationConfi
           onChange={handleUserRequirementsChange}
           rows={4}
           placeholder={t('generation.requirementsPlaceholder')}
-          className="w-full px-4 py-3 text-sm border border-warm-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent resize-y"
+          className="w-full px-4 py-3 text-sm border border-[var(--border-soft)] rounded-xl bg-white/85 focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-transparent resize-y"
         />
       </div>
 
       {/* 当前配置摘要 */}
-      <div className="p-3 bg-gradient-to-r from-primary-50 to-accent-50 rounded-xl border border-primary-100">
+      <div className="p-3 bg-gradient-to-r from-primary-50 to-accent-50 rounded-2xl border border-primary-100 shadow-sm">
         <p className="text-xs text-warm-700 font-medium">
           {t('generation.summary', { pages: config.pageCount, quality: config.quality, ratio: config.aspectRatio })}
           {config.language && ` · ${config.language}`}

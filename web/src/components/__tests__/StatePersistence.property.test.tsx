@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import * as fc from 'fast-check'
+import 'fake-indexeddb/auto'
 import {
   StorageService,
   PersistedState,
@@ -7,6 +8,7 @@ import {
   loadState,
   saveProject,
   loadProject,
+  loadProjectWithImages,
   saveApiConfig,
   loadApiConfig,
   clearProject,
@@ -267,7 +269,7 @@ describe('State Persistence Property Tests', () => {
     )
   })
 
-  it('should fall back to lightweight slide metadata when image payload exceeds storage quota', () => {
+  it('should restore slide images from IndexedDB when image payload exceeds storage quota', async () => {
     const originalSetItem = Storage.prototype.setItem
     const setItemSpy = vi
       .spyOn(Storage.prototype, 'setItem')
@@ -296,8 +298,13 @@ describe('State Persistence Property Tests', () => {
 
     const loaded = loadProject()
     expect(loaded?.slides).toHaveLength(1)
+    expect(loaded?.slides[0].imageStorageKey).toBe('demo.md:slide-1')
     expect(loaded?.slides[0].imageUrl).toBe('')
     expect(loaded?.slides[0].imageBase64).toBeUndefined()
+
+    const restored = await loadProjectWithImages()
+    expect(restored?.slides[0].imageUrl).toBe(slide.imageUrl)
+    expect(restored?.slides[0].imageBase64).toBe(slide.imageBase64)
     expect(setItemSpy).toHaveBeenCalledTimes(2)
   })
 

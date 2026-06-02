@@ -102,7 +102,7 @@ function FileUpload({
       {/* 拖拽上传区域 */}
       <div
         className={`
-          aippt-dropzone border-2 border-dashed rounded-lg p-6 text-center cursor-pointer
+          aippt-dropzone border-2 border-dashed rounded-3xl p-7 text-center cursor-pointer
           transition-all duration-300 ease-out
           ${isDragging
             ? 'is-dragging scale-[1.02]'
@@ -127,7 +127,7 @@ function FileUpload({
           transition-all duration-300
           ${isDragging 
             ? 'bg-gradient-to-br from-primary-400 to-accent-500 shadow-warm' 
-            : 'bg-warm-100'
+            : 'bg-white text-primary-500 shadow-sm ring-1 ring-warm-100'
           }
         `}>
           <svg
@@ -146,7 +146,7 @@ function FileUpload({
         </div>
 
         {/* 提示文字 */}
-        <p className={`text-sm font-medium transition-colors duration-300 ${isDragging ? 'text-primary-700' : 'text-warm-600'}`}>
+        <p className={`text-sm font-semibold transition-colors duration-300 ${isDragging ? 'text-primary-700' : 'text-warm-700'}`}>
           {isDragging ? t('upload.release') : t('upload.drop')}
         </p>
         <p className="mt-1 text-xs text-[var(--text-faint)]">
@@ -165,10 +165,10 @@ function FileUpload({
 
       {/* 文件信息显示 */}
       {fileInfo && (
-        <div className="mt-3 p-3 bg-gradient-to-r from-primary-50 to-accent-50 border border-primary-200 rounded-xl">
+        <div className="mt-3 p-3 bg-gradient-to-r from-primary-50 to-accent-50 border border-primary-200 rounded-2xl shadow-sm">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="w-9 h-9 bg-white rounded-lg shadow-sm flex items-center justify-center">
+              <div className="w-9 h-9 bg-white rounded-xl shadow-sm flex items-center justify-center">
                 <svg className="h-5 w-5 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>

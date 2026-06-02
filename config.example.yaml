@@ -10,6 +10,7 @@ api:
       base_url: "https://api.example.com/v1"
       model: "DeepSeek-V4-Pro"
       adapter: "openai_chat"
+      thinking: "disabled"  # 可选: "enabled", "disabled"
     image_model:
       api_key: "your-image-api-key"
       base_url: "https://api.example.com/v1"

@@ -13,6 +13,7 @@ export const dictionaries = {
     'prefs.zh': '中文',
     'prefs.en': 'English',
     'prefs.theme': '主题',
+    'theme.label': '主题模式',
     'theme.light': '浅色模式',
     'theme.dark': '深色模式',
     'theme.light.short': '浅色',
@@ -60,10 +61,12 @@ export const dictionaries = {
     'api.baseUrl': 'Base URL',
     'api.modelName': '模型名称',
     'api.format': 'API 格式',
-    'api.thinking': '思考深度',
+    'api.thinking': '思考模式',
     'api.thinking.off': '关闭',
     'api.thinking.low': '低',
     'api.thinking.high': '高',
+    'api.thinking.enabled': '开启',
+    'api.thinking.disabled': '关闭',
     'api.keyPlaceholder': '输入{label} API Key',
     'api.keyConfiguredPlaceholder': '已在 config.yaml 配置，留空保留原 Key',
     'api.imageLabel': '图像模型',
@@ -92,7 +95,8 @@ export const dictionaries = {
     'generation.audience': '目标受众',
     'generation.audienceCustom': '或输入自定义受众...',
     'generation.requirements': '内容要求',
-    'generation.requirementsPlaceholder': '例如：面向研发团队，重点讲系统架构和风险控制；语气专业一些，不要太营销。',
+    'generation.requirementsPlaceholder':
+      '例如：面向研发团队，重点讲系统架构和风险控制；语气专业一些，不要太营销。',
     'generation.summary': '当前配置：{pages} 页 · {quality} 清晰度 · {ratio} 比例',
     'generation.summaryStyle': '风格：{style}',
     'generation.summaryAudience': '受众：{audience}',
@@ -147,6 +151,7 @@ export const dictionaries = {
     'right.exportProgress': '导出进度',
     'right.currentPage': '第 {page} 页',
     'right.editCurrent': '编辑当前页',
+    'right.slides': '全部幻灯片',
     'right.thumbnails': '缩略图',
     'right.pageCount': '{count} 页',
     'right.emptyTitle': '上传文件并点击生成',
@@ -161,16 +166,22 @@ export const dictionaries = {
     'export.pptxSubtitle': '可在 PowerPoint 中编辑',
 
     'slide.loading': '加载中...',
+    'slide.imageMissing': '图片未保存',
     'slide.edit': '编辑',
     'slide.noDescription': '无描述',
     'slide.listAria': '幻灯片列表',
     'slide.empty': '生成幻灯片后将在此处显示',
+    'image.open': '查看大图',
+    'image.download': '下载图片',
+    'image.close': '关闭',
     'image.loadFailed': '加载失败',
 
     'edit.title': '编辑幻灯片',
     'edit.subtitle': '输入修改指令，AI 将根据指令修改图片',
     'edit.original': '原始图片',
     'edit.current': '当前版本',
+    'edit.result': '修改结果',
+    'edit.resultHint': '确认后会替换右侧对应页面',
     'edit.instruction': '修改指令',
     'edit.placeholder': '例如：将背景颜色改为蓝色、添加公司 logo、调整文字大小...',
     'edit.submit': '提交修改',
@@ -191,7 +202,7 @@ export const dictionaries = {
     'restore.slideCount': '{count} 张幻灯片',
     'restore.noSlides': '尚未生成幻灯片',
     'restore.new': '开始新项目',
-    'restore.restore': '恢复项目'
+    'restore.restore': '恢复项目',
   },
   en: {
     'app.title': 'AI PPT Workbench',
@@ -205,6 +216,7 @@ export const dictionaries = {
     'prefs.zh': '中文',
     'prefs.en': 'English',
     'prefs.theme': 'Theme',
+    'theme.label': 'Theme mode',
     'theme.light': 'Light mode',
     'theme.dark': 'Dark mode',
     'theme.light.short': 'Light',
@@ -230,7 +242,8 @@ export const dictionaries = {
     'center.empty': 'Settings will appear here in a later task',
     'newProject.button': 'New project',
     'newProject.title': 'Start a new project?',
-    'newProject.message': 'The current project has unsaved changes. Starting over will clear all current content.',
+    'newProject.message':
+      'The current project has unsaved changes. Starting over will clear all current content.',
     'newProject.confirm': 'New project',
     'common.cancel': 'Cancel',
     'common.confirm': 'Confirm',
@@ -252,10 +265,12 @@ export const dictionaries = {
     'api.baseUrl': 'Base URL',
     'api.modelName': 'Model name',
     'api.format': 'API format',
-    'api.thinking': 'Thinking depth',
+    'api.thinking': 'Thinking mode',
     'api.thinking.off': 'Off',
     'api.thinking.low': 'Low',
     'api.thinking.high': 'High',
+    'api.thinking.enabled': 'Enabled',
+    'api.thinking.disabled': 'Disabled',
     'api.keyPlaceholder': 'Enter {label} API Key',
     'api.keyConfiguredPlaceholder': 'Configured in config.yaml; leave blank to keep the key',
     'api.imageLabel': 'image model',
@@ -284,7 +299,8 @@ export const dictionaries = {
     'generation.audience': 'Target audience',
     'generation.audienceCustom': 'Or enter a custom audience...',
     'generation.requirements': 'Content notes',
-    'generation.requirementsPlaceholder': 'Example: for an engineering team, emphasize architecture and risk control; keep the tone professional but not too promotional.',
+    'generation.requirementsPlaceholder':
+      'Example: for an engineering team, emphasize architecture and risk control; keep the tone professional but not too promotional.',
     'generation.summary': 'Current: {pages} slides · {quality} resolution · {ratio}',
     'generation.summaryStyle': 'Style: {style}',
     'generation.summaryAudience': 'Audience: {audience}',
@@ -339,6 +355,7 @@ export const dictionaries = {
     'right.exportProgress': 'Export progress',
     'right.currentPage': 'Slide {page}',
     'right.editCurrent': 'Edit current slide',
+    'right.slides': 'All slides',
     'right.thumbnails': 'Thumbnails',
     'right.pageCount': '{count} slides',
     'right.emptyTitle': 'Upload a file and generate',
@@ -353,18 +370,25 @@ export const dictionaries = {
     'export.pptxSubtitle': 'Editable in PowerPoint',
 
     'slide.loading': 'Loading...',
+    'slide.imageMissing': 'Image not saved',
     'slide.edit': 'Edit',
     'slide.noDescription': 'No description',
     'slide.listAria': 'Slide list',
     'slide.empty': 'Generated slides will appear here',
+    'image.open': 'Open large view',
+    'image.download': 'Download image',
+    'image.close': 'Close',
     'image.loadFailed': 'Failed to load',
 
     'edit.title': 'Edit slide',
     'edit.subtitle': 'Describe the change and let AI redraw this page',
     'edit.original': 'Original',
     'edit.current': 'Current version',
+    'edit.result': 'Edited result',
+    'edit.resultHint': 'Applying this edit replaces the matching page on the right',
     'edit.instruction': 'Edit instruction',
-    'edit.placeholder': 'Example: change the background to blue, add a company logo, adjust text size...',
+    'edit.placeholder':
+      'Example: change the background to blue, add a company logo, adjust text size...',
     'edit.submit': 'Submit edit',
     'edit.confirm': 'Apply edit',
     'edit.cancel': 'Cancel',
@@ -383,8 +407,8 @@ export const dictionaries = {
     'restore.slideCount': '{count} slides',
     'restore.noSlides': 'No slides generated yet',
     'restore.new': 'Start fresh',
-    'restore.restore': 'Restore project'
-  }
+    'restore.restore': 'Restore project',
+  },
 } as const
 
 export type I18nKey = keyof typeof dictionaries.zh
@@ -396,7 +420,7 @@ export const stylePresets: Record<Language, string[]> = {
     '学术专业风格',
     '创意艺术风格',
     '清新自然风格',
-    '经典传统风格'
+    '经典传统风格',
   ],
   en: [
     'Modern minimal business',
@@ -404,27 +428,13 @@ export const stylePresets: Record<Language, string[]> = {
     'Academic professional',
     'Creative editorial',
     'Fresh natural',
-    'Classic formal'
-  ]
+    'Classic formal',
+  ],
 }
 
 export const audiencePresets: Record<Language, string[]> = {
-  zh: [
-    '专业人士',
-    '学生群体',
-    '企业管理层',
-    '技术开发者',
-    '普通大众',
-    '投资者'
-  ],
-  en: [
-    'Professionals',
-    'Students',
-    'Executives',
-    'Developers',
-    'General audience',
-    'Investors'
-  ]
+  zh: ['专业人士', '学生群体', '企业管理层', '技术开发者', '普通大众', '投资者'],
+  en: ['Professionals', 'Students', 'Executives', 'Developers', 'General audience', 'Investors'],
 }
 
 export function translate(

@@ -38,6 +38,8 @@ def _clean_profile_data(profile_data: Dict[str, Any], existing_models: Dict[str,
             "api_key": api_key,
             "adapter": profile.get("adapter", "openai_chat" if role == "prompt_model" else "raw_chat_multimodal"),
         }
+        if role == "prompt_model":
+            cleaned[role]["thinking"] = profile.get("thinking", existing_profile.get("thinking", "disabled"))
         if profile.get("id"):
             cleaned[role]["id"] = profile["id"]
         if profile.get("label"):

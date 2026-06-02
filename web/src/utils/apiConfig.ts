@@ -5,7 +5,7 @@ const STORAGE_KEY = 'aippt_full_api_config'
 const DEFAULT_IMAGE_CONFIG: ImageApiConfig = {
   apiKey: '',
   baseUrl: '',
-  model: 'gpt-image-2'
+  model: 'gpt-image-2',
 }
 
 const DEFAULT_TEXT_CONFIG: TextApiConfig = {
@@ -13,13 +13,13 @@ const DEFAULT_TEXT_CONFIG: TextApiConfig = {
   baseUrl: '',
   model: 'DeepSeek-V4-Pro',
   format: 'openai',
-  thinkingLevel: null
+  thinking: 'disabled',
 }
 
 export const DEFAULT_FULL_API_CONFIG: FullApiConfig = {
   image: DEFAULT_IMAGE_CONFIG,
   text: DEFAULT_TEXT_CONFIG,
-  edit: { ...DEFAULT_IMAGE_CONFIG }
+  edit: { ...DEFAULT_IMAGE_CONFIG },
 }
 
 export function loadFullApiConfig(): FullApiConfig {
@@ -30,7 +30,7 @@ export function loadFullApiConfig(): FullApiConfig {
       const image = {
         apiKey: parsed.image?.apiKey || '',
         baseUrl: parsed.image?.baseUrl || '',
-        model: parsed.image?.model || DEFAULT_IMAGE_CONFIG.model
+        model: parsed.image?.model || DEFAULT_IMAGE_CONFIG.model,
       }
       return {
         image,
@@ -39,13 +39,15 @@ export function loadFullApiConfig(): FullApiConfig {
           baseUrl: parsed.text?.baseUrl || image.baseUrl || '',
           model: parsed.text?.model || DEFAULT_TEXT_CONFIG.model,
           format: parsed.text?.format || DEFAULT_TEXT_CONFIG.format,
-          thinkingLevel: parsed.text?.thinkingLevel ?? DEFAULT_TEXT_CONFIG.thinkingLevel
+          thinking:
+            parsed.text?.thinking ||
+            (parsed.text?.thinkingLevel ? 'enabled' : DEFAULT_TEXT_CONFIG.thinking),
         },
         edit: {
           apiKey: parsed.edit?.apiKey || image.apiKey,
           baseUrl: parsed.edit?.baseUrl || image.baseUrl,
-          model: parsed.edit?.model || image.model
-        }
+          model: parsed.edit?.model || image.model,
+        },
       }
     }
   } catch (e) {
@@ -62,7 +64,7 @@ export function saveFullApiConfig(config: FullApiConfig): void {
   }
 }
 
-export function validateFullApiConfig(config: FullApiConfig): { 
+export function validateFullApiConfig(config: FullApiConfig): {
   isValid: boolean
   errors: {
     image?: { apiKey?: string; baseUrl?: string; model?: string }
@@ -78,16 +80,20 @@ export function validateFullApiConfig(config: FullApiConfig): {
 
   const validateUrl = (value: string | undefined) => {
     if (!value?.trim()) return 'Base URL 不能为空'
-    try { new URL(value) } catch { return '请输入有效的 URL 格式' }
+    try {
+      new URL(value)
+    } catch {
+      return '请输入有效的 URL 格式'
+    }
     return undefined
   }
-  
+
   const imageErrors: { apiKey?: string; baseUrl?: string; model?: string } = {}
   const imageUrlError = validateUrl(config.image.baseUrl)
   if (imageUrlError) imageErrors.baseUrl = imageUrlError
   if (!config.image.model?.trim()) imageErrors.model = '图像模型名称不能为空'
   if (Object.keys(imageErrors).length > 0) errors.image = imageErrors
-  
+
   const textErrors: { apiKey?: string; baseUrl?: string; model?: string } = {}
   const textUrlError = validateUrl(config.text.baseUrl)
   if (textUrlError) textErrors.baseUrl = textUrlError
@@ -101,7 +107,7 @@ export function validateFullApiConfig(config: FullApiConfig): {
     if (!config.edit.model?.trim()) editErrors.model = '编辑模型名称不能为空'
     if (Object.keys(editErrors).length > 0) errors.edit = editErrors
   }
-  
+
   return { isValid: Object.keys(errors).length === 0, errors }
 }
 
@@ -127,7 +133,11 @@ export function validateApiConfig(config: { apiKey: string; baseUrl: string }) {
   if (!config.baseUrl?.trim()) {
     errors.baseUrl = 'Base URL 不能为空'
   } else {
-    try { new URL(config.baseUrl) } catch { errors.baseUrl = '请输入有效的 URL 格式' }
+    try {
+      new URL(config.baseUrl)
+    } catch {
+      errors.baseUrl = '请输入有效的 URL 格式'
+    }
   }
   return { isValid: Object.keys(errors).length === 0, errors }
 }

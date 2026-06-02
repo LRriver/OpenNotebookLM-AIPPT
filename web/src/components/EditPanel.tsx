@@ -83,7 +83,9 @@ function EditPanel({
       <div className="space-y-5 mb-4">
         {/* 原始图片 */}
         <div>
-          <p className="text-xs text-[var(--text-muted)] mb-2 text-center">{t('edit.original')}</p>
+          <p className="text-sm font-semibold text-[var(--text)] mb-3 text-center">
+            {t('edit.original')}
+          </p>
           <button
             type="button"
             onClick={() =>
@@ -120,7 +122,9 @@ function EditPanel({
         {/* 生成结果 */}
         {shouldShowResult && (
           <div>
-            <p className="text-xs text-[var(--text-muted)] mb-2 text-center">{t('edit.result')}</p>
+            <p className="text-sm font-semibold text-[var(--text)] mb-3 text-center">
+              {t('edit.result')}
+            </p>
             <button
               type="button"
               onClick={() =>
@@ -189,46 +193,40 @@ function EditPanel({
         )}
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_16rem]">
-        <div className="min-w-0">
-          {/* 修改指令输入区域 */}
-          <form onSubmit={handleSubmit} className="mb-4">
-            <label
-              htmlFor="edit-instruction"
-              className="block text-sm font-medium text-[var(--text)] mb-2"
-            >
-              {t('edit.instruction')}
-            </label>
-            <textarea
-              id="edit-instruction"
-              value={instruction}
-              onChange={(e) => setInstruction(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={t('edit.placeholder')}
-              className="input-field min-h-[6rem] resize-none"
-              rows={3}
-              disabled={isEditing}
-              data-testid="edit-instruction-input"
-            />
-            <button
-              type="submit"
-              disabled={!instruction.trim() || isEditing}
-              className="btn-primary mt-2 w-full"
-              data-testid="submit-edit-button"
-            >
-              {isEditing ? t('edit.generating') : t('edit.submit')}
-            </button>
-          </form>
-        </div>
+      <div className="space-y-4">
+        {/* 修改指令输入区域 */}
+        <form onSubmit={handleSubmit}>
+          <label
+            htmlFor="edit-instruction"
+            className="block text-sm font-semibold text-[var(--text)] mb-2"
+          >
+            {t('edit.instruction')}
+          </label>
+          <textarea
+            id="edit-instruction"
+            value={instruction}
+            onChange={(e) => setInstruction(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder={t('edit.placeholder')}
+            className="input-field min-h-[7.5rem] resize-y"
+            rows={4}
+            disabled={isEditing}
+            data-testid="edit-instruction-input"
+          />
+          <button
+            type="submit"
+            disabled={!instruction.trim() || isEditing}
+            className="btn-primary mt-3 w-full"
+            data-testid="submit-edit-button"
+          >
+            {isEditing ? t('edit.generating') : t('edit.submit')}
+          </button>
+        </form>
 
-        <div className="min-w-0">
-          {/* 编辑历史 */}
-          {editSession.history.length > 0 && (
-            <div className="mb-4">
-              <EditHistory history={editSession.history} onRevert={onRevertToVersion} />
-            </div>
-          )}
-        </div>
+        {/* 编辑历史 */}
+        {editSession.history.length > 0 && (
+          <EditHistory history={editSession.history} onRevert={onRevertToVersion} />
+        )}
       </div>
 
       {/* 确认/取消按钮 */}

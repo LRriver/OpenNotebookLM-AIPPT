@@ -29,18 +29,18 @@ const toneStyles = {
   amber: {
     card: 'border-amber-200 bg-amber-50/75',
     icon: 'bg-white text-amber-700 shadow-sm',
-    badge: 'bg-white/80 text-amber-800 border-amber-200'
+    badge: 'bg-white/80 text-amber-800 border-amber-200',
   },
   violet: {
     card: 'border-violet-200 bg-violet-50/55',
     icon: 'bg-white text-violet-700 shadow-sm',
-    badge: 'bg-white/80 text-violet-800 border-violet-200'
+    badge: 'bg-white/80 text-violet-800 border-violet-200',
   },
   emerald: {
     card: 'border-emerald-200 bg-emerald-50/55',
     icon: 'bg-white text-emerald-700 shadow-sm',
-    badge: 'bg-white/80 text-emerald-800 border-emerald-200'
-  }
+    badge: 'bg-white/80 text-emerald-800 border-emerald-200',
+  },
 }
 
 function ModelCard({
@@ -54,7 +54,7 @@ function ModelCard({
   errorLabel,
   emptyModelLabel,
   onToggle,
-  children
+  children,
 }: ModelCardProps) {
   const styles = toneStyles[tone]
 
@@ -67,29 +67,52 @@ function ModelCard({
         aria-expanded={isOpen}
       >
         <div className="flex min-w-0 items-center gap-3">
-          <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${styles.icon}`}>
+          <div
+            className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${styles.icon}`}
+          >
             {id === 'text' ? (
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
               </svg>
             ) : id === 'edit' ? (
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536M4 20h4.586a1 1 0 00.707-.293l9.414-9.414a2 2 0 000-2.828l-2.172-2.172a2 2 0 00-2.828 0L4.293 14.707A1 1 0 004 15.414V20z" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15.232 5.232l3.536 3.536M4 20h4.586a1 1 0 00.707-.293l9.414-9.414a2 2 0 000-2.828l-2.172-2.172a2 2 0 00-2.828 0L4.293 14.707A1 1 0 004 15.414V20z"
+                />
               </svg>
             ) : (
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2 1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2 1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
               </svg>
             )}
           </div>
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <h4 className="text-sm font-semibold text-[var(--text-strong)]">{title}</h4>
-              {hasError && <span className="rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-medium text-red-700">{errorLabel}</span>}
+              {hasError && (
+                <span className="rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-medium text-red-700">
+                  {errorLabel}
+                </span>
+              )}
             </div>
             {isOpen && <p className="text-xs text-[var(--text-muted)] mt-0.5">{subtitle}</p>}
             <div className={`${isOpen ? 'mt-3' : 'mt-1'} flex flex-wrap gap-2`}>
-              <span className={`max-w-full truncate rounded-full border px-2.5 py-1 text-[11px] font-medium ${styles.badge}`}>
+              <span
+                className={`max-w-full truncate rounded-full border px-2.5 py-1 text-[11px] font-medium ${styles.badge}`}
+              >
                 {model || emptyModelLabel}
               </span>
             </div>
@@ -106,9 +129,7 @@ function ModelCard({
       </button>
 
       {isOpen && (
-        <div className="border-t border-white/70 bg-white/80 p-4 space-y-3">
-          {children}
-        </div>
+        <div className="border-t border-white/70 bg-white/80 p-4 space-y-3">{children}</div>
       )}
     </section>
   )
@@ -130,7 +151,7 @@ function ApiConfigForm({ onConfigChange, initialConfig }: ApiConfigFormProps) {
     return {
       image: !loaded.image.baseUrl,
       edit: !(loaded.edit || loaded.image).baseUrl,
-      text: !loaded.text.baseUrl
+      text: !loaded.text.baseUrl,
     }
   })
   const [showImageApiKey, setShowImageApiKey] = useState(false)
@@ -147,32 +168,32 @@ function ApiConfigForm({ onConfigChange, initialConfig }: ApiConfigFormProps) {
   useEffect(() => {
     let cancelled = false
     loadBackendModelProfiles()
-      .then(response => {
+      .then((response) => {
         if (cancelled || !response.success || !response.profiles) return
         const { prompt_model, image_model, edit_model } = response.profiles
-        setConfig(prev => ({
+        setConfig((prev) => ({
           image: {
             apiKey: prev.image.apiKey,
             baseUrl: image_model.base_url,
-            model: image_model.model
+            model: image_model.model,
           },
           text: {
             apiKey: prev.text.apiKey,
             baseUrl: prompt_model.base_url,
             model: prompt_model.model,
             format: 'openai',
-            thinkingLevel: null
+            thinking: prompt_model.thinking || prev.text.thinking || 'disabled',
           },
           edit: {
             apiKey: prev.edit?.apiKey || '',
             baseUrl: edit_model.base_url,
-            model: edit_model.model
-          }
+            model: edit_model.model,
+          },
         }))
         setOpenSections({
           image: !image_model.base_url,
           edit: !edit_model.base_url,
-          text: !prompt_model.base_url
+          text: !prompt_model.base_url,
         })
       })
       .catch(() => {
@@ -189,20 +210,24 @@ function ApiConfigForm({ onConfigChange, initialConfig }: ApiConfigFormProps) {
 
   useEffect(() => {
     if (useSharedConfig) {
-      setConfig(prev => ({
+      setConfig((prev) => ({
         ...prev,
         text: { ...prev.text, apiKey: prev.image.apiKey, baseUrl: prev.image.baseUrl },
-        edit: { ...(prev.edit || prev.image), apiKey: prev.image.apiKey, baseUrl: prev.image.baseUrl }
+        edit: {
+          ...(prev.edit || prev.image),
+          apiKey: prev.image.apiKey,
+          baseUrl: prev.image.baseUrl,
+        },
       }))
     }
   }, [useSharedConfig])
 
   const toggleSection = (section: ModelSection) => {
-    setOpenSections(prev => ({ ...prev, [section]: !prev[section] }))
+    setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }))
   }
 
   const handleImageConfigChange = (field: keyof ImageApiConfig, value: string) => {
-    setConfig(prev => {
+    setConfig((prev) => {
       const newConfig = { ...prev, image: { ...prev.image, [field]: value } }
       if (useSharedConfig && (field === 'apiKey' || field === 'baseUrl')) {
         newConfig.text = { ...newConfig.text, [field]: value }
@@ -214,26 +239,26 @@ function ApiConfigForm({ onConfigChange, initialConfig }: ApiConfigFormProps) {
     })
     setSaved(false)
     if (errors.image?.[field]) {
-      setErrors(prev => ({ ...prev, image: { ...prev.image, [field]: undefined } }))
+      setErrors((prev) => ({ ...prev, image: { ...prev.image, [field]: undefined } }))
     }
   }
 
   const handleTextConfigChange = (field: keyof TextApiConfig, value: string | null) => {
-    setConfig(prev => ({ ...prev, text: { ...prev.text, [field]: value } }))
+    setConfig((prev) => ({ ...prev, text: { ...prev.text, [field]: value } }))
     setSaved(false)
     if (errors.text?.[field as keyof typeof errors.text]) {
-      setErrors(prev => ({ ...prev, text: { ...prev.text, [field]: undefined } }))
+      setErrors((prev) => ({ ...prev, text: { ...prev.text, [field]: undefined } }))
     }
   }
 
   const handleEditConfigChange = (field: keyof ImageApiConfig, value: string) => {
-    setConfig(prev => ({
+    setConfig((prev) => ({
       ...prev,
-      edit: { ...(prev.edit || prev.image), [field]: value }
+      edit: { ...(prev.edit || prev.image), [field]: value },
     }))
     setSaved(false)
     if (errors.edit?.[field]) {
-      setErrors(prev => ({ ...prev, edit: { ...prev.edit, [field]: undefined } }))
+      setErrors((prev) => ({ ...prev, edit: { ...prev.edit, [field]: undefined } }))
     }
   }
 
@@ -242,10 +267,10 @@ function ApiConfigForm({ onConfigChange, initialConfig }: ApiConfigFormProps) {
     if (!validation.isValid) {
       setErrors(validation.errors)
       setIsOpen(true)
-      setOpenSections(prev => ({
+      setOpenSections((prev) => ({
         image: prev.image || Boolean(validation.errors.image),
         edit: prev.edit || Boolean(validation.errors.edit),
-        text: prev.text || Boolean(validation.errors.text)
+        text: prev.text || Boolean(validation.errors.text),
       }))
       return
     }
@@ -278,7 +303,9 @@ function ApiConfigForm({ onConfigChange, initialConfig }: ApiConfigFormProps) {
     hasError: boolean
   ) => (
     <div>
-      <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">{t('api.key')}</label>
+      <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
+        {t('api.key')}
+      </label>
       <div className="relative">
         <input
           type={showKey ? 'text' : 'password'}
@@ -295,9 +322,19 @@ function ApiConfigForm({ onConfigChange, initialConfig }: ApiConfigFormProps) {
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             {showKey ? (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3l18 18M10.58 10.58A2 2 0 0012 14a2 2 0 001.42-.59M9.88 5.09A10.64 10.64 0 0112 4.88c5 0 8.65 3.36 10 7.12a11.3 11.3 0 01-3.07 4.54M6.1 6.1A11.22 11.22 0 002 12c1.35 3.76 5 7.12 10 7.12 1.44 0 2.78-.28 3.98-.79" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M3 3l18 18M10.58 10.58A2 2 0 0012 14a2 2 0 001.42-.59M9.88 5.09A10.64 10.64 0 0112 4.88c5 0 8.65 3.36 10 7.12a11.3 11.3 0 01-3.07 4.54M6.1 6.1A11.22 11.22 0 002 12c1.35 3.76 5 7.12 10 7.12 1.44 0 2.78-.28 3.98-.79"
+              />
             ) : (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.46 12C3.73 7.94 7.52 5 12 5c4.48 0 8.27 2.94 9.54 7-1.27 4.06-5.06 7-9.54 7-4.48 0-8.27-2.94-9.54-7z M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M2.46 12C3.73 7.94 7.52 5 12 5c4.48 0 8.27 2.94 9.54 7-1.27 4.06-5.06 7-9.54 7-4.48 0-8.27-2.94-9.54-7z M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+              />
             )}
           </svg>
         </button>
@@ -307,20 +344,31 @@ function ApiConfigForm({ onConfigChange, initialConfig }: ApiConfigFormProps) {
 
   const editConfig = config.edit || config.image
   const configuredModels = [config.text.model, config.image.model, editConfig.model].filter(Boolean)
-  const modelSummary = configuredModels.length > 0 ? configuredModels.join(' / ') : t('api.unsetModel')
+  const modelSummary =
+    configuredModels.length > 0 ? configuredModels.join(' / ') : t('api.unsetModel')
 
   return (
     <section className="aippt-soft-card overflow-hidden">
       <button
         type="button"
-        onClick={() => setIsOpen(open => !open)}
+        onClick={() => setIsOpen((open) => !open)}
         className="w-full px-4 py-3.5 text-left flex items-center justify-between gap-3 hover:bg-white/45 transition-colors"
         aria-expanded={isOpen}
       >
         <div className="flex min-w-0 items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-[var(--model-header-bg)] flex items-center justify-center shrink-0 shadow-[0_10px_20px_rgba(0,0,0,0.12)]">
-            <svg className="w-4 h-4 text-primary-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+            <svg
+              className="w-4 h-4 text-primary-200"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
+              />
             </svg>
           </div>
           <div className="min-w-0">
@@ -345,8 +393,18 @@ function ApiConfigForm({ onConfigChange, initialConfig }: ApiConfigFormProps) {
               <div>
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center">
-                    <svg className="w-4 h-4 text-primary-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                    <svg
+                      className="w-4 h-4 text-primary-200"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
+                      />
                     </svg>
                   </div>
                   <div>
@@ -381,7 +439,7 @@ function ApiConfigForm({ onConfigChange, initialConfig }: ApiConfigFormProps) {
           >
             {renderKeyField(
               config.image.apiKey,
-              value => handleImageConfigChange('apiKey', value),
+              (value) => handleImageConfigChange('apiKey', value),
               showImageApiKey,
               setShowImageApiKey,
               keyPlaceholder(!!config.image.baseUrl, t('api.imageLabel')),
@@ -389,7 +447,9 @@ function ApiConfigForm({ onConfigChange, initialConfig }: ApiConfigFormProps) {
             )}
             {errors.image?.apiKey && <p className="text-xs text-red-500">{errors.image.apiKey}</p>}
             <div>
-              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">{t('api.baseUrl')}</label>
+              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
+                {t('api.baseUrl')}
+              </label>
               <input
                 type="text"
                 value={config.image.baseUrl}
@@ -397,10 +457,14 @@ function ApiConfigForm({ onConfigChange, initialConfig }: ApiConfigFormProps) {
                 placeholder={t('api.imageBasePlaceholder')}
                 className={inputClass(!!errors.image?.baseUrl)}
               />
-              {errors.image?.baseUrl && <p className="mt-1 text-xs text-red-500">{errors.image.baseUrl}</p>}
+              {errors.image?.baseUrl && (
+                <p className="mt-1 text-xs text-red-500">{errors.image.baseUrl}</p>
+              )}
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">{t('api.modelName')}</label>
+              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
+                {t('api.modelName')}
+              </label>
               <input
                 type="text"
                 value={config.image.model}
@@ -408,7 +472,9 @@ function ApiConfigForm({ onConfigChange, initialConfig }: ApiConfigFormProps) {
                 placeholder="gpt-image-2"
                 className={inputClass(!!errors.image?.model)}
               />
-              {errors.image?.model && <p className="mt-1 text-xs text-red-500">{errors.image.model}</p>}
+              {errors.image?.model && (
+                <p className="mt-1 text-xs text-red-500">{errors.image.model}</p>
+              )}
             </div>
           </ModelCard>
 
@@ -426,7 +492,7 @@ function ApiConfigForm({ onConfigChange, initialConfig }: ApiConfigFormProps) {
           >
             {renderKeyField(
               editConfig.apiKey,
-              value => handleEditConfigChange('apiKey', value),
+              (value) => handleEditConfigChange('apiKey', value),
               showEditApiKey,
               setShowEditApiKey,
               keyPlaceholder(!!editConfig.baseUrl, t('api.editLabel')),
@@ -434,7 +500,9 @@ function ApiConfigForm({ onConfigChange, initialConfig }: ApiConfigFormProps) {
             )}
             {errors.edit?.apiKey && <p className="text-xs text-red-500">{errors.edit.apiKey}</p>}
             <div>
-              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">{t('api.baseUrl')}</label>
+              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
+                {t('api.baseUrl')}
+              </label>
               <input
                 type="text"
                 value={editConfig.baseUrl}
@@ -442,10 +510,14 @@ function ApiConfigForm({ onConfigChange, initialConfig }: ApiConfigFormProps) {
                 placeholder={t('api.editBasePlaceholder')}
                 className={inputClass(!!errors.edit?.baseUrl)}
               />
-              {errors.edit?.baseUrl && <p className="mt-1 text-xs text-red-500">{errors.edit.baseUrl}</p>}
+              {errors.edit?.baseUrl && (
+                <p className="mt-1 text-xs text-red-500">{errors.edit.baseUrl}</p>
+              )}
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">{t('api.modelName')}</label>
+              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
+                {t('api.modelName')}
+              </label>
               <input
                 type="text"
                 value={editConfig.model}
@@ -453,7 +525,9 @@ function ApiConfigForm({ onConfigChange, initialConfig }: ApiConfigFormProps) {
                 placeholder="gpt-image-2"
                 className={inputClass(!!errors.edit?.model)}
               />
-              {errors.edit?.model && <p className="mt-1 text-xs text-red-500">{errors.edit.model}</p>}
+              {errors.edit?.model && (
+                <p className="mt-1 text-xs text-red-500">{errors.edit.model}</p>
+              )}
             </div>
           </ModelCard>
 
@@ -471,7 +545,7 @@ function ApiConfigForm({ onConfigChange, initialConfig }: ApiConfigFormProps) {
           >
             {renderKeyField(
               config.text.apiKey,
-              value => handleTextConfigChange('apiKey', value),
+              (value) => handleTextConfigChange('apiKey', value),
               showTextApiKey,
               setShowTextApiKey,
               keyPlaceholder(!!config.text.baseUrl, t('api.textLabel')),
@@ -479,7 +553,9 @@ function ApiConfigForm({ onConfigChange, initialConfig }: ApiConfigFormProps) {
             )}
             {errors.text?.apiKey && <p className="text-xs text-red-500">{errors.text.apiKey}</p>}
             <div>
-              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">{t('api.baseUrl')}</label>
+              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
+                {t('api.baseUrl')}
+              </label>
               <input
                 type="text"
                 value={config.text.baseUrl}
@@ -487,10 +563,14 @@ function ApiConfigForm({ onConfigChange, initialConfig }: ApiConfigFormProps) {
                 placeholder={t('api.imageBasePlaceholder')}
                 className={inputClass(!!errors.text?.baseUrl)}
               />
-              {errors.text?.baseUrl && <p className="mt-1 text-xs text-red-500">{errors.text.baseUrl}</p>}
+              {errors.text?.baseUrl && (
+                <p className="mt-1 text-xs text-red-500">{errors.text.baseUrl}</p>
+              )}
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">{t('api.modelName')}</label>
+              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
+                {t('api.modelName')}
+              </label>
               <input
                 type="text"
                 value={config.text.model}
@@ -498,12 +578,16 @@ function ApiConfigForm({ onConfigChange, initialConfig }: ApiConfigFormProps) {
                 placeholder={t('api.textModelPlaceholder')}
                 className={inputClass(!!errors.text?.model)}
               />
-              {errors.text?.model && <p className="mt-1 text-xs text-red-500">{errors.text.model}</p>}
+              {errors.text?.model && (
+                <p className="mt-1 text-xs text-red-500">{errors.text.model}</p>
+              )}
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">{t('api.format')}</label>
+              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
+                {t('api.format')}
+              </label>
               <div className="grid grid-cols-2 gap-2">
-                {(['gemini', 'openai'] as const).map(format => (
+                {(['gemini', 'openai'] as const).map((format) => (
                   <button
                     key={format}
                     type="button"
@@ -519,31 +603,32 @@ function ApiConfigForm({ onConfigChange, initialConfig }: ApiConfigFormProps) {
                 ))}
               </div>
             </div>
-            {config.text.format === 'gemini' && (
-              <div>
-                <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">{t('api.thinking')}</label>
-                <div className="grid grid-cols-3 gap-2">
-                  {[
-                    { value: null, label: t('api.thinking.off') },
-                    { value: 'low', label: t('api.thinking.low') },
-                    { value: 'high', label: t('api.thinking.high') }
-                  ].map(option => (
-                    <button
-                      key={option.label}
-                      type="button"
-                      onClick={() => handleTextConfigChange('thinkingLevel', option.value)}
-                      className={`px-3 py-2 text-xs font-medium rounded-lg border transition-all duration-200 ${
-                        config.text.thinkingLevel === option.value
-                          ? 'bg-emerald-600 text-white border-emerald-600'
-                          : 'bg-white/85 text-[var(--text)] border-[var(--border-soft)] hover:border-emerald-300'
-                      }`}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
-                </div>
+            <div>
+              <label className="block text-xs font-semibold text-[var(--text-muted)] mb-1.5">
+                {t('api.thinking')}
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                {(
+                  [
+                    { value: 'disabled', label: t('api.thinking.disabled') },
+                    { value: 'enabled', label: t('api.thinking.enabled') },
+                  ] as const
+                ).map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => handleTextConfigChange('thinking', option.value)}
+                    className={`px-3 py-2 text-xs font-medium rounded-lg border transition-all duration-200 ${
+                      (config.text.thinking || 'disabled') === option.value
+                        ? 'bg-emerald-600 text-white border-emerald-600'
+                        : 'bg-white/85 text-[var(--text)] border-[var(--border-soft)] hover:border-emerald-300'
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
               </div>
-            )}
+            </div>
           </ModelCard>
 
           <div className="flex items-center gap-3 pt-1">
@@ -552,8 +637,18 @@ function ApiConfigForm({ onConfigChange, initialConfig }: ApiConfigFormProps) {
             </button>
             {saved && (
               <span className="text-sm text-emerald-600 flex items-center gap-1.5">
-                <svg className="w-4 h-4 text-primary-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                <svg
+                  className="w-4 h-4 text-primary-200"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
                 </svg>
                 {t('common.saved')}
               </span>

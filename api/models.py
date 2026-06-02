@@ -32,7 +32,8 @@ class TextApiConfig(BaseModel):
     base_url: str = Field(..., description="文本模型 API 基础 URL")
     model: str = Field("gemini-3-pro-preview", description="文本模型名称")
     format: Literal["gemini", "openai"] = Field("gemini", description="API 格式")
-    thinking_level: Optional[Literal["low", "high"]] = Field(None, description="思考深度")
+    thinking: Literal["enabled", "disabled"] = Field("disabled", description="思考模式")
+    thinking_level: Optional[Literal["low", "high"]] = Field(None, description="旧版 Gemini 思考深度")
 
 
 class ModelProfileConfig(BaseModel):
@@ -43,6 +44,7 @@ class ModelProfileConfig(BaseModel):
     base_url: str = Field(..., description="OpenAI-compatible Base URL")
     api_key: str = Field(..., description="API Key")
     adapter: str = Field("openai_chat", description="适配器")
+    thinking: Optional[Literal["enabled", "disabled"]] = Field(None, description="OpenAI-compatible thinking mode")
 
 
 class ModelProfilesConfig(BaseModel):
@@ -120,6 +122,12 @@ class GenerationConfig(BaseModel):
         if self.text:
             return self.text.thinking_level
         return None
+
+    def get_thinking(self) -> str:
+        """获取思考模式"""
+        if self.text:
+            return self.text.thinking
+        return "disabled"
 
 
 class GenerationRequest(BaseModel):

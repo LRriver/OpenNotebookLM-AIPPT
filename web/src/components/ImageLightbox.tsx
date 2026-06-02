@@ -43,16 +43,16 @@ function ImageLightbox({ isOpen, src, alt, downloadName, onClose }: ImageLightbo
       onClick={onClose}
       data-testid="image-lightbox"
     >
-      <div className="absolute right-5 top-5 z-10 flex items-center gap-3">
+      <div className="absolute right-4 top-4 z-10 flex items-center gap-2 rounded-full bg-black/70 p-1.5 shadow-2xl ring-1 ring-white/15 backdrop-blur-md sm:right-6 sm:top-6">
         <a
           href={src}
           download={downloadName}
-          className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-white/12 text-white ring-1 ring-white/20 transition hover:bg-white/22"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white text-neutral-950 shadow-sm transition hover:bg-primary-50"
           aria-label={t('image.download')}
           title={t('image.download')}
           onClick={(event) => event.stopPropagation()}
         >
-          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -64,11 +64,11 @@ function ImageLightbox({ isOpen, src, alt, downloadName, onClose }: ImageLightbo
         <button
           type="button"
           onClick={onClose}
-          className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-white/12 text-white ring-1 ring-white/20 transition hover:bg-white/22"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white text-neutral-950 shadow-sm transition hover:bg-primary-50"
           aria-label={t('image.close')}
           title={t('image.close')}
         >
-          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -79,7 +79,7 @@ function ImageLightbox({ isOpen, src, alt, downloadName, onClose }: ImageLightbo
         </button>
       </div>
 
-      <div className="flex h-full w-full items-center justify-center p-6 sm:p-10">
+      <div className="flex h-full w-full items-center justify-center p-4 pt-20 sm:p-10 sm:pt-20">
         <img
           src={src}
           alt={alt}

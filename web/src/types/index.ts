@@ -47,7 +47,7 @@ export interface TextApiConfig {
   baseUrl: string
   model: string
   format: 'gemini' | 'openai'
-  thinkingLevel?: 'low' | 'high' | null
+  thinking?: 'enabled' | 'disabled'
 }
 
 /**
@@ -126,7 +126,7 @@ export interface AppState {
 
   // API 配置（完整版）
   fullApiConfig: FullApiConfig
-  
+
   // API 配置（向后兼容）
   apiConfig: ApiConfig
 
@@ -172,7 +172,7 @@ export interface GenerationRequestConfig {
   text_base_url: string
   text_model: string
   text_format: string
-  text_thinking_level?: string | null
+  text_thinking?: 'enabled' | 'disabled'
   model_profiles?: ModelProfilesRequestConfig
   // 生成参数
   page_count: number
@@ -204,6 +204,7 @@ export interface ModelProfileRequestConfig {
   base_url: string
   api_key: string
   adapter: 'openai_chat' | 'raw_chat_multimodal' | string
+  thinking?: 'enabled' | 'disabled'
 }
 
 export interface ModelProfilesRequestConfig {
@@ -219,6 +220,7 @@ export interface ModelProfilePublic {
   base_url: string
   adapter: string
   has_api_key: boolean
+  thinking?: 'enabled' | 'disabled'
 }
 
 export interface ModelProfilesResponse {

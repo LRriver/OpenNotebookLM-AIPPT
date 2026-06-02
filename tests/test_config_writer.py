@@ -22,6 +22,7 @@ class ConfigWriterTest(unittest.TestCase):
                             "base_url": "https://text.example/v1",
                             "api_key": "text-key",
                             "adapter": "openai_chat",
+                            "thinking": "enabled",
                         },
                         "image_model": {
                             "model": "image",
@@ -36,6 +37,7 @@ class ConfigWriterTest(unittest.TestCase):
             saved = yaml.safe_load(config_path.read_text())
             self.assertEqual(saved["ppt"]["num_pages"], 3)
             self.assertEqual(saved["api"]["models"]["prompt_model"]["api_key"], "text-key")
+            self.assertEqual(saved["api"]["models"]["prompt_model"]["thinking"], "enabled")
             self.assertEqual(saved["api"]["models"]["image_model"]["model"], "image")
 
     def test_empty_api_key_preserves_existing_secret(self):

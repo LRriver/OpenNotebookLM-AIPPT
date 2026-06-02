@@ -22,24 +22,27 @@ function EditHistory({ history, onRevert }: EditHistoryProps) {
     return date.toLocaleTimeString(language === 'zh' ? 'zh-CN' : 'en-US', {
       hour: '2-digit',
       minute: '2-digit',
-      second: '2-digit'
+      second: '2-digit',
     })
   }
 
   return (
-    <div className="border rounded-lg p-3 bg-gray-50" data-testid="edit-history">
-      <h3 className="text-sm font-medium text-gray-700 mb-2">
+    <div
+      className="rounded-2xl border border-[var(--border-soft)] bg-[var(--surface)] p-4 shadow-sm"
+      data-testid="edit-history"
+    >
+      <h3 className="text-base font-semibold text-[var(--text-strong)] mb-3">
         {t('edit.historyTitle', { count: history.length })}
       </h3>
-      <div className="space-y-2 max-h-40 overflow-y-auto">
+      <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
         {history.map((item, index) => (
           <div
             key={`${item.timestamp}-${index}`}
-            className="flex items-center gap-3 p-2 bg-white rounded border border-gray-200 hover:border-blue-300 transition-colors"
+            className="flex flex-wrap items-center gap-3 rounded-xl border border-[var(--border-soft)] bg-[var(--surface-muted)] p-3 transition-colors hover:border-primary-300 sm:flex-nowrap"
             data-testid={`history-item-${index}`}
           >
             {/* 缩略图 */}
-            <div className="w-16 h-9 flex-shrink-0 bg-gray-100 rounded overflow-hidden">
+            <div className="w-24 h-14 flex-shrink-0 bg-black/5 rounded-lg overflow-hidden">
               <img
                 src={
                   item.imageUrl.startsWith('data:')
@@ -53,11 +56,9 @@ function EditHistory({ history, onRevert }: EditHistoryProps) {
 
             {/* 修改信息 */}
             <div className="flex-1 min-w-0">
-              <p className="text-xs text-gray-500">
-                {formatTimestamp(item.timestamp)}
-              </p>
+              <p className="text-xs text-[var(--text-muted)]">{formatTimestamp(item.timestamp)}</p>
               <p
-                className="text-sm text-gray-700 truncate"
+                className="text-sm font-medium text-[var(--text)] overflow-hidden [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical]"
                 title={item.instruction}
               >
                 {item.instruction}
@@ -67,7 +68,7 @@ function EditHistory({ history, onRevert }: EditHistoryProps) {
             {/* 回退按钮 */}
             <button
               onClick={() => onRevert(item)}
-              className="flex-shrink-0 px-2 py-1 text-xs text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors"
+              className="flex-shrink-0 rounded-lg border border-primary-200 bg-white/80 px-3 py-1.5 text-xs font-semibold text-primary-700 transition-colors hover:bg-primary-50"
               title={t('edit.revertTitle')}
               data-testid={`revert-button-${index}`}
             >

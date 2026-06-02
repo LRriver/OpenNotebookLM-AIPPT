@@ -30,7 +30,13 @@ class ModelRouter:
         if system_instruction:
             messages.append({"role": "system", "content": system_instruction})
         messages.append({"role": "user", "content": prompt})
-        response = client.chat.completions.create(model=profile.model, messages=messages)
+        kwargs: Dict[str, Any] = {
+            "model": profile.model,
+            "messages": messages,
+        }
+        if profile.thinking in {"enabled", "disabled"}:
+            kwargs["extra_body"] = {"thinking": {"type": profile.thinking}}
+        response = client.chat.completions.create(**kwargs)
         if not response.choices:
             return ""
         return response.choices[0].message.content or ""

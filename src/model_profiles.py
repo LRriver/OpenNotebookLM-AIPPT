@@ -28,6 +28,7 @@ class ModelProfile:
     adapter: str = ""
     id: str = ""
     label: str = ""
+    thinking: str = "disabled"
 
     def __post_init__(self):
         if self.base_url:
@@ -40,6 +41,8 @@ class ModelProfile:
             self.id = self.role
         if not self.label:
             self.label = self.model
+        if self.thinking not in {"enabled", "disabled"}:
+            self.thinking = "disabled"
 
     def to_public_dict(self) -> Dict[str, Any]:
         data = asdict(self)
@@ -195,6 +198,7 @@ def _profile_from_dict(role: str, data: Dict[str, Any]) -> ModelProfile:
         base_url=base_url,
         api_key=api_key,
         adapter=data.get("adapter", DEFAULT_ADAPTERS.get(role, "openai_chat")),
+        thinking=data.get("thinking", "disabled"),
     )
 
 

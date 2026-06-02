@@ -55,7 +55,8 @@ class APIConfig:
     text_model: str = None
     text_base_url: str = None  # 可选，单独的文本 API 地址
     text_api_key: str = None   # 可选，单独的文本 API 密钥
-    text_thinking_level: Optional[Literal["low", "high"]] = None  # 思考深度
+    text_thinking: Optional[Literal["enabled", "disabled"]] = None  # OpenAI-compatible 思考模式
+    text_thinking_level: Optional[Literal["low", "high"]] = None  # 旧版 Gemini 思考深度
     
     def __post_init__(self):
         """从配置文件加载默认值"""
@@ -80,6 +81,8 @@ class APIConfig:
             self.text_base_url = text_config.get("base_url")  # 可选
         if self.text_api_key is None:
             self.text_api_key = text_config.get("api_key")  # 可选
+        if self.text_thinking is None:
+            self.text_thinking = text_config.get("thinking", "disabled")
         if self.text_thinking_level is None:
             self.text_thinking_level = text_config.get("thinking_level")  # 可选
         

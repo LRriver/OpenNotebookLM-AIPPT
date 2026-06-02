@@ -18,31 +18,42 @@ interface RightPanelProps {
 /**
  * 右侧面板 - 幻灯片预览区
  */
-function RightPanel({ 
-  slides, 
-  selectedSlideId, 
-  onSlideSelect, 
+function RightPanel({
+  slides,
+  selectedSlideId,
+  onSlideSelect,
   onSlideEdit,
   onExport,
   isExporting = false,
   exportProgress = 0,
-  isLoading = false
+  isLoading = false,
 }: RightPanelProps) {
   const { t } = useUiPreferences()
   const canExport = slides.length > 0
-  const selectedSlide = slides.find(slide => slide.id === selectedSlideId) || slides[0]
 
   return (
     <div className="h-full flex flex-col p-5 lg:p-6">
       <div className="flex items-center justify-between mb-5 gap-3">
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 bg-[var(--model-header-bg)] rounded-2xl flex items-center justify-center shadow-[0_10px_22px_rgba(0,0,0,0.12)]">
-            <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            <svg
+              className="w-4 h-4 text-white"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
             </svg>
           </div>
           <div>
-            <h2 className="text-base font-semibold text-[var(--text-strong)]">{t('right.title')}</h2>
+            <h2 className="text-base font-semibold text-[var(--text-strong)]">
+              {t('right.title')}
+            </h2>
             <p className="text-xs text-[var(--text-muted)]">
               {isLoading
                 ? t('right.subtitle.loading')
@@ -76,43 +87,18 @@ function RightPanel({
         </div>
       )}
 
-      {selectedSlide && (
-        <div className="mb-5">
-          <div className="rounded-[1.35rem] border border-[var(--border-soft)] bg-[var(--model-header-bg)] p-2 shadow-[0_18px_42px_rgba(0,0,0,0.16)]">
-            <div className="aspect-video overflow-hidden rounded-2xl bg-stone-950">
-              <img
-                src={selectedSlide.imageUrl}
-                alt={`Slide ${selectedSlide.pageNumber}`}
-                className="w-full h-full object-contain"
-              />
-            </div>
-          </div>
-          <div className="mt-3 flex items-start justify-between gap-3 rounded-2xl border border-[var(--border-soft)] bg-white/60 p-3">
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-[var(--text-strong)]">{t('right.currentPage', { page: selectedSlide.pageNumber })}</p>
-              <p className="text-xs text-[var(--text-muted)] line-clamp-2">{selectedSlide.prompt}</p>
-            </div>
-            {onSlideEdit && (
-              <button
-                type="button"
-                onClick={() => onSlideEdit(selectedSlide.id)}
-                className="shrink-0 px-3 py-2 text-xs font-semibold rounded-xl bg-[var(--text-strong)] text-white hover:opacity-90 transition-opacity"
-              >
-                {t('right.editCurrent')}
-              </button>
-            )}
-          </div>
-        </div>
-      )}
-
-      <div className="flex items-center justify-between mb-3 pt-3 border-t border-[var(--border-soft)]">
-        <span className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide">{t('right.thumbnails')}</span>
-        <span className="text-xs text-[var(--text-faint)]">{t('right.pageCount', { count: slides.length })}</span>
+      <div className="flex items-center justify-between mb-3 pt-1">
+        <span className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide">
+          {t('right.slides')}
+        </span>
+        <span className="text-xs text-[var(--text-faint)]">
+          {t('right.pageCount', { count: slides.length })}
+        </span>
       </div>
 
-      <div className="flex-1 overflow-y-auto min-h-0">
+      <div className="flex-1 overflow-y-auto min-h-0 pr-1" data-testid="right-slide-gallery">
         {isLoading ? (
-          <SlideListSkeleton count={3} />
+          <SlideListSkeleton count={4} />
         ) : slides.length > 0 ? (
           <SlideList
             slides={slides}
@@ -124,8 +110,18 @@ function RightPanel({
           <div className="h-full flex items-center justify-center rounded-3xl border border-dashed border-[var(--border-soft)] bg-[var(--surface-muted)]">
             <div className="text-center p-8">
               <div className="w-16 h-16 bg-white rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-sm">
-                <svg className="w-8 h-8 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                <svg
+                  className="w-8 h-8 text-primary-500"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                  />
                 </svg>
               </div>
               <p className="text-[var(--text)] text-sm font-semibold">{t('right.emptyTitle')}</p>

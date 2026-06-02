@@ -56,7 +56,13 @@
 body {
   background: var(--app-bg);
   color: var(--text);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
 }
 
 .aippt-shell {
@@ -74,15 +80,28 @@ body {
 .aippt-app-bg {
   background-color: var(--app-bg);
   background-image:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.72) 0%, rgba(255, 244, 226, 0.5) 42%, rgba(239, 250, 245, 0.58) 100%),
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.72) 0%,
+      rgba(255, 244, 226, 0.5) 42%,
+      rgba(239, 250, 245, 0.58) 100%
+    ),
     linear-gradient(90deg, rgba(255, 255, 255, 0.34) 0 1px, transparent 1px 100%),
     linear-gradient(var(--app-bg) 0%, var(--app-bg-2) 100%);
-  background-size: 100% 100%, 36px 36px, 100% 100%;
+  background-size:
+    100% 100%,
+    36px 36px,
+    100% 100%;
 }
 
 :root[data-theme='dark'] .aippt-app-bg {
   background-image:
-    linear-gradient(135deg, rgba(48, 32, 22, 0.62) 0%, rgba(29, 22, 18, 0.88) 50%, rgba(20, 39, 34, 0.42) 100%),
+    linear-gradient(
+      135deg,
+      rgba(48, 32, 22, 0.62) 0%,
+      rgba(29, 22, 18, 0.88) 50%,
+      rgba(20, 39, 34, 0.42) 100%
+    ),
     linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0 1px, transparent 1px 100%),
     linear-gradient(var(--app-bg) 0%, var(--app-bg-2) 100%);
 }
@@ -130,8 +149,8 @@ body {
 }
 
 .aippt-top-pill,
-.aippt-pref-button,
-.aippt-language-switch {
+.aippt-language-switch,
+.aippt-theme-switch {
   border: 1px solid var(--card-border);
   background: rgba(255, 255, 255, 0.72);
   color: var(--text);
@@ -156,7 +175,8 @@ body {
   border-color: rgba(6, 182, 212, 0.28);
 }
 
-.aippt-language-switch {
+.aippt-language-switch,
+.aippt-theme-switch {
   display: inline-flex;
   align-items: center;
   gap: 0.15rem;
@@ -165,7 +185,7 @@ body {
 }
 
 .aippt-language-switch button,
-.aippt-pref-button {
+.aippt-theme-switch button {
   min-height: 2.25rem;
   border-radius: 999px;
   font-size: 0.75rem;
@@ -173,66 +193,34 @@ body {
   transition: all 180ms ease;
 }
 
-.aippt-language-switch button {
+.aippt-language-switch button,
+.aippt-theme-switch button {
   padding: 0 0.75rem;
   color: var(--text-muted);
 }
 
-.aippt-language-switch button.is-active {
+.aippt-theme-switch button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+}
+
+.aippt-language-switch button.is-active,
+.aippt-theme-switch button.is-active {
   background: linear-gradient(135deg, var(--accent-orange) 0%, var(--accent-orange-strong) 100%);
   color: white;
   box-shadow: 0 8px 18px rgba(249, 115, 22, 0.24);
 }
 
-.aippt-pref-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
-  padding: 0 0.85rem;
-}
-
-.aippt-pref-button:hover {
+.aippt-language-switch button:not(.is-active):hover,
+.aippt-theme-switch button:not(.is-active):hover {
   border-color: rgba(249, 115, 22, 0.34);
   color: var(--text-strong);
-  transform: translateY(-1px);
-}
-
-.aippt-theme-menu {
-  position: absolute;
-  right: 0;
-  top: calc(100% + 0.5rem);
-  z-index: 30;
-  width: 13rem;
-  border: 1px solid var(--card-border);
-  border-radius: 18px;
-  background: var(--panel-bg);
-  box-shadow: var(--shadow-panel);
-  overflow: hidden;
-  padding: 0.35rem;
-}
-
-.aippt-theme-menu button {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  border-radius: 10px;
-  padding: 0.75rem 0.8rem;
-  color: var(--text);
-  font-weight: 600;
-  text-align: left;
-}
-
-.aippt-theme-menu button:hover,
-.aippt-theme-menu button.is-active {
-  background: rgba(249, 115, 22, 0.11);
 }
 
 .aippt-dropzone {
   border-color: rgba(249, 115, 22, 0.38);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.76), rgba(255, 247, 237, 0.9));
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.76), rgba(255, 247, 237, 0.9));
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.68);
 }
 
@@ -240,7 +228,9 @@ body {
 .aippt-dropzone.is-dragging {
   border-color: var(--accent-orange);
   background: linear-gradient(180deg, rgba(255, 250, 235, 0.96), rgba(240, 253, 244, 0.78));
-  box-shadow: 0 18px 36px rgba(249, 115, 22, 0.14), inset 0 0 0 1px rgba(255, 255, 255, 0.75);
+  box-shadow:
+    0 18px 36px rgba(249, 115, 22, 0.14),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.75);
 }
 
 :root[data-theme='dark'] .aippt-top-pill-warm {
@@ -254,8 +244,8 @@ body {
 }
 
 :root[data-theme='dark'] .aippt-top-pill,
-:root[data-theme='dark'] .aippt-pref-button,
-:root[data-theme='dark'] .aippt-language-switch {
+:root[data-theme='dark'] .aippt-language-switch,
+:root[data-theme='dark'] .aippt-theme-switch {
   background: rgba(42, 34, 29, 0.78);
 }
 

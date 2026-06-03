@@ -6,6 +6,7 @@ export interface Slide {
   pageNumber: number
   imageUrl: string
   imageBase64?: string
+  imageStorageKey?: string
   prompt: string
 }
 

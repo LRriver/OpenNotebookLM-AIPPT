@@ -18,9 +18,13 @@ function SlideCard({ slide, isSelected, onSelect, onEdit }: SlideCardProps) {
   const { t } = useUiPreferences()
   const [isHovered, setIsHovered] = useState(false)
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
+  const imageSrc = slide.imageBase64
+    ? `data:image/png;base64,${slide.imageBase64}`
+    : slide.imageUrl || null
+  const canEdit = Boolean(imageSrc && onEdit)
 
   const handleClick = () => {
-    if (onEdit) {
+    if (canEdit && onEdit) {
       onEdit(slide.id)
     } else {
       onSelect(slide.id)
@@ -29,14 +33,10 @@ function SlideCard({ slide, isSelected, onSelect, onEdit }: SlideCardProps) {
 
   const handleEditClick = (e: React.MouseEvent) => {
     e.stopPropagation()
-    if (onEdit) {
+    if (canEdit && onEdit) {
       onEdit(slide.id)
     }
   }
-
-  const imageSrc = slide.imageBase64
-    ? `data:image/png;base64,${slide.imageBase64}`
-    : slide.imageUrl || null
 
   return (
     <>
@@ -82,7 +82,7 @@ function SlideCard({ slide, isSelected, onSelect, onEdit }: SlideCardProps) {
                     />
                   </svg>
                 </div>
-                <p className="mt-2 text-[var(--text-muted)] text-xs">{t('slide.loading')}</p>
+                <p className="mt-2 text-[var(--text-muted)] text-xs">{t('slide.imageMissing')}</p>
               </div>
             </div>
           )}
@@ -116,7 +116,7 @@ function SlideCard({ slide, isSelected, onSelect, onEdit }: SlideCardProps) {
           )}
 
           {/* 悬停时显示编辑按钮 */}
-          {isHovered && onEdit && (
+          {isHovered && canEdit && (
             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/55 to-transparent p-3 transition-opacity duration-300">
               <button
                 onClick={handleEditClick}

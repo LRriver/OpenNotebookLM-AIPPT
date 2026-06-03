@@ -45,34 +45,38 @@ export function useStateRestore(): UseStateRestoreReturn {
    * 检查并加载保存的状态
    */
   useEffect(() => {
-    const checkSavedState = () => {
+    let cancelled = false
+    const checkSavedState = async () => {
       setIsRestoring(true)
       
       try {
-        const savedState = StorageService.loadState()
+        const project = await StorageService.loadProjectWithImages()
+        if (cancelled) return
         
-        if (savedState?.currentProject) {
-          const project = savedState.currentProject
-          
-          // 验证数据完整性
-          if (project.fileContent || project.slides.length > 0) {
-            setRestoredProject({
-              fileContent: project.fileContent,
-              fileName: project.fileName,
-              slides: project.slides,
-              generationConfig: project.generationConfig
-            })
-            setHasRestoredData(true)
-          }
+        // 验证数据完整性
+        if (project && (project.fileContent || project.slides.length > 0)) {
+          setRestoredProject({
+            fileContent: project.fileContent,
+            fileName: project.fileName,
+            slides: project.slides,
+            generationConfig: project.generationConfig
+          })
+          setHasRestoredData(true)
         }
       } catch (error) {
         console.error('Failed to restore state:', error)
       } finally {
-        setIsRestoring(false)
+        if (!cancelled) {
+          setIsRestoring(false)
+        }
       }
     }
 
     checkSavedState()
+
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   /**

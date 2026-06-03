@@ -166,6 +166,7 @@ export const dictionaries = {
     'export.pptxSubtitle': '可在 PowerPoint 中编辑',
 
     'slide.loading': '加载中...',
+    'slide.imageMissing': '图片未保存',
     'slide.edit': '编辑',
     'slide.noDescription': '无描述',
     'slide.listAria': '幻灯片列表',
@@ -369,6 +370,7 @@ export const dictionaries = {
     'export.pptxSubtitle': 'Editable in PowerPoint',
 
     'slide.loading': 'Loading...',
+    'slide.imageMissing': 'Image not saved',
     'slide.edit': 'Edit',
     'slide.noDescription': 'No description',
     'slide.listAria': 'Slide list',
